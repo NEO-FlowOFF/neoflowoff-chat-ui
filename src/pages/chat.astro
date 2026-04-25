@@ -426,9 +426,17 @@ Especialista em marketing na blockchain, tokenização, sistemas de IA, e ecossi
 Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
 
     const STORAGE_KEY = 'nox_history_v1';
+    const SESSION_KEY = 'nox_session_id';
     const MAX_HISTORY = 40;
     const MAX_SESSION_MESSAGES = 10;
     let sessionCount = 0;
+
+    // Identidade Única do Usuário
+    let sessionId = localStorage.getItem(SESSION_KEY);
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem(SESSION_KEY, sessionId);
+    }
 
     let history = loadHistory();
     let isStreaming = false;
@@ -516,7 +524,13 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, stream: true, max_tokens: 1024, temperature: 0.7 }),
+        body: JSON.stringify({ 
+          messages, 
+          sessionId, // ID único para memória no Redis
+          stream: true, 
+          max_tokens: 1024, 
+          temperature: 0.7 
+        }),
       });
       
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
