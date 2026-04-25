@@ -67,13 +67,28 @@ import { Image } from 'astro:assets';
       display: flex; align-items: center; justify-content: space-between;
     }
 
+    .footer-hud {
+      background: linear-gradient(to bottom, var(--hud), #0a0a0a);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 12px 16px;
+      padding-bottom: calc(12px + var(--safe-bottom));
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
     .agent-pill {
       display: flex; align-items: center; gap: 10px;
-      background: var(--hud);
-      border-radius: var(--radius-pill);
-      padding: 8px 16px 8px 10px;
-      box-shadow: var(--shadow-hud);
-      border: 1px solid var(--border-hud);
+      background: linear-gradient(to bottom, #1a1a18, #111110);
+      padding: 6px 14px 6px 8px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .empty-logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #1a1a1a, #000);
+      border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
     }
 
     .agent-avatar {
@@ -103,16 +118,16 @@ import { Image } from 'astro:assets';
 
     .agent-name {
       font-family: var(--font-dot); font-size: 12px; font-weight: bold;
-      color: #111110; letter-spacing: 0.05em; line-height: 1;
+      color: #f5f5f5; letter-spacing: 0.05em; line-height: 1;
       margin-bottom: 2px;
+      text-shadow: 0 0 8px rgba(255,255,255,0.2);
     }
-    body.dark-mode .agent-name { color: #f5f5f5; text-shadow: 0 0 8px rgba(255,255,255,0.2); }
 
     .agent-status {
       display: flex; align-items: center; gap: 5px;
-      font-size: 10px; color: var(--neon-pink);
-      letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600;
-      opacity: 0.9; text-shadow: 0 0 8px var(--neon-pink-dim);
+      font-size: 9px; font-weight: 500; text-transform: uppercase;
+      color: var(--neon-green); letter-spacing: 0.1em;
+      opacity: 0.8;
     }
 
     .agent-status::before {
@@ -171,6 +186,13 @@ import { Image } from 'astro:assets';
     }
     .messages-wrap::-webkit-scrollbar { display: none; }
 
+    .msg.user {
+      align-self: flex-start; background: linear-gradient(145deg, #1d1d1b, #141414);
+      border-radius: var(--radius-card) var(--radius-card) var(--radius-card) 4px;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
     .date-chip {
       align-self: center; font-size: 10px; letter-spacing: 0.14em;
       text-transform: uppercase; color: var(--text-muted);
@@ -188,8 +210,8 @@ import { Image } from 'astro:assets';
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .msg.user  { align-self: flex-end; flex-direction: row-reverse; }
-    .msg.agent { align-self: flex-start; }
+    .msg.user  { align-self: flex-start; flex-direction: column; }
+    .msg.agent { align-self: flex-end; flex-direction: column; align-items: flex-end; }
 
     .bubble {
       padding: 11px 15px; border-radius: 18px;
@@ -197,28 +219,30 @@ import { Image } from 'astro:assets';
     }
 
     .msg.agent .bubble {
-      background: rgba(20,20,19,0.85);
+      background: linear-gradient(145deg, #1a1a18, #111110);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       color: var(--text-hud);
-      border-bottom-left-radius: 6px;
-      box-shadow: var(--shadow-hud);
+      border-bottom-right-radius: 6px;
+      box-shadow: var(--shadow-hud), inset 0 1px 0 rgba(255,255,255,0.05);
       border: 1px solid var(--border-hud);
-      border-left: 3px solid var(--neon-pink);
+      border-right: 3px solid var(--neon-pink);
     }
 
     .msg.user .bubble {
       background: rgba(30,30,30,0.6);
       color: var(--text-primary);
       border-bottom-right-radius: 6px;
-      box-shadow: var(--shadow-inner);
+      box-shadow: var(--shadow-inner), inset 0 1px 0 rgba(255,255,255,0.1);
       border: 1px solid var(--border);
     }
 
     .msg-meta {
-      font-size: 9px; letter-spacing: 0.08em;
-      margin-top: 5px; color: var(--text-muted); text-align: right;
+      font-size: 8px; letter-spacing: 0.1em;
+      margin-top: 4px; color: #a3a3a3; text-align: right;
+      font-weight: 500;
     }
+    body.dark-mode .msg-meta { color: #525252; }
     .msg.agent .msg-meta { text-align: left; }
 
     /* TYPING */
@@ -260,10 +284,10 @@ import { Image } from 'astro:assets';
     .input-area { flex-shrink: 0; padding: 10px 16px 14px; }
 
     .input-card {
-      background: var(--surface-dark);
+      background: linear-gradient(to bottom, #1a1a18, #111110);
       border-radius: var(--radius-card);
-      border: 1px solid var(--border-hud);
-      box-shadow: var(--shadow-hud), inset 0 2px 10px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: var(--shadow-hud), inset 0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
       padding: 6px 6px 6px 16px;
       display: flex; align-items: flex-end; gap: 8px;
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -325,12 +349,17 @@ import { Image } from 'astro:assets';
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 14px; padding: 40px 32px;
+      min-height: 100%; width: 100%;
     }
 
     .empty-logo {
       width: 72px; height: 72px; border-radius: 24px;
-      background: var(--surface-dark); border: 1px solid var(--border-hud);
-      box-shadow: var(--shadow-hud), inset 0 2px 10px rgba(0,0,0,0.5);
+      background: linear-gradient(145deg, #1d1d1b, #111110);
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.4), 
+        inset 0 1px 0 rgba(255,255,255,0.08), 
+        inset 0 2px 15px rgba(0,0,0,0.7);
       display: flex; align-items: center; justify-content: center;
       font-family: var(--font-dot); font-size: 42px; font-weight: bold;
       animation: box-boot 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -396,6 +425,8 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
 
     const STORAGE_KEY = 'nox_history_v1';
     const MAX_HISTORY = 40;
+    const MAX_SESSION_MESSAGES = 10;
+    let sessionCount = 0;
 
     let history = loadHistory();
     let isStreaming = false;
@@ -408,7 +439,26 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
     const empty   = document.getElementById('emptyState');
     const toastEl = document.getElementById('toast') as HTMLDivElement;
 
-    if (history.length) { empty?.remove(); history.forEach((m: any) => renderBubble(m.role, m.content, false)); }
+    function showEmptyState() {
+      wrap.innerHTML = '';
+      const e = document.createElement('div'); 
+      e.className = 'empty-state'; 
+      e.id = 'emptyState';
+      e.innerHTML = `
+        <div class="empty-logo"><span class="led-text">Ø</span></div>
+        <div class="empty-title">NØX</div>
+      `;
+      wrap.appendChild(e);
+      wrap.scrollTop = 0;
+    }
+
+    if (history.length) { 
+      const existingEmpty = document.getElementById('emptyState');
+      existingEmpty?.remove(); 
+      history.forEach((m: any) => renderBubble(m.role, m.content, false)); 
+    } else {
+      showEmptyState();
+    }
 
     input.addEventListener('input', () => {
       input.style.height = 'auto';
@@ -433,9 +483,18 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
       const typingEl = renderTyping();
       scrollToBottom();
       try {
+        sessionCount++;
         const reply = await streamProxy(text, typingEl);
         pushHistory('assistant', reply);
         saveHistory();
+
+        if (sessionCount >= MAX_SESSION_MESSAGES) {
+          isStreaming = true; // Block further sending
+          renderBubble('agent', 'essa é a experiência que todos precisam passar, se gostou envie um feedback para neo@neoprotocol.space que será avisado assim que liberado, e pode deixar que já garantiu seus bonus', true);
+          sendBtn.disabled = true;
+          input.disabled = true;
+          input.placeholder = 'Sessão Beta finalizada.';
+        }
       } catch (err: any) {
         typingEl.remove();
         renderBubble('agent', `⚠ Erro de conexão: ${err.message}`, true);
@@ -492,7 +551,8 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
       
       agentMsg.querySelector('.stream-cursor')?.remove();
       const meta = document.createElement('div');
-      meta.className = 'msg-meta'; meta.textContent = formatTime();
+      meta.className = 'msg-meta';
+      meta.innerHTML = `<span style="font-weight:800; color:var(--neon-green); margin-right:4px;">NØX</span> • ${formatTime()}`;
       agentMsg.querySelector('.bubble')?.after(meta);
       return fullText;
     }
@@ -502,7 +562,8 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
       const msg = document.createElement('div'); msg.className = `msg ${isUser ? 'user' : 'agent'}`;
       if (!animate) msg.style.animation = 'none';
       const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
-      const meta = document.createElement('div'); meta.className = 'msg-meta'; meta.textContent = formatTime();
+      const meta = document.createElement('div'); meta.className = 'msg-meta';
+      meta.innerHTML = `<span style="font-weight:800; color:var(--neon-green); margin-right:4px;">${isUser ? 'USER' : 'NØX'}</span> • ${formatTime()}`;
       msg.appendChild(bubble); msg.appendChild(meta); wrap.appendChild(msg); scrollToBottom(); return msg;
     }
 
@@ -523,10 +584,11 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
     }
 
     clearBtn.addEventListener('click', () => {
-      history = []; saveHistory(); wrap.innerHTML = '';
-      const e = document.createElement('div'); e.className = 'empty-state'; e.id = 'emptyState';
-      e.innerHTML = `<div class="empty-logo"><span class="led-text">Ø</span></div><div class="empty-title">NØX</div>`;
-      wrap.appendChild(e); showToast('Conversa limpa');
+      history = []; saveHistory();
+      showEmptyState();
+      input.value = ''; input.style.height = 'auto';
+      sendBtn.disabled = true;
+      showToast('Conversa limpa');
     });
 
     // Theme Toggle Logic

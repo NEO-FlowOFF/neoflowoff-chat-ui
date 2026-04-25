@@ -2,8 +2,8 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly AZURE_ENDPOINT: string;
-  readonly AZURE_API_KEY: string;
+  readonly VENICE_API_KEY: string;
+  readonly VENICE_MODEL: string;
 }
 
 interface ImportMeta {

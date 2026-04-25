@@ -8,7 +8,7 @@ Interface soberana do agente **NØX**, o núcleo de inteligência de marketing e
 
 ## ⚡ Core Features
 
-- **Streaming de Resposta:** Integração via Proxy SSE com Azure AI Foundry para respostas em tempo real sem buffering.
+- **Streaming de Resposta:** Integração via Proxy SSE com Venice AI para respostas em tempo real sem buffering.
 - **Boot Coreografado:** Sequência de inicialização LED-wave com animações CSS precisas.
 - **Soberania PWA:** Suporte total a instalação em Home Screen, modo offline via Service Workers e splash screens customizadas.
 - **Dual-Theme:** Toggle 3D para alternância entre o modo High-Contrast (Dark) e o modo Oficial (Gray-Light).
@@ -16,7 +16,7 @@ Interface soberana do agente **NØX**, o núcleo de inteligência de marketing e
 
 ## 🛠 Tech Stack
 
-- **Framework:** Astro 4.16+ (Static/Hybrid)
+- **Framework:** Astro 6.x (SSR Mode)
 - **Runtime:** Node.js v22+
 - **Estilo:** Vanilla CSS (Cyber-Dashboard Design System)
 - **PWA:** Web App Manifest + Service Workers (Workbox-lite)
@@ -41,9 +41,10 @@ make dev
 make verify
 ```
 
-### Atualização de Segurança
+### Deploy (Railway)
+O projeto está configurado para deploy automático via Railway. Certifique-se de que as variáveis `VENICE_API_KEY` e `VENICE_MODEL` estão configuradas no painel da Railway.
 ```bash
-make update
+railway up
 ```
 
 ## 📂 Estrutura

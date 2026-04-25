@@ -4,6 +4,7 @@ Este documento registra as intenções de evolução e débito técnico planejad
 
 ## PWA — Próximos poderes
 
+- [x] Limite de Sessão Beta (10 msgs)
 - [ ] Background Sync (IndexedDB → retry offline)
 - [ ] Web Push Notifications
       ⚠ iOS: requer instalação na home screen + iOS 16.4+
