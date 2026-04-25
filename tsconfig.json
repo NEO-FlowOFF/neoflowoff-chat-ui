@@ -9,6 +9,7 @@
     "jsx": "preserve",
     "jsxImportSource": "astro",
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "allowJs": true,
     "baseUrl": ".",
