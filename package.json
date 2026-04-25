@@ -1,0 +1,25 @@
+{
+  "name": "neoflowoff-chat-ui",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^6.1.9"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.8",
+    "typescript": "^5.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "yaml": ">=2.8.3"
+    }
+  }
+}

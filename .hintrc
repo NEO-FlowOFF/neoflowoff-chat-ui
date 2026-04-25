@@ -1,0 +1,7 @@
+{
+  "extends": ["recommended"],
+  "rules": {
+    "no-heading-increment": "warn",
+    "line-length": ["error", 140],
+  },
+}
