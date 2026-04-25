@@ -3,6 +3,7 @@ import type { APIRoute } from "astro";
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
+    console.log(`[NØX API] Gerando resposta para o usuário via Venice AI...`);
 
     const veniceApiKey = import.meta.env.VENICE_API_KEY;
     const veniceModel =
