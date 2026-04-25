@@ -1,0 +1,35 @@
+{
+  "ecosystem": "NEØ",
+  "entities": {
+    "agency": {
+      "name": "Neoflowoff Agency",
+      "description": "Agência de desenvolvimento de ecossistemas digitais",
+      "link": "https://www.neoflowoff.agency"
+    },
+    "protocol": {
+      "name": "NEØ Protocol",
+      "description": "Protocolo base do ecossistema",
+      "link": "https://nexus.neoprotocol.space"
+    },
+    "payments": {
+      "name": "Flowpay",
+      "description": "Sistema de pagamentos",
+      "link": "https://app.flowpay.cash"
+    },
+    "factory": {
+      "name": "NS Factory",
+      "description": "Hub de desenvolvimento",
+      "link": "https://nsfactory.xyz"
+    },
+    "games": {
+      "name": "Games",
+      "description": "Divisão de jogos",
+      "link": "https://t.me/AgenteFlow_Bot"
+    },
+    "research": {
+      "name": "Code vs Brazilian Law",
+      "description": "Pesquisa NEØ MELLØ sobre código e lei brasileira",
+      "link": "https://neomello.github.io/CodevsBrazilianLaw/"
+    }
+  }
+}
