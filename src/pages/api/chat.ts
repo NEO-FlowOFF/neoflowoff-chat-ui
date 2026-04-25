@@ -19,8 +19,8 @@ export const POST: APIRoute = async ({ request }) => {
     
     console.log(`[NØX API] Gerando resposta para o usuário... Session: ${sessionId || 'anon'}`);
 
-    const veniceApiKey = import.meta.env.VENICE_API_KEY;
-    const veniceModel = import.meta.env.VENICE_MODEL || "venice-uncensored-role-play";
+    const veniceApiKey = process.env.VENICE_API_KEY;
+    const veniceModel = process.env.VENICE_MODEL || "venice-uncensored-role-play";
 
     if (!veniceApiKey) {
       return new Response(JSON.stringify({ error: "Venice API Key missing" }), { status: 500 });
