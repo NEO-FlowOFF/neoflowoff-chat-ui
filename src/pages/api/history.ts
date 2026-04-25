@@ -1,8 +1,7 @@
----
-import type { APIRoute } from "astro";
+import type { APIContext, APIRoute } from "astro";
 import { getChatHistory } from "../../lib/redis";
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request }: APIContext) => {
   try {
     const url = new URL(request.url);
     const sessionId = url.searchParams.get("sessionId");
@@ -19,9 +18,9 @@ export const GET: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify({ history }), {
       status: 200,
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
       },
     });
   } catch (error: any) {

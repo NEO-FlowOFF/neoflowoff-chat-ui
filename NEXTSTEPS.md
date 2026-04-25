@@ -13,11 +13,20 @@ Este documento registra as intenções de evolução e débito técnico planejad
       ⚠ iOS: não expõe esse evento — workaround: banner manual com detecção de standalone
 
 ## Restrições conhecidas
+
 - Safari/iOS < 16.4: sem push, sem background sync
 - Chrome Android: sem restrições
 
 ## 2. Migração de Estado para Redis
-* Transição do armazenamento de histórico em `localStorage` para persistência segura server-side utilizando Redis, garantindo a memória de longo prazo da entidade.
+
+- Transição do armazenamento de histórico em `localStorage` para persistência segura server-side utilizando Redis, garantindo a memória de longo prazo da entidade.
 
 ## 3. Injeção Contextual via RAG
-* Ler os manifestos (ex: `ecosystem.json`) do repositório root e injetar via RAG no system prompt da Azure AI Foundry para dar consciência de infraestrutura ao agente.
+
+- Ler os manifestos (ex: `ecosystem.json`) do repositório root e injetar via RAG no system prompt da Azure AI Foundry para dar consciência de infraestrutura ao agente.
+
+## 4. Integração Final e Testes
+
+- [ ] Implementar a integração completa do RAG
+- [ ] Implementar e estabilizar o sistema de memória com Redis
+- [ ] Desenvolver e executar uma suíte de testes robusta ("fazer um bom teste") para garantir a estabilidade das rotas de API, Redis e RAG.

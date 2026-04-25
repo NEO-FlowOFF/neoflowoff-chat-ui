@@ -1,7 +1,7 @@
-import type { APIRoute } from "astro";
+import type { APIRoute, APIContext } from "astro";
 import { saveChatHistory } from "../../lib/redis";
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request }: APIContext) => {
   try {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
