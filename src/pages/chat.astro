@@ -185,6 +185,7 @@ console.log(`[NØX LOG] Nova sessão de chat iniciada em ${new Date().toISOStrin
       padding: 20px 16px 12px;
       display: flex; flex-direction: column; gap: 10px;
       scroll-behavior: smooth;
+      position: relative;
     }
     .messages-wrap::-webkit-scrollbar { display: none; }
 
@@ -348,10 +349,15 @@ console.log(`[NØX LOG] Nova sessão de chat iniciada em ${new Date().toISOStrin
 
     /* EMPTY STATE */
     .empty-state {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 14px; padding: 40px 32px;
-      min-height: 100%; width: 100%;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 40px;
+      pointer-events: none;
     }
 
     .empty-logo {

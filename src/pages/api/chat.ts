@@ -3,6 +3,17 @@ import { saveChatHistory } from "../../lib/redis";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host");
+    
+    // Proteção de Origin (Permite localhost e o próprio host oficial)
+    const isAllowedOrigin = !origin || origin.includes(host || "") || origin.includes("neoflowoff.agency");
+    
+    if (!isAllowedOrigin) {
+       console.warn(`[SECURITY] Acesso bloqueado: ${origin}`);
+       return new Response(JSON.stringify({ error: "Unauthorized Origin" }), { status: 403 });
+    }
+
     const body = await request.json();
     const { messages, sessionId } = body;
     
