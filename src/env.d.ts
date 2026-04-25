@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
   readonly VENICE_API_KEY: string;
   readonly VENICE_MODEL: string;
+  readonly REDIS_URL: string;
 }
 
 interface ImportMeta {

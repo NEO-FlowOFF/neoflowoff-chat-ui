@@ -1,9 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+
+const promptPath = path.join(process.cwd(), 'src/lib/system-prompt.md');
+const systemPrompt = await fs.readFile(promptPath, 'utf-8');
 
 console.log(`[NØX LOG] Nova sessão de chat iniciada em ${new Date().toISOString()}`);
 ---
+
 <Base>
   <header class="header">
     <div class="agent-pill">
@@ -27,7 +33,7 @@ console.log(`[NØX LOG] Nova sessão de chat iniciada em ${new Date().toISOStrin
     </div>
   </header>
 
-  <div class="messages-wrap" id="messagesWrap">
+  <div class="messages-wrap" id="messagesWrap" data-system-prompt={systemPrompt}>
     <div class="empty-state" id="emptyState">
       <div class="empty-logo"><span class="led-text">Ø</span></div>
       <div class="empty-title">NØX</div>
@@ -424,12 +430,15 @@ console.log(`[NØX LOG] Nova sessão de chat iniciada em ${new Date().toISOStrin
       pointer-events: none; z-index: 1000; white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .empty-state.hidden {
+      display: none !important;
+    }
   </style>
 
   <script>
-    const SYSTEM_PROMPT = `Você é NØX [ pronúncia: Nócks ], agente autônomo do ecossistema NEØ FlowOFF.
-Especialista em marketing na blockchain, tokenização, sistemas de IA, e ecossistemas descentralizados.
-Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
+    const wrap    = document.getElementById('messagesWrap') as HTMLDivElement;
+    const SYSTEM_PROMPT = wrap.dataset.systemPrompt || '';
 
     const STORAGE_KEY = 'nox_history_v1';
     const SESSION_KEY = 'nox_session_id';
@@ -454,26 +463,42 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
     const empty   = document.getElementById('emptyState');
     const toastEl = document.getElementById('toast') as HTMLDivElement;
 
-    function showEmptyState() {
-      wrap.innerHTML = '';
-      const e = document.createElement('div'); 
-      e.className = 'empty-state'; 
-      e.id = 'emptyState';
-      e.innerHTML = `
-        <div class="empty-logo"><span class="led-text">Ø</span></div>
-        <div class="empty-title">NØX</div>
-      `;
-      wrap.appendChild(e);
-      wrap.scrollTop = 0;
+    async function syncHistoryWithRedis() {
+      try {
+        const res = await fetch(`/api/history?sessionId=${sessionId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        if (data.history && data.history.length > 0) {
+          history = data.history.map((m: any) => ({
+            role: m.role === 'assistant' ? 'agent' : m.role,
+            content: m.content
+          }));
+          saveHistory();
+          renderAllMessages();
+          showToast('Memória sincronizada');
+        }
+      } catch (err) {
+        console.error('[SYNC ERROR]', err);
+      }
     }
 
-    if (history.length) { 
-      const existingEmpty = document.getElementById('emptyState');
-      existingEmpty?.remove(); 
-      history.forEach((m: any) => renderBubble(m.role, m.content, false)); 
-    } else {
-      showEmptyState();
+    function renderAllMessages() {
+      if (history.length > 0) {
+        empty?.classList.add('hidden');
+        // Limpa apenas as bolhas de mensagem, mantém o emptyState no DOM
+        wrap.querySelectorAll('.msg').forEach(m => m.remove());
+        history.forEach((m: any) => renderBubble(m.role, m.content, false));
+        scrollToBottom();
+      } else {
+        wrap.querySelectorAll('.msg').forEach(m => m.remove());
+        empty?.classList.remove('hidden');
+      }
     }
+
+    // Inicialização
+    renderAllMessages();
+    syncHistoryWithRedis();
 
     input.addEventListener('input', () => {
       input.style.height = 'auto';
@@ -490,7 +515,9 @@ Responda de forma direta, estratégica e precisa. Sem floreios genéricos.`;
     async function handleSend() {
       const text = input.value.trim();
       if (!text || isStreaming) return;
-      if (empty && empty.parentNode) empty.remove();
+      
+      // Esconde o empty state ao começar a digitar/enviar primeira msg
+      empty?.classList.add('hidden');
       input.value = ''; input.style.height = 'auto';
       sendBtn.disabled = true; isStreaming = true;
       pushHistory('user', text);

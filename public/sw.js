@@ -1,4 +1,4 @@
-const CACHE = "nox-v1";
+const CACHE = "nox-v1.0.1";
 
 const SHELL = ["/", "/chat"];
 
