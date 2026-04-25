@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getChatHistory, saveChatHistory } from "../../lib/redis";
+import { saveChatHistory } from "../../lib/redis";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
