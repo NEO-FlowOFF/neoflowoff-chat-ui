@@ -1,5 +1,6 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
-  
+# CHAT UI EVOLUTION ROADMAP
+
 ```text
 ========================================
        NEØ:One · EVOLUTION ROADMAP
@@ -32,10 +33,10 @@ da interface soberana NEØ:One.
 
 ▓▓▓ ESTRATÉGIA TÉCNICA
 ────────────────────────────────────────
-└─ RAG Logic: Injeção de manifestos organizacionais.
-└─ Regis Extraction: Estruturação de dados para CRM.
-└─ Type Safety: Eliminação total de 'any' (Strategic Typing).
-└─ Testing: Suíte robusta para rotas de API e Redis.
+- [x] RAG Logic: Injeção de manifestos organizacionais.
+- [x] Regis Extraction: Estruturação de dados para CRM.
+- [x] Type Safety: Eliminação total de 'any' (Strategic Typing).
+- [ ] Testing: Suíte robusta para rotas de API e Redis.
 
 ────────────────────────────────────────
 

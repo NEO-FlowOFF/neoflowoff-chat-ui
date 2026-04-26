@@ -234,10 +234,10 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     }
 
     .msg.user .bubble {
-      background: rgba(30,30,30,0.6);
-      color: var(--text-primary);
+      background: rgba(20,20,20,0.8);
+      color: #f5f5f5;
       border-bottom-right-radius: 6px;
-      box-shadow: var(--shadow-inner), inset 0 1px 0 rgba(255,255,255,0.1);
+      box-shadow: var(--shadow-inner), inset 0 1px 0 rgba(255,255,255,0.05);
       border: 1px solid var(--border);
     }
 
@@ -285,7 +285,10 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       50%       { opacity: 0; }
     }
 
-    .input-area { flex-shrink: 0; padding: 10px 16px 14px; }
+    .input-area { 
+      flex-shrink: 0; 
+      padding: 10px 16px 20px; /* Mais respiro na base */
+    }
 
     .input-card {
       background: linear-gradient(to bottom, #1a1a18, #111110);
@@ -603,7 +606,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       agentMsg.querySelector('.stream-cursor')?.remove();
       const meta = document.createElement('div');
       meta.className = 'msg-meta';
-      meta.innerHTML = `<span style="font-weight:800; color:var(--neon-green); margin-right:4px;">NEØ:One</span> • ${formatTime()}`;
+      meta.innerHTML = `<span style="font-weight:800; color:var(--text-primary); margin-right:4px;">NEØ:One</span> • ${formatTime()}`;
       agentMsg.querySelector('.bubble')?.after(meta);
       return fullText;
     }
@@ -614,7 +617,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       if (!animate) msg.style.animation = 'none';
       const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
       const meta = document.createElement('div'); meta.className = 'msg-meta';
-      meta.innerHTML = `<span style="font-weight:800; color:var(--neon-green); margin-right:4px;">${isUser ? 'USER' : 'NEØ:One'}</span> • ${formatTime()}`;
+      meta.innerHTML = `<span style="font-weight:800; color:var(--text-primary); margin-right:4px;">${isUser ? 'USER' : 'NEØ:One'}</span> • ${formatTime()}`;
       msg.appendChild(bubble); msg.appendChild(meta); wrap.appendChild(msg); scrollToBottom(); return msg;
     }
 

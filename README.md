@@ -31,6 +31,40 @@ PWA de alto desempenho para operação tátil e resiliente.
 
 ────────────────────────────────────────
 
+## ⧇ Arquitetura de Consciência
+
+▓▓▓ PIPELINE DE INJEÇÃO (Server-Side)
+────────────────────────────────────────
+
+```text
+       ┌──────────────────────────────┐
+       │   1. IDENTITY PROTOCOL       │
+       │   (system-prompt.md)         │
+       └──────────────┬───────────────┘
+                      │ (Injeção de Persona)
+       ┌──────────────▼───────────────┐
+       │   2. STRATEGIC CONTEXT       │
+       │   (CONTEXT.json / RAG)       │
+       └──────────────┬───────────────┘
+                      │ (Consciência de Marca)
+       ┌──────────────▼───────────────┐
+       │   3. SOVEREIGN MEMORY        │
+       │   (Histórico via Redis)      │
+       └──────────────┬───────────────┘
+                      │ (Memória de Sessão)
+       ┌──────────────▼───────────────┐
+       │   4. USER INPUT              │
+       │   (Mensagem Atual)           │
+       └──────────────┬───────────────┘
+                      │ (Processamento)
+       ┌──────────────▼───────────────┐
+       │   5. NEØ:one RESPONSE        │
+       │   (Streaming SSE)            │
+       └──────────────────────────────┘
+```
+
+────────────────────────────────────────
+
 ## ⨷ Stack Técnica
 
 ▓▓▓ INFRAESTRUTURA
