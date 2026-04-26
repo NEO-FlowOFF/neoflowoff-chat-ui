@@ -53,9 +53,12 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     const llmModel = process.env.ASI1_MODEL || "asi1";
 
     if (!llmApiKey) {
-      return new Response(JSON.stringify({ error: "LLM API Key missing (ASI1)" }), {
-        status: 500,
-      });
+      return new Response(
+        JSON.stringify({ error: "LLM API Key missing (ASI1)" }),
+        {
+          status: 500,
+        },
+      );
     }
 
     const res = await fetch("https://api.asi1.ai/v1/chat/completions", {
