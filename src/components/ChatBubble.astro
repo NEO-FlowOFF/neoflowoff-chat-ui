@@ -86,7 +86,12 @@ const isUser = role === 'user';
 
   .agent-side .bubble::after {
     content: ''; position: absolute; inset: 0;
-    background: var(--glass-tint); pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.08) 45%,
+      rgba(255, 7, 124, 0.08) 100%
+    ); pointer-events: none;
     border-radius: inherit;
   }
 
