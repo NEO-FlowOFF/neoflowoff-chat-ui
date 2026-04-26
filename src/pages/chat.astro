@@ -298,7 +298,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       border-right: 3px solid var(--neon-pink);
     }
 
-    .msg-meta { display: none; } /* Escondido pois o componente já traz sua própria meta */
+    /* Não esconder `.msg-meta` globalmente: o streaming também pode injetar esse elemento. */
 
     /* TYPING */
     .typing-bubble {
