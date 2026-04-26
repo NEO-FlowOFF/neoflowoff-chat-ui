@@ -1,5 +1,7 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
-  
+
+# NEØ:one — NEØ FlowOFF CHAT UI
+
 ```text
 ========================================
        NEØ:One · SOVEREIGN INTERFACE
@@ -12,7 +14,7 @@ Version: v1.1.0
 ## ⟠ Objetivo
 
 Interface soberana do agente NEØ:One, o núcleo de
-inteligência e marketing do ecossistema FlowOFF.
+inteligência e marketing do ecossistema NEØFlowOFF.
 PWA de alto desempenho para operação tátil e resiliente.
 
 ────────────────────────────────────────

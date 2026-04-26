@@ -1,6 +1,6 @@
 {
-  "name": "NØX — NEØ FlowOFF",
-  "short_name": "NØX",
+  "name": "NEØ:one — NEØ FlowOFF",
+  "short_name": "NEØ:one",
   "description": "Agente autônomo do ecossistema NEØ FlowOFF",
   "start_url": "/chat",
   "display": "standalone",

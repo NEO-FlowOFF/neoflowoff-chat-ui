@@ -1,4 +1,6 @@
 import type { APIContext, APIRoute } from "astro";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { saveChatHistory } from "../../lib/redis";
 import { type Message } from "../../types/chat";
 
@@ -26,8 +28,25 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     };
     const { messages, sessionId } = body;
 
+    // Carrega o System Prompt e Contexto no Server-Side para evitar exposição
+    const promptPath = path.join(process.cwd(), "src/lib/system-prompt.md");
+    const contextPath = path.join(process.cwd(), "src/lib/CONTEXT.json");
+
+    const [systemPromptRaw, ecosystemContext] = await Promise.all([
+      fs.readFile(promptPath, "utf-8"),
+      fs.readFile(contextPath, "utf-8"),
+    ]);
+
+    const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---`;
+
+    // Constrói a lista final de mensagens com o prompt de sistema no topo
+    const finalMessages = [
+      { role: "system" as const, content: systemPrompt },
+      ...messages,
+    ];
+
     console.log(
-      `[NØX API] Gerando resposta para o usuário... Session: ${sessionId || "anon"}`,
+      `[NEOONE API] Gerando resposta para o usuário... Session: ${sessionId || "anon"}`,
     );
 
     const veniceApiKey = process.env.VENICE_API_KEY;
@@ -48,7 +67,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       },
       body: JSON.stringify({
         model: veniceModel,
-        messages: messages,
+        messages: finalMessages,
         stream: true,
       }),
     });

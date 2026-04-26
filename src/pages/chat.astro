@@ -1,20 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
 
-const promptPath = path.join(process.cwd(), 'src/lib/system-prompt.md');
-const contextPath = path.join(process.cwd(), 'src/lib/CONTEXT.json');
-
-const [systemPromptRaw, ecosystemContext] = await Promise.all([
-  fs.readFile(promptPath, 'utf-8'),
-  fs.readFile(contextPath, 'utf-8')
-]);
-
-const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---`;
-
-console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOString()} | Contexto injetado`);
+console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOString()}`);
 ---
 
 <Base>
@@ -40,7 +28,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     </div>
   </header>
 
-  <div class="messages-wrap" id="messagesWrap" data-system-prompt={systemPrompt}>
+  <div class="messages-wrap" id="messagesWrap">
     <div class="empty-state" id="emptyState">
       <div class="empty-logo"><span class="led-text">Ø</span></div>
       <div class="empty-title">NEØ:One</div>
@@ -445,7 +433,6 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
   <script>
     const wrap    = document.getElementById('messagesWrap') as HTMLDivElement;
-    const SYSTEM_PROMPT = wrap.dataset.systemPrompt || '';
 
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -564,7 +551,6 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
     async function streamProxy(_userText: string, typingEl: HTMLElement) {
       const messages = [
-        { role: 'system', content: SYSTEM_PROMPT },
         ...history.slice(-MAX_HISTORY).map((m: any) => ({ role: m.role === 'agent' ? 'assistant' : m.role, content: m.content }))
       ];
       
