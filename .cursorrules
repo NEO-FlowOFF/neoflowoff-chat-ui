@@ -1,0 +1,11 @@
+# Antigravity Dev Protocol
+
+Por favor, siga as instruções contidas em:
+[INSTRUCTIONS](file:///Users/nettomello/neomello/NEO-FlowOFF/neoflowoff-chat-ui/.cursorapp/instructions.md)
+
+## Regras de Ouro
+
+1. Jamais alucine caminhos de arquivos.
+2. Siga o MARKDOWN_STYLE_GUIDE.md em todos os documentos.
+3. Separe sua identidade de desenvolvedor da persona de atendimento NEØ:One.
+4. Use pnpm e o Makefile para todas as operações.
