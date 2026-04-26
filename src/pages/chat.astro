@@ -638,11 +638,25 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     }
 
     clearBtn.addEventListener('click', () => {
-      history = []; saveHistory();
+      // Rotação de Identidade: Gera um novo sessionId para "resetar" a mente do agente
+      sessionId = crypto.randomUUID();
+      localStorage.setItem(SESSION_KEY, sessionId);
+      
+      // Reseta contadores e histórico local
+      history = [];
+      sessionCount = 0;
+      saveHistory();
+      
       showEmptyState();
-      input.value = ''; input.style.height = 'auto';
+      renderAllMessages();
+      
+      input.value = '';
+      input.style.height = 'auto';
+      input.disabled = false;
+      input.placeholder = 'Digite sua mensagem...';
       sendBtn.disabled = true;
-      showToast('Conversa limpa');
+      
+      showToast('Nova sessão iniciada');
     });
 
     // Theme Toggle Logic
