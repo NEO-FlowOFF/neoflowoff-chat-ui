@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import ChatBubble from '../components/ChatBubble.astro';
 import { Image } from 'astro:assets';
 
 console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOString()}`);
@@ -18,7 +19,10 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     </div>
     <div class="header-actions">
       <div class="theme-switch" id="themeToggle" aria-label="Toggle Theme">
-        <div class="theme-switch-knob"></div>
+        <div class="theme-switch-knob">
+          <svg class="sun-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M22 12h2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>
+          <svg class="moon-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </div>
       </div>
       <button class="icon-btn" id="clearBtn" aria-label="Limpar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -28,16 +32,24 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     </div>
   </header>
 
+  <!-- Templates Soberanos baseados no Componente Astro -->
+  <div id="templates" style="display: none;">
+    <div id="tpl-user"><ChatBubble role="user" content="{{CONTENT}}" time="{{TIME}}" /></div>
+    <div id="tpl-agent"><ChatBubble role="agent" content="{{CONTENT}}" time="{{TIME}}" /></div>
+  </div>
+
   <div class="messages-wrap" id="messagesWrap">
     <div class="empty-state" id="emptyState">
-      <div class="empty-logo"><span class="led-text">Ø</span></div>
-      <div class="empty-title">NEØ:One</div>
+      <div class="logo-container">
+        <span class="led-text">NEØ:one</span>
+      </div>
+      <div class="empty-title">Estratégia On-Chain · Ecossistemas · Protocolos · Tokenização · Agentes IA</div>
     </div>
   </div>
 
   <div class="input-area">
     <div class="input-card">
-      <textarea id="msgInput" placeholder="Digite sua mensagem..." rows="1" maxlength="2000" autocomplete="off" spellcheck="false"></textarea>
+      <textarea id="msgInput" placeholder="Fale com NEØ:one uma superinteligência" rows="1" maxlength="2000" autocomplete="off" spellcheck="false"></textarea>
       <button class="send-btn" id="sendBtn" disabled aria-label="Enviar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -50,12 +62,12 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     <div class="footer-dots">
       <div class="footer-dot"></div><div class="footer-dot"></div><div class="footer-dot"></div>
     </div>
-    <div class="footer-text">
+    <div class="footer-text" style="color: var(--text-muted); opacity: 0.4; font-size: 10px;">
       <strong>NEØ FlowOFF</strong><br />
-      Agência de Marketing na Blockchain · Sistemas e Ecossistemas<br />
-      Agentes IA · Tokenização<br />
-      <div class="footer-links">
-        <a href="/privacidade">Privacidade</a> &bull; <a href="/termos">Termos</a>
+      CNPJ 43.376.355/0001-92<br />
+      <div class="footer-links" style="margin-top: 4px;">
+        <a href="/privacidade" style="color: inherit; text-decoration: none;">Privacidade</a> &bull; 
+        <a href="/termos" style="color: inherit; text-decoration: none;">Termos</a>
       </div>
     </div>
   </footer>
@@ -68,7 +80,13 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       flex-shrink: 0;
       padding: 16px 20px 0;
       display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(25px) saturate(2) brightness(1.05);
+      -webkit-backdrop-filter: blur(25px) saturate(2) brightness(1.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 100;
     }
+
 
     .footer-hud {
       background: linear-gradient(to bottom, var(--hud), #0a0a0a);
@@ -80,42 +98,69 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
     .agent-pill {
       display: flex; align-items: center; gap: 10px;
-      background: linear-gradient(to bottom, #1a1a18, #111110);
+      background: transparent;
       padding: 6px 14px 6px 8px; border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.04);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      border: none;
+      box-shadow: none;
+    }
+    body.dark-mode .agent-pill {
+      border: none;
+      background: transparent;
+      box-shadow: none;
     }
 
-    .empty-logo {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, #1a1a1a, #000);
-      border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center;
-    }
+    /* Elementos de Identidade */
 
     .agent-avatar {
       width: 36px; height: 36px; border-radius: 50%;
-      background: #0d0d0c;
+      background: transparent;
       flex-shrink: 0; position: relative;
       overflow: visible;
     }
-
     .agent-avatar img {
-      width: 44px; height: 44px; border-radius: 50%;
+      width: 52px; height: 52px; /* Aumentado para vazar */
       object-fit: cover;
       position: absolute;
-      top: -4px; left: -4px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
-      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      top: -8px; left: -10px; /* Posicionamento agressivo para vazar */
+      z-index: 5;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
       animation: avatar-fade 2s ease-in-out 0.5s forwards;
     }
 
-    @keyframes avatar-fade {
-      to { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8)) grayscale(100%) blur(0.5px); opacity: 0.85; }
+    .logo-img {
+      border-radius: 8px;
+      object-fit: contain;
+      filter: none !important;
+      opacity: 1 !important;
     }
 
-    .agent-avatar:hover img { transform: scale(1.08) translateY(-2px); filter: grayscale(0%) blur(16px); opacity: 1; }
+    .logo-text {
+      font-weight: 800; font-size: 14px; color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .logo-text::after { content: 'NEØFLW'; }
+    body.dark-mode .logo-text::after { content: 'NEØFLW'; }
+
+    .header {
+      flex-shrink: 0;
+      padding: 16px 20px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      position: relative;
+      z-index: 100;
+    }
+    body.dark-mode .header {
+      background: transparent;
+    }
+
+    @keyframes avatar-fade {
+      to { opacity: 0.95; }
+    }
+
+    .agent-avatar:hover img { transform: scale(1.08) translateY(-2px); opacity: 1; }
 
     .agent-info { display: flex; flex-direction: column; gap: 2px; }
 
@@ -123,20 +168,24 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       font-family: var(--font-dot); font-size: 12px; font-weight: bold;
       color: #f5f5f5; letter-spacing: 0.05em; line-height: 1;
       margin-bottom: 2px;
-      text-shadow: 0 0 8px rgba(255,255,255,0.2);
+      text-shadow: none;
     }
+    .agent-name::after { content: 'NEØFLW'; }
+    body.dark-mode .agent-name::after { content: 'NEØFLW'; }
+    body.dark-mode .agent-name { color: #f5f5f5; }
+    body:not(.dark-mode) .agent-name { color: var(--text-primary); }
 
     .agent-status {
       display: flex; align-items: center; gap: 5px;
       font-size: 9px; font-weight: 500; text-transform: uppercase;
-      color: var(--neon-green); letter-spacing: 0.1em;
+      color: var(--neon-pink); letter-spacing: 0.1em;
       opacity: 0.8;
     }
 
     .agent-status::before {
       content: ''; display: block;
       width: 6px; height: 6px; border-radius: 50%;
-      background: var(--neon-green);
+      background: var(--neon-pink);
       box-shadow: 0 0 8px var(--neon-glow);
       animation: pulse-dot 2.4s ease-in-out infinite;
     }
@@ -149,20 +198,21 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     .header-actions { display: flex; gap: 8px; align-items: center; }
 
     .icon-btn {
-      width: 36px; height: 36px; border-radius: 12px;
-      background: rgba(0,0,0,0.06); border: 1px solid var(--border);
+      width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.15s, transform 0.1s;
+      cursor: pointer; transition: color 0.2s, transform 0.1s;
       color: var(--text-muted);
+      background: transparent;
+      border: none;
     }
-    .icon-btn:active { transform: scale(0.92); background: rgba(0,0,0,0.1); }
+    .icon-btn:active { transform: scale(0.92); color: var(--text-primary); }
 
     /* 3D THEME SWITCH */
     .theme-switch {
-      position: relative; width: 44px; height: 24px; border-radius: 12px;
-      background: var(--surface-dark); border: 1px solid var(--border);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05);
+      position: relative; width: 44px; height: 24px;
       cursor: pointer; transition: all 0.3s; flex-shrink: 0;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.05);
     }
     .theme-switch-knob {
       position: absolute; top: 2px; left: 22px; width: 18px; height: 18px;
@@ -171,13 +221,22 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     body.dark-mode .theme-switch {
-      background: var(--surface-dark); border-color: var(--border);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05);
+      background: transparent;
+      border-color: rgba(255,255,255,0.1);
     }
     body.dark-mode .theme-switch-knob {
       left: 2px; background: linear-gradient(135deg, #555, #222);
       box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.3);
     }
+    .theme-switch-knob svg {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    .moon-icon { opacity: 0; transform: translate(-50%, -50%) rotate(-45deg) scale(0.5) !important; color: #f5f5f5; }
+    .sun-icon { opacity: 1; color: var(--neon-pink); }
+
+    body.dark-mode .moon-icon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1) !important; }
+    body.dark-mode .sun-icon { opacity: 0; transform: translate(-50%, -50%) rotate(45deg) scale(0.5) !important; }
 
     /* MESSAGES */
     .messages-wrap {
@@ -218,42 +277,37 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     }
 
     .msg.agent .bubble {
-      background: linear-gradient(145deg, #1a1a18, #111110);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       color: var(--text-hud);
       border-radius: 4px 20px 20px 20px;
-      box-shadow: var(--shadow-hud), inset 0 1px 0 rgba(255,255,255,0.05);
+      box-shadow: var(--shadow-hud);
       border: 1px solid var(--border-hud);
-      border-left: 3px solid var(--neon-green);
+      border-left: 3px solid var(--neon-pink);
     }
 
     .msg.user .bubble {
-      background: rgba(20,20,20,0.8);
-      color: #f5f5f5;
+      background: var(--hud-soft);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      color: var(--text-hud);
       border-radius: 20px 4px 20px 20px;
-      box-shadow: var(--shadow-inner), inset 0 1px 0 rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
+      box-shadow: var(--shadow-inner);
+      border: 1px solid var(--border-hud);
       border-right: 3px solid var(--neon-pink);
     }
 
-    .msg-meta {
-      font-size: 8px; letter-spacing: 0.1em;
-      margin-top: 4px; color: #a3a3a3; text-align: right;
-      font-weight: 500;
-    }
-    .msg.agent .msg-meta { text-align: left; }
-    .msg.user .msg-meta { text-align: right; }
+    /* Não esconder `.msg-meta` globalmente: o streaming também pode injetar esse elemento. */
 
     /* TYPING */
     .typing-bubble {
-      background: rgba(20,20,19,0.85);
+      background: var(--surface);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-hud);
       border-left: 3px solid var(--neon-pink);
-      border-bottom-left-radius: 6px;
-      padding: 12px 16px; border-radius: 18px;
+      padding: 10px 16px; border-radius: 18px;
       display: flex; gap: 5px; align-items: center;
       box-shadow: var(--shadow-hud);
     }
@@ -272,9 +326,10 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     /* STREAM CURSOR */
     .stream-cursor {
       display: inline-block; width: 2px; height: 14px;
-      background: var(--aqua); border-radius: 1px;
+      background: var(--neon-pink); border-radius: 1px;
       vertical-align: middle; margin-left: 2px;
       animation: cursor-blink 0.8s step-end infinite;
+      box-shadow: 0 0 8px var(--neon-glow);
     }
     @keyframes cursor-blink {
       0%, 100% { opacity: 1; }
@@ -287,44 +342,65 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     }
 
     .input-card {
-      background: linear-gradient(to bottom, #1a1a18, #111110);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+      backdrop-filter: blur(40px) saturate(2.5) brightness(1.1);
+      -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.1);
       border-radius: var(--radius-card);
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: var(--shadow-hud), inset 0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 15px 35px rgba(0,0,0,0.05), 
+        inset 0 0 0 1px rgba(255,255,255,0.2),
+        inset 0 2px 15px rgba(255,255,255,0.1);
       padding: 6px 6px 6px 16px;
       display: flex; align-items: flex-end; gap: 8px;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.3s ease;
+    }
+    body.dark-mode .input-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.4));
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .input-card:focus-within {
-      border-color: rgba(255,255,255,0.15);
-      box-shadow: var(--shadow-hud), inset 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.25);
+      box-shadow: var(--shadow-hud), 0 0 20px rgba(255,255,255,0.05);
     }
 
     .input-card textarea {
       flex: 1; background: transparent; border: none; outline: none; resize: none;
       font-family: var(--font-mono); font-size: 14px; font-weight: 300;
-      color: var(--text-primary); line-height: 1.5;
+      color: #b0b0b0; /* Cinza claro na versão clara */
+      line-height: 1.5;
       min-height: 24px; max-height: 120px; padding: 10px 0;
-      caret-color: var(--neon-green);
+      caret-color: var(--neon-pink);
     }
-    .input-card textarea::placeholder { color: var(--text-hud-dim); font-style: italic; }
+    .input-card textarea::placeholder { color: #b0b0b0; }
+
+    body.dark-mode .input-card textarea {
+      color: #4a4a4a; /* Dark gray na versão black */
+    }
+    body.dark-mode .input-card textarea::placeholder { color: #4a4a4a; }
 
     .send-btn {
-      width: 48px; height: 48px; border-radius: 20px; border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      transition: transform 0.15s, box-shadow 0.15s, background 0.15s, opacity 0.15s;
-      background: var(--neon-green);
-      box-shadow: 0 0 25px 5px var(--neon-glow), inset 0 -3px 8px rgba(0,0,0,0.25), inset 0 3px 8px rgba(255,255,255,0.6);
-      color: #0f0f0f;
+      width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); 
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(20px) saturate(3) brightness(1.1);
+      -webkit-backdrop-filter: blur(20px) saturate(3) brightness(1.1);
+      box-shadow: 
+        0 10px 25px rgba(0,0,0,0.1),
+        inset 0 4px 10px rgba(255,255,255,0.4),
+        inset 0 -2px 10px rgba(0,0,0,0.05);
+      color: var(--text-primary);
+      filter: url(#liquid-refraction);
     }
-    .send-btn svg { filter: drop-shadow(0 1px 0 rgba(255,255,255,0.4)); stroke-width: 2.5; }
+    .send-btn svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); stroke-width: 2; }
     
     .send-btn:disabled {
       background: var(--surface); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); 
       opacity: 0.5; cursor: default; color: var(--text-hud-dim);
     }
-    .send-btn:not(:disabled):active { transform: scale(0.92); box-shadow: 0 0 15px 2px var(--neon-glow), inset 0 3px 8px rgba(0,0,0,0.4); }
+    .send-btn:not(:disabled):active { transform: scale(0.95); box-shadow: 0 0 30px 8px var(--neon-glow); }
 
     /* FOOTER */
     .footer { flex-shrink: 0; padding: 0 20px 10px; text-align: center; }
@@ -360,68 +436,55 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       pointer-events: none;
     }
 
-    .empty-logo {
-      width: 72px; height: 72px; border-radius: 24px;
-      background: linear-gradient(145deg, #1d1d1b, #111110);
-      border: 1px solid rgba(255,255,255,0.03);
-      box-shadow: 
-        0 20px 40px rgba(0,0,0,0.4), 
-        inset 0 1px 0 rgba(255,255,255,0.08), 
-        inset 0 2px 15px rgba(0,0,0,0.7);
+    .logo-container {
+      position: relative;
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-dot); font-size: 42px; font-weight: bold;
-      animation: box-boot 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      padding: 40px;
     }
-
-    @keyframes box-boot {
-      0% { transform: scale(0.85); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
     .led-text {
-      background: linear-gradient(90deg, 
-        var(--neon-green) 0%, 
-        var(--neon-green) 40%, 
-        #fff 50%, 
-        rgba(204,255,0,0.1) 60%, 
-        rgba(204,255,0,0.1) 100%);
-      background-size: 300% 100%;
-      color: transparent;
-      -webkit-background-clip: text;
-      background-clip: text;
-      animation: led-power-on 1.2s ease-out 1.2s forwards;
-      background-position: 100% 0;
-      filter: drop-shadow(0 0 0px rgba(204,255,0,0));
+      font-family: var(--font-display); font-size: 50px; font-weight: 800;
+      color: rgba(0, 0, 0, 0.87);
+      letter-spacing: -1px;
+      position: relative; z-index: 1;
+      transition: color 0.3s ease;
+    }
+    body.dark-mode .led-text {
+      color: rgba(255, 255, 255, 0.87);
+    }
+    
+    @keyframes drop-float {
+      0%, 100% { transform: translate(-30%, -50%) scale(1); }
+      50%  { transform: translate(-28%, -52%) scale(1.02); }
     }
 
-    @keyframes led-power-on {
-      0% { background-position: 100% 0; filter: drop-shadow(0 0 0px rgba(204,255,0,0)); }
-      50% { filter: drop-shadow(0 0 10px rgba(204,255,0,0.6)); }
-      100% { background-position: 0% 0; filter: drop-shadow(0 0 4px rgba(204,255,0,0.3)); }
-    }
 
     .empty-title {
-      font-family: var(--font-display); font-size: 22px; font-weight: 800;
-      color: #111110; letter-spacing: -0.01em; text-align: center;
-      opacity: 0;
-      animation: title-boot 0.8s ease 0.5s forwards;
-    }
-    body.dark-mode .empty-title { color: var(--text-primary); opacity: 0; }
-
-    @keyframes title-boot {
-      0% { opacity: 0; transform: translateY(4px); }
-      100% { opacity: 0.3; transform: translateY(0); }
-    }
+      font-family: var(--font-display); font-size: 10px; font-weight: 800;
+      color: #9d9d9a; letter-spacing: 0.1em; text-align: center;
+      text-transform: uppercase; max-width: 280px; line-height: 1.5;
+      opacity: 0.6;
+    } 
+    body.dark-mode .empty-title { color: var(--text-primary); opacity: 0.6; }
 
     /* TOAST */
     .toast {
-      position: fixed; top: calc(var(--safe-top) + 16px); left: 50%;
-      transform: translateX(-50%) translateY(-8px);
-      background: var(--hud); color: var(--text-hud); font-size: 12px;
-      padding: 8px 16px; border-radius: var(--radius-pill);
-      border: 1px solid var(--border-hud); box-shadow: var(--shadow-hud);
-      opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      position: fixed; top: 16px; left: 50%;
+      transform: translateX(-50%) translateY(-4px);
+      background: rgba(255, 255, 255, 0.95);
+      color: rgba(0, 0, 0, 0.7);
+      font-family: var(--font-display); font-size: 10px; font-weight: 800;
+      padding: 4px 12px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none; z-index: 1000; white-space: nowrap;
+    }
+    body.dark-mode .toast {
+      background: rgba(20, 20, 20, 0.9);
+      color: rgba(255, 255, 255, 0.87);
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -609,12 +672,23 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
     function renderBubble(role: string, text: string, animate: boolean) {
       const isUser = role === 'user';
-      const msg = document.createElement('div'); msg.className = `msg ${isUser ? 'user' : 'agent'}`;
-      if (!animate) msg.style.animation = 'none';
-      const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
-      const meta = document.createElement('div'); meta.className = 'msg-meta';
-      meta.innerHTML = `<span style="font-weight:800; color:var(--text-primary); margin-right:4px;">${isUser ? 'USER' : 'NEØ:One'}</span> • ${formatTime()}`;
-      msg.appendChild(bubble); msg.appendChild(meta); wrap.appendChild(msg); scrollToBottom(); return msg;
+      const tplId = isUser ? 'tpl-user' : 'tpl-agent';
+      const tpl = document.getElementById(tplId);
+      if (!tpl) return;
+
+      const clone = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
+      if (!clone) return;
+
+      // Injeta conteúdo e tempo
+      const bubbleEl = clone.querySelector('.bubble');
+      const timeEl = clone.querySelector('.timestamp');
+      if (bubbleEl) bubbleEl.textContent = text;
+      if (timeEl) timeEl.textContent = formatTime();
+
+      if (!animate) clone.style.animation = 'none';
+      wrap.appendChild(clone);
+      scrollToBottom();
+      return clone;
     }
 
     function renderStreamingBubble() {

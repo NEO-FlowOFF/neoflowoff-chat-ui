@@ -37,6 +37,8 @@ da interface soberana NEØ:One.
 - [x] Regis Extraction: Estruturação de dados para CRM.
 - [x] Type Safety: Eliminação total de 'any' (Strategic Typing).
 - [ ] Testing: Suíte robusta para rotas de API e Redis.
+- [ ] SDK para identificação do user (Wallet Abstraction, Redis e PostgreSQL).
+- [ ] Sentiment Analysis: Análise de tom emocional para mudanças dinâmicas na UI.
 
 ────────────────────────────────────────
 

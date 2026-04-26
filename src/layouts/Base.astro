@@ -12,20 +12,20 @@
   <meta name="apple-mobile-web-app-title" content="NEØ:one" />
   <title> NEØ:one — NEØ FlowOFF</title>
 
-  <meta name="description" content="Interface do NEØ:one, Agente Autônomo especializado em ecossistemas NEØ FlowOFF, blockchain e automação de marketing." />
+  <meta name="description" content="NEØ:one — Núcleo de Inteligência Soberana do Ecossistema FlowOFF. Marketing on-chain, arquitetura de agentes e infraestrutura descentralizada." />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://chat.neoflowoff.agency/" />
-  <meta property="og:title" content=" NEØ:one — NEØ FlowOFF" />
-  <meta property="og:description" content="Acesse o NEØ:one, agente autônomo focado na expansão de ecossistemas digitais e integração blockchain." />
+  <meta property="og:title" content="NEØ:one · Ecosystem Orchestrator" />
+  <meta property="og:description" content="Inteligência estratégica para marketing on-chain e protocolos soberanos." />
   <meta property="og:image" content="https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://chat.neoflowoff.agency/" />
-  <meta property="twitter:title" content=" NEØ:one — NEØ FlowOFF" />
-  <meta property="twitter:description" content="Acesse o NEØ:one, agente autônomo focado na expansão de ecossistemas digitais e integração blockchain." />
+  <meta property="twitter:title" content="NEØ:one · Ecosystem Orchestrator" />
+  <meta property="twitter:description" content="Inteligência estratégica para marketing on-chain e protocolos soberanos." />
   <meta property="twitter:image" content="https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp" />
 
   <!-- Schema.org Markup -->
@@ -57,33 +57,40 @@
   <style is:global>
     :root {
       --bg:          #f2f2f2;
-      --surface:     #ffffff;
-      --surface-dark:#e0e0e0;
-      --hud:         #111110;
-      --hud-soft:    #1c1c1a;
-      --border:      rgba(0,0,0,0.08);
-      --border-hud:  rgba(255,255,255,0.1);
+      --bg-alt:      #e5e5e5;
+      --surface:     rgba(0, 0, 0, 0.04) !important;
+      --surface-dark:rgba(0, 0, 0, 0.08) !important;
+      --hud:         rgba(0, 0, 0, 0.06) !important;
+      --hud-soft:    rgba(0, 0, 0, 0.02) !important;
+      --border:      rgba(0, 0, 0, 0.05) !important;
+      --border-hud:  rgba(255, 255, 255, 0.25) !important;
+      --glass-blur:  blur(25px) saturate(1.5) !important;
+      --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.03), inset 0 1px 0.5px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.01) !important;
       
-      --neon-green:  #ccff00;
-      --neon-green-dim: rgba(204, 255, 0, 0.15);
-      --neon-glow:   rgba(204, 255, 0, 0.4);
-      --neon-glow-intense: rgba(204, 255, 0, 0.6);
+      --neon-pink:  #ff077c;
+      --neon-pink-dim: rgba(255, 7, 124, 0.15);
+      --neon-glow:   rgba(255, 7, 124, 0.4);
+      --neon-glow-intense: rgba(255, 7, 124, 0.6);
+      --neon-green: var(--neon-pink);
+      --neon-green-dim: var(--neon-pink-dim);
+      --neon-green-glow: var(--neon-glow);
+      --neon-green-glow-intense: var(--neon-glow-intense);
       
-      --neon-pink:   #ff2d78;
-      --neon-pink-dim: rgba(255, 45, 120, 0.15);
+      --neon-pink-secondary:   #ff077c;
+      --neon-pink-dim-secondary: rgba(255, 7, 124, 0.15);
       
-      --text-primary:#1a1a1a;
-      --text-muted:  #666666;
-      --text-hud:    #e8e8e4;
-      --text-hud-dim:#6a6a64;
+      --text-primary:#1a1c1e;
+      --text-muted:  #5c6e7a;
+      --text-hud:    #1a1c1e;
+      --text-hud-dim:#7e8c9a;
       
       --radius-card: 24px;
       --radius-pill: 999px;
       
-      --shadow-card: 0 12px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
-      --shadow-hud:  0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
-      --shadow-inner: inset 0 2px 8px rgba(0,0,0,0.05);
-      --glow-soft: 0 0 20px rgba(204, 255, 0, 0.1);
+      --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+      --shadow-hud:  0 8px 32px rgba(0, 0, 0, 0.05);
+      --shadow-inner: inset 0 1px 4px rgba(0,0,0,0.02);
+      --glow-soft: 0 0 20px rgba(255, 7, 124, 0.1);
       
       --font-display:'Inter Tight', sans-serif;
       --font-mono:   'Geist Mono', monospace;
@@ -94,15 +101,20 @@
     }
 
     body.dark-mode {
-      --bg: #0f0f0f;
-      --surface: #1a1a1a;
-      --surface-dark: #141414;
-      --text-primary: #f5f5f5;
-      --text-muted: #a3a3a3;
-      --border: rgba(255,255,255,0.06);
-      --border-hud: rgba(255,255,255,0.06);
-      --shadow-card: 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-      --shadow-inner: inset 0 4px 12px rgba(0,0,0,0.6);
+      --bg: #0a0a0a;
+      --bg-alt: #000000;
+      --surface: rgba(0, 0, 0, 0.7);
+      --surface-dark: rgba(0, 0, 0, 0.85);
+      --hud: rgba(0, 0, 0, 0.75);
+      --hud-soft: rgba(0, 0, 0, 0.5);
+      --text-primary: #ffffff;
+      --text-muted: #888888;
+      --border: rgba(255, 255, 255, 0.15);
+      --border-hud: rgba(255, 255, 255, 0.1);
+      --glass-blur: blur(35px) saturate(1.4) brightness(0.8);
+      --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      --shadow-card: var(--glass-shadow);
+      --shadow-inner: inset 0 4px 12px rgba(0, 0, 0, 0.8);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -110,7 +122,8 @@
 
     body {
       font-family: var(--font-mono);
-      background: var(--bg);
+      background: radial-gradient(circle at center, var(--bg) 0%, var(--bg-alt) 100%);
+      background-attachment: fixed;
       color: var(--text-primary);
       display: flex;
       flex-direction: column;
@@ -122,14 +135,44 @@
     body::before {
       content: '';
       position: fixed; inset: 0;
-      opacity: 0.028; pointer-events: none; z-index: 9999;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-repeat: repeat; background-size: 180px;
+      opacity: 0.12; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 150px;
+      mix-blend-mode: overlay;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      opacity: 0.03; pointer-events: none; z-index: -1;
+      background-image: 
+        linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+      background-size: 40px 40px;
     }
     
     * { scrollbar-width: none; }
     *::-webkit-scrollbar { display: none; }
   </style>
+
+  <!-- Filtros de Processamento Visual -->
+  <svg style="position: fixed; width: 0; height: 0; pointer-events: none;">
+    <filter id="chromatic-aberration">
+      <feOffset in="SourceGraphic" dx="-0.4" dy="0" result="red" />
+      <feOffset in="SourceGraphic" dx="0.4" dy="0" result="blue" />
+      <feComponentTransfer in="red" result="red-c">
+        <feFuncR type="linear" slope="1" />
+        <feFuncG type="linear" slope="0" />
+        <feFuncB type="linear" slope="0" />
+      </feComponentTransfer>
+      <feComponentTransfer in="blue" result="blue-c">
+        <feFuncR type="linear" slope="0" />
+        <feFuncG type="linear" slope="0" />
+        <feFuncB type="linear" slope="1" />
+      </feComponentTransfer>
+      <feBlend in="red-c" in2="blue-c" mode="screen" result="rb" />
+      <feBlend in="rb" in2="SourceGraphic" mode="screen" />
+    </filter>
+  </svg>
 </head>
 <body>
     <slot />

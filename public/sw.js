@@ -1,4 +1,4 @@
-const CACHE = "nox-v1.0.1";
+const CACHE = "neoone-v1.0.3";
 
 const SHELL = ["/", "/chat"];
 
