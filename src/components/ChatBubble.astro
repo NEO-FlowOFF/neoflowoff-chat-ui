@@ -3,16 +3,16 @@
 interface Props {
   role: 'user' | 'agent';
   content: string;
-  time?: string;
+  time: string;
 }
 
-const { role, content, time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) } = Astro.props;
+const { role, content, time } = Astro.props;
 const isUser = role === 'user';
 ---
 
 <div class={`msg-container ${isUser ? 'user-side' : 'agent-side'}`}>
   <div class="bubble-wrapper">
-    {!isUser && <span class="label">NEØ:one</span>}
+    {!isUser && <span class="label">NEØ:One</span>}
     {isUser && <span class="label">USER</span>}
     
     <div class="bubble">

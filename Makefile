@@ -65,4 +65,4 @@ commit: verify ## Executa o fluxo NΞØ Protocol Commit & Push Seguro (Requer ve
 	git add .
 	@echo "$(CYAN)➜ Digite a mensagem de commit (ex: feat: layout finalizado):$(RESET)"
 	@read msg; git commit -m "$$msg"
-	git push origin main
+	git push origin $$(git rev-parse --abbrev-ref HEAD)
