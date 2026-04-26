@@ -58,14 +58,14 @@
     :root {
       --bg:          #f0f4f8;
       --bg-alt:      #e2e8f0;
-      --surface:     rgba(255, 255, 255, 0.03);
-      --surface-dark:rgba(255, 255, 255, 0.08);
-      --hud:         rgba(255, 255, 255, 0.05);
-      --hud-soft:    rgba(255, 255, 255, 0.02);
-      --border:      rgba(255, 255, 255, 0.4);
-      --border-hud:  rgba(255, 255, 255, 0.3);
-      --glass-blur:  blur(35px);
-      --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.5), inset 0 -1px 2px rgba(0, 0, 0, 0.02);
+      --surface:     rgba(0, 0, 0, 0.04) !important;
+      --surface-dark:rgba(0, 0, 0, 0.08) !important;
+      --hud:         rgba(0, 0, 0, 0.06) !important;
+      --hud-soft:    rgba(0, 0, 0, 0.02) !important;
+      --border:      rgba(0, 0, 0, 0.05) !important;
+      --border-hud:  rgba(255, 255, 255, 0.25) !important;
+      --glass-blur:  blur(25px) saturate(1.5) !important;
+      --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.03), inset 0 1px 0.5px rgba(255, 255, 255, 0.4), inset 0 -1px 2px rgba(0, 0, 0, 0.01) !important;
       
       --neon-pink:  #ff077c;
       --neon-pink-dim: rgba(255, 7, 124, 0.15);
@@ -99,15 +99,16 @@
     body.dark-mode {
       --bg: #0a0a0a;
       --bg-alt: #000000;
-      --surface: rgba(0, 0, 0, 0.85);
-      --surface-dark: rgba(0, 0, 0, 0.95);
-      --hud: rgba(0, 0, 0, 0.9);
-      --hud-soft: rgba(0, 0, 0, 0.7);
+      --surface: rgba(0, 0, 0, 0.7);
+      --surface-dark: rgba(0, 0, 0, 0.85);
+      --hud: rgba(0, 0, 0, 0.75);
+      --hud-soft: rgba(0, 0, 0, 0.5);
       --text-primary: #ffffff;
       --text-muted: #888888;
-      --border: rgba(255, 255, 255, 0.12);
-      --border-hud: rgba(255, 255, 255, 0.08);
-      --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      --border: rgba(255, 255, 255, 0.15);
+      --border-hud: rgba(255, 255, 255, 0.1);
+      --glass-blur: blur(35px) saturate(1.4) brightness(0.8);
+      --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       --shadow-card: var(--glass-shadow);
       --shadow-inner: inset 0 4px 12px rgba(0, 0, 0, 0.8);
     }

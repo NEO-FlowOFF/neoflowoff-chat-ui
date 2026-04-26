@@ -37,7 +37,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
   <div class="messages-wrap" id="messagesWrap">
     <div class="empty-state" id="emptyState">
-      <div class="empty-logo"><span class="led-text">NEØFLW</span></div>
+      <div class="empty-logo"><span class="led-text">NEØ:one</span></div>
       <div class="empty-title">Estratégia On-Chain · Ecossistemas · Protocolos · Tokenização · Agentes IA</div>
     </div>
   </div>
@@ -93,10 +93,15 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     .agent-pill {
       display: flex; align-items: center; gap: 10px;
       background: var(--surface);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      backdrop-filter: blur(25px) saturate(1.5);
+      -webkit-backdrop-filter: blur(25px) saturate(1.5);
       padding: 6px 14px 6px 8px; border-radius: 20px;
-      border: 1px solid var(--border-hud);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: var(--glass-shadow);
+    }
+    body.dark-mode .agent-pill {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent), var(--surface);
       box-shadow: var(--glass-shadow);
     }
 
@@ -116,7 +121,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       object-fit: cover;
       position: absolute;
       top: -4px; left: -4px;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+      filter: none;
       transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
       animation: avatar-fade 2s ease-in-out 0.5s forwards;
     }
@@ -133,7 +138,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       letter-spacing: -0.01em;
     }
     .logo-text::after { content: 'NEØFLW'; }
-    body.dark-mode .logo-text::after { content: 'NEØ:One'; }
+    body.dark-mode .logo-text::after { content: 'NEØFLW'; }
 
     @keyframes avatar-fade {
       to { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8)); opacity: 0.95; }
@@ -150,7 +155,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       text-shadow: 0 0 8px rgba(255,255,255,0.2);
     }
     .agent-name::after { content: 'NEØFLW'; }
-    body.dark-mode .agent-name::after { content: 'NEØ:One'; }
+    body.dark-mode .agent-name::after { content: 'NEØFLW'; }
     body.dark-mode .agent-name { color: #f5f5f5; }
     body:not(.dark-mode) .agent-name { color: var(--text-primary); }
 
@@ -320,6 +325,9 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       padding: 6px 6px 6px 16px;
       display: flex; align-items: flex-end; gap: 8px;
     }
+    body.dark-mode .input-card {
+      background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.03), transparent), var(--surface);
+    }
 
     .input-card:focus-within {
       border-color: rgba(255,255,255,0.15);
@@ -395,6 +403,15 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       display: flex; align-items: center; justify-content: center;
       font-family: var(--font-dot); font-size: 32px; font-weight: bold;
       animation: box-boot 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      position: relative; overflow: hidden;
+    }
+    .empty-logo::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 70%);
+      opacity: 0.5; pointer-events: none;
+    }
+    body.dark-mode .empty-logo {
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), transparent), var(--surface);
     }
 
     @keyframes box-boot {
