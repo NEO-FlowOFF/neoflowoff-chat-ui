@@ -49,24 +49,23 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       `[NEOONE API] Gerando resposta para o usuário... Session: ${sessionId || "anon"}`,
     );
 
-    const veniceApiKey = process.env.VENICE_API_KEY;
-    const veniceModel =
-      process.env.VENICE_MODEL || "venice-uncensored-role-play";
+    const llmApiKey = process.env.ASI1_API_KEY;
+    const llmModel = process.env.ASI1_MODEL || "asi1";
 
-    if (!veniceApiKey) {
-      return new Response(JSON.stringify({ error: "Venice API Key missing" }), {
+    if (!llmApiKey) {
+      return new Response(JSON.stringify({ error: "LLM API Key missing (ASI1)" }), {
         status: 500,
       });
     }
 
-    const res = await fetch("https://api.venice.ai/api/v1/chat/completions", {
+    const res = await fetch("https://api.asi1.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${veniceApiKey}`,
+        Authorization: `Bearer ${llmApiKey}`,
       },
       body: JSON.stringify({
-        model: veniceModel,
+        model: llmModel,
         messages: finalMessages,
         stream: true,
       }),

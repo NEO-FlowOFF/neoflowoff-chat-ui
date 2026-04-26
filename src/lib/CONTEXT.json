@@ -1,5 +1,8 @@
 {
   "ecosystem": "NEØ",
+  "status": "ACTIVE",
+  "version": "v1.1.0",
+  "manifesto": "Code is law. Expand until chaos becomes protocol.",
   "entities": {
     "agency": {
       "name": "Neoflowoff Agency",
@@ -30,6 +33,24 @@
       "name": "Code vs Brazilian Law",
       "description": "Pesquisa NEØ MELLØ sobre código e lei brasileira",
       "link": "https://neomello.github.io/CodevsBrazilianLaw/"
+    }
+  },
+  "architecture": {
+    "core": "Astro 6.x (Node Adapter)",
+    "hosting": "Railway (Sovereign Infrastructure)",
+    "llm": "ASI1 AI (Superintelligence Framework)",
+    "memory": "Redis (Server) + LocalStorage (Client)"
+  },
+  "design_system": {
+    "colors": {
+      "background_official": "#f2f2f2",
+      "hud_dark": "#111110",
+      "accent_pink": "#ff077c",
+      "accent_green": "#00ff41"
+    },
+    "typography": {
+      "display": "Inter Tight",
+      "mono": "Geist Mono"
     }
   }
 }

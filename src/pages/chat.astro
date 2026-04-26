@@ -19,7 +19,10 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     </div>
     <div class="header-actions">
       <div class="theme-switch" id="themeToggle" aria-label="Toggle Theme">
-        <div class="theme-switch-knob"></div>
+        <div class="theme-switch-knob">
+          <svg class="sun-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M22 12h2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>
+          <svg class="moon-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </div>
       </div>
       <button class="icon-btn" id="clearBtn" aria-label="Limpar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -37,14 +40,16 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
   <div class="messages-wrap" id="messagesWrap">
     <div class="empty-state" id="emptyState">
-      <div class="empty-logo"><span class="led-text">NEØ:one</span></div>
+      <div class="logo-container">
+        <span class="led-text">NEØ:one</span>
+      </div>
       <div class="empty-title">Estratégia On-Chain · Ecossistemas · Protocolos · Tokenização · Agentes IA</div>
     </div>
   </div>
 
   <div class="input-area">
     <div class="input-card">
-      <textarea id="msgInput" placeholder="Digite sua mensagem..." rows="1" maxlength="2000" autocomplete="off" spellcheck="false"></textarea>
+      <textarea id="msgInput" placeholder="Fale com NEØ:one uma superinteligencia" rows="1" maxlength="2000" autocomplete="off" spellcheck="false"></textarea>
       <button class="send-btn" id="sendBtn" disabled aria-label="Enviar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -75,12 +80,13 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       flex-shrink: 0;
       padding: 16px 20px 0;
       display: flex; align-items: center; justify-content: space-between;
-      background: var(--hud-soft);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border-bottom: 1px solid var(--border-hud);
+      backdrop-filter: blur(25px) saturate(2) brightness(1.05);
+      -webkit-backdrop-filter: blur(25px) saturate(2) brightness(1.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
       z-index: 100;
     }
+
 
     .footer-hud {
       background: linear-gradient(to bottom, var(--hud), #0a0a0a);
@@ -92,37 +98,33 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
     .agent-pill {
       display: flex; align-items: center; gap: 10px;
-      background: var(--surface);
-      backdrop-filter: blur(25px) saturate(1.5);
-      -webkit-backdrop-filter: blur(25px) saturate(1.5);
+      background: transparent;
       padding: 6px 14px 6px 8px; border-radius: 20px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      box-shadow: var(--glass-shadow);
+      border: none;
+      box-shadow: none;
     }
     body.dark-mode .agent-pill {
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent), var(--surface);
-      box-shadow: var(--glass-shadow);
+      border: none;
+      background: transparent;
+      box-shadow: none;
     }
 
     /* Elementos de Identidade */
 
     .agent-avatar {
       width: 36px; height: 36px; border-radius: 50%;
-      background: var(--surface-dark);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      background: transparent;
       flex-shrink: 0; position: relative;
       overflow: visible;
     }
-
     .agent-avatar img {
-      width: 44px; height: 44px; border-radius: 50%;
+      width: 52px; height: 52px; /* Aumentado para vazar */
       object-fit: cover;
       position: absolute;
-      top: -4px; left: -4px;
-      filter: none;
-      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      top: -8px; left: -10px; /* Posicionamento agressivo para vazar */
+      z-index: 5;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
       animation: avatar-fade 2s ease-in-out 0.5s forwards;
     }
 
@@ -140,11 +142,25 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     .logo-text::after { content: 'NEØFLW'; }
     body.dark-mode .logo-text::after { content: 'NEØFLW'; }
 
-    @keyframes avatar-fade {
-      to { filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8)); opacity: 0.95; }
+    .header {
+      flex-shrink: 0;
+      padding: 16px 20px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      position: relative;
+      z-index: 100;
+    }
+    body.dark-mode .header {
+      background: transparent;
     }
 
-    .agent-avatar:hover img { transform: scale(1.08) translateY(-2px); filter: drop-shadow(0 4px 12px var(--neon-glow)); opacity: 1; }
+    @keyframes avatar-fade {
+      to { opacity: 0.95; }
+    }
+
+    .agent-avatar:hover img { transform: scale(1.08) translateY(-2px); opacity: 1; }
 
     .agent-info { display: flex; flex-direction: column; gap: 2px; }
 
@@ -152,7 +168,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       font-family: var(--font-dot); font-size: 12px; font-weight: bold;
       color: #f5f5f5; letter-spacing: 0.05em; line-height: 1;
       margin-bottom: 2px;
-      text-shadow: 0 0 8px rgba(255,255,255,0.2);
+      text-shadow: none;
     }
     .agent-name::after { content: 'NEØFLW'; }
     body.dark-mode .agent-name::after { content: 'NEØFLW'; }
@@ -182,20 +198,21 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     .header-actions { display: flex; gap: 8px; align-items: center; }
 
     .icon-btn {
-      width: 36px; height: 36px; border-radius: 12px;
-      background: rgba(0,0,0,0.06); border: 1px solid var(--border);
+      width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.15s, transform 0.1s;
+      cursor: pointer; transition: color 0.2s, transform 0.1s;
       color: var(--text-muted);
+      background: transparent;
+      border: none;
     }
-    .icon-btn:active { transform: scale(0.92); background: rgba(0,0,0,0.1); }
+    .icon-btn:active { transform: scale(0.92); color: var(--text-primary); }
 
     /* 3D THEME SWITCH */
     .theme-switch {
-      position: relative; width: 44px; height: 24px; border-radius: 12px;
-      background: var(--surface-dark); border: 1px solid var(--border);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05);
+      position: relative; width: 44px; height: 24px;
       cursor: pointer; transition: all 0.3s; flex-shrink: 0;
+      background: transparent;
+      border: 1px solid rgba(0,0,0,0.05);
     }
     .theme-switch-knob {
       position: absolute; top: 2px; left: 22px; width: 18px; height: 18px;
@@ -204,13 +221,22 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     body.dark-mode .theme-switch {
-      background: var(--surface-dark); border-color: var(--border);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05);
+      background: transparent;
+      border-color: rgba(255,255,255,0.1);
     }
     body.dark-mode .theme-switch-knob {
       left: 2px; background: linear-gradient(135deg, #555, #222);
       box-shadow: 0 2px 4px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.3);
     }
+    .theme-switch-knob svg {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    .moon-icon { opacity: 0; transform: translate(-50%, -50%) rotate(-45deg) scale(0.5) !important; color: #f5f5f5; }
+    .sun-icon { opacity: 1; color: var(--neon-pink); }
+
+    body.dark-mode .moon-icon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1) !important; }
+    body.dark-mode .sun-icon { opacity: 0; transform: translate(-50%, -50%) rotate(45deg) scale(0.5) !important; }
 
     /* MESSAGES */
     .messages-wrap {
@@ -276,13 +302,12 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
 
     /* TYPING */
     .typing-bubble {
-      background: rgba(20,20,19,0.85);
+      background: var(--surface);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-hud);
       border-left: 3px solid var(--neon-pink);
-      border-bottom-left-radius: 6px;
-      padding: 12px 16px; border-radius: 18px;
+      padding: 10px 16px; border-radius: 18px;
       display: flex; gap: 5px; align-items: center;
       box-shadow: var(--shadow-hud);
     }
@@ -301,9 +326,10 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     /* STREAM CURSOR */
     .stream-cursor {
       display: inline-block; width: 2px; height: 14px;
-      background: var(--aqua); border-radius: 1px;
+      background: var(--neon-pink); border-radius: 1px;
       vertical-align: middle; margin-left: 2px;
       animation: cursor-blink 0.8s step-end infinite;
+      box-shadow: 0 0 8px var(--neon-glow);
     }
     @keyframes cursor-blink {
       0%, 100% { opacity: 1; }
@@ -316,48 +342,65 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     }
 
     .input-card {
-      background: var(--surface);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+      backdrop-filter: blur(40px) saturate(2.5) brightness(1.1);
+      -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.1);
       border-radius: var(--radius-card);
-      border: 1px solid var(--border-hud);
-      box-shadow: var(--glass-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 15px 35px rgba(0,0,0,0.05), 
+        inset 0 0 0 1px rgba(255,255,255,0.2),
+        inset 0 2px 15px rgba(255,255,255,0.1);
       padding: 6px 6px 6px 16px;
       display: flex; align-items: flex-end; gap: 8px;
+      transition: all 0.3s ease;
     }
     body.dark-mode .input-card {
-      background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.03), transparent), var(--surface);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.4));
+      border-color: rgba(255, 255, 255, 0.1);
     }
 
     .input-card:focus-within {
-      border-color: rgba(255,255,255,0.15);
-      box-shadow: var(--shadow-hud), inset 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.25);
+      box-shadow: var(--shadow-hud), 0 0 20px rgba(255,255,255,0.05);
     }
 
     .input-card textarea {
       flex: 1; background: transparent; border: none; outline: none; resize: none;
       font-family: var(--font-mono); font-size: 14px; font-weight: 300;
-      color: var(--text-primary); line-height: 1.5;
+      color: #b0b0b0; /* Cinza claro na versão clara */
+      line-height: 1.5;
       min-height: 24px; max-height: 120px; padding: 10px 0;
-      caret-color: var(--neon-green);
+      caret-color: var(--neon-pink);
     }
-    .input-card textarea::placeholder { color: var(--text-hud-dim); font-style: italic; }
+    .input-card textarea::placeholder { color: #b0b0b0; }
+
+    body.dark-mode .input-card textarea {
+      color: #4a4a4a; /* Dark gray na versão black */
+    }
+    body.dark-mode .input-card textarea::placeholder { color: #4a4a4a; }
 
     .send-btn {
-      width: 48px; height: 48px; border-radius: 20px; border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      transition: transform 0.15s, box-shadow 0.15s, background 0.15s, opacity 0.15s;
-      background: var(--neon-green);
-      box-shadow: 0 0 25px 5px var(--neon-glow), inset 0 -3px 8px rgba(0,0,0,0.25), inset 0 3px 8px rgba(255,255,255,0.6);
-      color: #0f0f0f;
+      width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); 
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(20px) saturate(3) brightness(1.1);
+      -webkit-backdrop-filter: blur(20px) saturate(3) brightness(1.1);
+      box-shadow: 
+        0 10px 25px rgba(0,0,0,0.1),
+        inset 0 4px 10px rgba(255,255,255,0.4),
+        inset 0 -2px 10px rgba(0,0,0,0.05);
+      color: var(--text-primary);
+      filter: url(#liquid-refraction);
     }
-    .send-btn svg { filter: drop-shadow(0 1px 0 rgba(255,255,255,0.4)); stroke-width: 2.5; }
+    .send-btn svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); stroke-width: 2; }
     
     .send-btn:disabled {
       background: var(--surface); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); 
       opacity: 0.5; cursor: default; color: var(--text-hud-dim);
     }
-    .send-btn:not(:disabled):active { transform: scale(0.92); box-shadow: 0 0 15px 2px var(--neon-glow), inset 0 3px 8px rgba(0,0,0,0.4); }
+    .send-btn:not(:disabled):active { transform: scale(0.95); box-shadow: 0 0 30px 8px var(--neon-glow); }
 
     /* FOOTER */
     .footer { flex-shrink: 0; padding: 0 20px 10px; text-align: center; }
@@ -393,77 +436,55 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       pointer-events: none;
     }
 
-    .empty-logo {
-      width: 160px; height: 60px; border-radius: 16px;
-      background: var(--surface);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: 1px solid var(--border-hud);
-      box-shadow: var(--glass-shadow);
+    .logo-container {
+      position: relative;
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-dot); font-size: 32px; font-weight: bold;
-      animation: box-boot 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-      position: relative; overflow: hidden;
+      padding: 40px;
     }
-    .empty-logo::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 70%);
-      opacity: 0.5; pointer-events: none;
-    }
-    body.dark-mode .empty-logo {
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), transparent), var(--surface);
-    }
-
-    @keyframes box-boot {
-      0% { transform: scale(0.85); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
     .led-text {
-      background: linear-gradient(90deg, 
-        var(--neon-pink) 0%, 
-        var(--neon-pink) 40%, 
-        #fff 50%, 
-        rgba(255,7,124,0.1) 60%, 
-        rgba(255,7,124,0.1) 100%);
-      background-size: 300% 100%;
-      color: transparent;
-      -webkit-background-clip: text;
-      background-clip: text;
-      animation: led-power-on 1.2s ease-out 1.2s forwards;
-      background-position: 100% 0;
-      filter: drop-shadow(0 0 0px rgba(255,7,124,0));
+      font-family: var(--font-display); font-size: 50px; font-weight: 800;
+      color: rgba(0, 0, 0, 0.87);
+      letter-spacing: -1px;
+      position: relative; z-index: 1;
+      transition: color 0.3s ease;
+    }
+    body.dark-mode .led-text {
+      color: rgba(255, 255, 255, 0.87);
+    }
+    
+    @keyframes drop-float {
+      0%, 100% { transform: translate(-30%, -50%) scale(1); }
+      50%  { transform: translate(-28%, -52%) scale(1.02); }
     }
 
-    @keyframes led-power-on {
-      0% { background-position: 100% 0; filter: drop-shadow(0 0 0px rgba(255,7,124,0)); }
-      50% { filter: drop-shadow(0 0 10px rgba(255,7,124,0.6)); }
-      100% { background-position: 0% 0; filter: drop-shadow(0 0 4px rgba(255,7,124,0.3)); }
-    }
 
     .empty-title {
       font-family: var(--font-display); font-size: 10px; font-weight: 800;
-      color: #111110; letter-spacing: 0.1em; text-align: center;
+      color: #9d9d9a; letter-spacing: 0.1em; text-align: center;
       text-transform: uppercase; max-width: 280px; line-height: 1.5;
-      opacity: 0;
-      animation: title-boot 0.8s ease 0.5s forwards;
+      opacity: 0.6;
     } 
-    body.dark-mode .empty-title { color: var(--text-primary); opacity: 0; }
-
-    @keyframes title-boot {
-      0% { opacity: 0; transform: translateY(4px); }
-      100% { opacity: 0.3; transform: translateY(0); }
-    }
+    body.dark-mode .empty-title { color: var(--text-primary); opacity: 0.6; }
 
     /* TOAST */
     .toast {
-      position: fixed; top: calc(var(--safe-top) + 16px); left: 50%;
-      transform: translateX(-50%) translateY(-8px);
-      background: var(--hud); color: var(--text-hud); font-size: 12px;
-      padding: 8px 16px; border-radius: var(--radius-pill);
-      border: 1px solid var(--border-hud); box-shadow: var(--shadow-hud);
-      opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      position: fixed; top: 16px; left: 50%;
+      transform: translateX(-50%) translateY(-4px);
+      background: rgba(255, 255, 255, 0.95);
+      color: rgba(0, 0, 0, 0.7);
+      font-family: var(--font-display); font-size: 10px; font-weight: 800;
+      padding: 4px 12px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none; z-index: 1000; white-space: nowrap;
+    }
+    body.dark-mode .toast {
+      background: rgba(20, 20, 20, 0.9);
+      color: rgba(255, 255, 255, 0.87);
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 

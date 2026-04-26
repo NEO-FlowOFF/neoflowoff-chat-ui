@@ -77,7 +77,11 @@ const isUser = role === 'user';
     color: var(--text-hud);
     border: 1px solid var(--border-hud);
     border-radius: 2px 20px 20px 20px;
-    border-left: 3px solid var(--neon-pink);
+    border-left: 2px solid rgba(255, 7, 124, 1);
+    box-shadow: 
+      0 10px 30px rgba(0,0,0,0.08),
+      -2px 0 8px rgba(255, 255, 255, 0.4), /* Luz Branca Neutra */
+      2px 0 8px rgba(255, 7, 124, 0.4);   /* Magenta da Marca */
   }
 
   .agent-side .bubble::after {
@@ -92,7 +96,11 @@ const isUser = role === 'user';
     color: var(--text-hud);
     border: 1px solid var(--border-hud);
     border-radius: 20px 2px 20px 20px;
-    border-right: 3px solid var(--neon-pink-secondary);
+    border-right: 2px solid rgba(255, 7, 124, 1);
+    box-shadow: 
+      0 10px 30px rgba(0,0,0,0.08),
+      2px 0 8px rgba(255, 255, 255, 0.4),
+      -2px 0 8px rgba(255, 7, 124, 0.4);
   }
 
   .timestamp {
