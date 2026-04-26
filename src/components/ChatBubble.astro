@@ -13,7 +13,7 @@ const isUser = role === 'user';
 <div class={`msg-container ${isUser ? 'user-side' : 'agent-side'}`}>
   <div class="bubble-wrapper">
     {!isUser && <span class="label">NEØ:One</span>}
-    {isUser && <span class="label">USER</span>}
+    {isUser && <span class="label">Visitante: %100110</span>}
     
     <div class="bubble">
       {content}
@@ -65,27 +65,34 @@ const isUser = role === 'user';
     font-size: 14.5px;
     line-height: 1.55;
     position: relative;
-    box-shadow: var(--shadow-hud);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: background 0.3s ease;
   }
 
-  /* BALÃO DO AGENTE (Esquerda - Frio/Tátil) */
+  /* BALÃO DO AGENTE (Esquerda - Cristalino/Acqua) */
   .agent-side .bubble {
-    background: linear-gradient(145deg, #1a1a18, #111110);
+    background: var(--surface);
     color: var(--text-hud);
     border: 1px solid var(--border-hud);
     border-radius: 2px 20px 20px 20px;
-    border-left: 3px solid var(--neon-green);
+    border-left: 3px solid var(--neon-pink);
   }
 
-  /* BALÃO DO USUÁRIO (Direita - Deep Gray) */
+  .agent-side .bubble::after {
+    content: ''; position: absolute; inset: 0;
+    background: var(--glass-tint); pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* BALÃO DO USUÁRIO (Direita - Glass Deep) */
   .user-side .bubble {
-    background: rgba(25, 25, 25, 0.85);
-    color: #f5f5f5;
-    border: 1px solid var(--border);
+    background: var(--hud-soft);
+    color: var(--text-hud);
+    border: 1px solid var(--border-hud);
     border-radius: 20px 2px 20px 20px;
-    border-right: 3px solid var(--neon-pink);
+    border-right: 3px solid var(--neon-pink-secondary);
   }
 
   .timestamp {
