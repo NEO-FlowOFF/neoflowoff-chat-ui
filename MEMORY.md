@@ -1,4 +1,4 @@
-# Memory — NØX Chat
+# Memory — NEØ:One Chat
 
 ## Atual (Beta v1.1.0)
 

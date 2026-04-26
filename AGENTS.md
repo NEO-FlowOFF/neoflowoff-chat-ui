@@ -1,4 +1,4 @@
-# NØX
+# NEØ:One
 
 Agente de chat autônomo do ecossistema NEØ FlowOFF.
 Endpoint: Azure AI Foundry

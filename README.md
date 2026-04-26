@@ -28,13 +28,13 @@ Este projeto utiliza o **Makefile** para automação de tarefas críticas.
 ### Instalação
 
 ```bash
-make install
+pnpm install
 ```
 
 ### Desenvolvimento
 
 ```bash
-make dev
+pnpm dev
 ```
 
 ### Verificação (Audit + Build + Typecheck)

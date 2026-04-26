@@ -77,6 +77,14 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         if (sessionId && accumulatedResponse) {
           const updatedHistory = [...messages, { role: 'assistant', content: accumulatedResponse }];
           await saveChatHistory(sessionId, updatedHistory);
+          
+          // Tenta extrair dados para o CRM (Regis)
+          try {
+            const { updateRegisLead } = await import("../../lib/regis");
+            await updateRegisLead(sessionId, updatedHistory);
+          } catch (err) {
+            console.error("[REGIS ERROR]", err);
+          }
         }
 
         controller.close();

@@ -1,7 +1,7 @@
 # NEO-FlowOFF Chat UI - Makefile
 
 # Package Manager
-PM := npm
+PM := pnpm
 
 # Shell configuration
 SHELL := /bin/zsh
@@ -51,7 +51,7 @@ clean: ## Limpa artefatos de build e dependências
 update: ## Atualiza o Astro e todas as dependências para as versões mais seguras
 	@echo "$(CYAN)➜ Atualizando Astro e dependências...$(RESET)"
 	$(PM) dlx @astrojs/upgrade -y
-	$(PM) install
+	$(PM) install --no-frozen-lockfile
 
 repair: clean install ## Limpa cache/node_modules e reinstala do zero (corrige erros de store)
 
