@@ -1,73 +1,66 @@
-# SVG banner
+<!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
+  
+```text
+========================================
+       NEØ:One · SVG BANNER GUIDE
+========================================
+Type: ASSET SPECIFICATION
+Standard: NΞØ VISUAL IDENTITY
+========================================
+```
 
-Workspace raiz **multi-repo** do ecossistema NEØ PROTOCOL — pasta no disco onde convivem **várias organizações e clones** (cada um com o seu `.git`), não um monorepo único.
+## ⟠ Objetivo
 
-## NEO-PROTOCOL: pasta local e organização GitHub
+Definir as regras de composição técnica e estética para a
+geração de banners SVG canônicos do ecossistema FlowOFF.
 
-Tarefa: gerar um banner SVG para o README do projeto onde estás a trabalhar,
-seguindo o mesmo padrão visual do banner de referência abaixo.
+────────────────────────────────────────
 
-Output:
+## ⧉ Especificações Técnicas
 
-- Um único ficheiro SVG, salvo em `docs/assets/<nome-do-projeto>-banner.svg`.
-- Inserir no README, próximo do título, com:
+▓▓▓ ESTRUTURA BASE
+────────────────────────────────────────
+- ViewBox: 1200x420 (Hard Limit).
+- Corner Radius: rx=24 (Cartão Interno).
+- Typography: System Monospace (UI Monospace / SFMono).
+- Gradient: Diagonal Linear (Dark Tones).
 
-      ![<nome-do-projeto> banner](./docs/assets/<nome-do-projeto>-banner.svg>)
+▓▓▓ PALETA CIBERNÉTICA
+────────────────────────────────────────
+└─ Background: #09131A (Sólido)
+└─ Card Grad: #10222D -> #0B151C
+└─ Lines/Labels: #6EE7F9 (Cyan)
+└─ Highlight: #D7FF64 (Lime Accent)
+└─ Content: #E8F4F8 (Clear Text)
 
-Especificações fixas (não mudar):
+────────────────────────────────────────
 
-- viewBox 1200x420, width="1200", height="420".
-- Fundo externo sólido + cartão interno com cantos arredondados (rx=24) e
-  gradiente linear diagonal entre dois tons escuros próximos.
-- Paleta base estilo "terminal escuro":
-    fundo:        #09131A
-    cartão grad:  #10222D -> #0B151C
-    ciano:        #6EE7F9 (linhas, borda, label superior)
-    lima/accent:  #D7FF64 (núcleo, títulos de bloco, highlights)
-    texto claro:  #E8F4F8
-    texto suave:  #9BB7C3
-- Tipografia: usar font-family monoespaçada
-  (ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace).
-- Manter a "linguagem" de blocos:
-    1) À esquerda: símbolo circular concêntrico (3 círculos) representando o
-       núcleo/identidade do projeto.
-    2) 3 linhas finas ciano ligando o símbolo a um primeiro cartão.
-    3) Primeiro cartão: lista de 3 "funções" principais do projeto em estilo
-       código, ex: foo(), bar(), baz(). A primeira linha em accent (#D7FF64),
-       as outras em texto claro.
-    4) Seta ciano curta ligando o primeiro cartão a um segundo cartão maior.
-    5) Segundo cartão: título em accent (caixa alta, ex: NOME DO DOMÍNIO) e
-       3 linhas de descrição curta dos conceitos centrais.
+## ⨷ Composição Visual
 
-- Rodapé/topo do banner:
+1. **Núcleo (Left):** Símbolo circular concêntrico (3 níveis).
+2. **Conectores:** 3 linhas ciano ligando o núcleo ao cartão 1.
+3. **Cartão 1:** Lista de 3 funções operacionais (estilo código).
+4. **Cartão 2:** Título em Accent + 3 conceitos centrais.
+5. **Rodapé:** Label da organização + Tagline do projeto.
 
-  - Topo esquerdo: label pequeno em ciano com letter-spacing (ex: nome da
-      organização ou família do projeto).
-  - Inferior esquerdo: nome do projeto em fonte grande bold (~44px) e,
-      por baixo, uma frase curta (uma linha) em texto suave descrevendo o que
-      o projeto faz.
+────────────────────────────────────────
 
-O que adaptar ao projeto atual:
+## ⍟ Restrições de Design
 
-- Substituir "NEO PROTOCOL" pelo nome da organização/família do projeto.
-- Substituir "neo-mcp-server" pelo nome real do projeto.
-- Substituir a tagline pela descrição real (uma linha, em inglês ou no idioma
-  do README do projeto).
-- Substituir identity()/upload()/retrieve() pelas 3 capacidades/funções
-  principais do projeto.
-- Substituir "STORACHA SPACE" e as 3 linhas seguintes pelos 3 conceitos
-  centrais do domínio do projeto.
-- Pode trocar o accent (#D7FF64) por outra cor da identidade visual do
-  projeto, mantendo bom contraste no fundo escuro.
+> **No Images:** Proibido uso de tags `<image>`.  
+> **No External:** Sem dependências de fontes externas.  
+> **Vector Only:** Tudo deve ser desenhado via `<path>`, `<rect>` ou `<text>`.
 
-SVG de referência (estrutura a imitar):
+```text
+▓▓▓ NΞØ MELLØ
+────────────────────────────────────────
+Core Architect · NΞØ Protocol
+neo@neoprotocol.space
 
-<colar aqui o conteúdo do ficheiro
- docs/assets/neo-mcp-server-banner.svg deste repo>
+"Code is law. Expand until 
+chaos becomes protocol."
 
-Restrições:
-
-    - SVG estático, sem animações, sem dependências externas, sem <image>
-    - Tudo em vetor, texto como <text> (não converter para path).
-    - Manter os IDs e <defs> coerentes; nada de fontes externas.
-    - Não inventar logos de marcas terceiras
+Security by design.
+Exploits find no refuge here.
+────────────────────────────────────────
+```

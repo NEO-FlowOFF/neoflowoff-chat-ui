@@ -23,9 +23,10 @@ export const GET: APIRoute = async ({ request }: APIContext) => {
         "Cache-Control": "no-cache",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[HISTORY API ERROR]", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

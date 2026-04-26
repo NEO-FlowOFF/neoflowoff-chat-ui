@@ -8,15 +8,17 @@ if (!redisUrl) {
   );
 }
 
+import { type Message } from "../types/chat";
+
 export const redis = redisUrl ? new Redis(redisUrl) : null;
 
-export async function getChatHistory(sessionId: string) {
+export async function getChatHistory(sessionId: string): Promise<Message[]> {
   if (!redis) return [];
   const data = await redis.get(`chat:${sessionId}`);
   return data ? JSON.parse(data) : [];
 }
 
-export async function saveChatHistory(sessionId: string, history: any[]) {
+export async function saveChatHistory(sessionId: string, history: Message[]) {
   if (!redis) return;
   // Mantém apenas as últimas 40 mensagens para performance e custo
   const limitedHistory = history.slice(-40);

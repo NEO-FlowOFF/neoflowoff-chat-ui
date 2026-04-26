@@ -1,19 +1,59 @@
-# Memory — NEØ:One Chat
+<!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
+  
+```text
+========================================
+       NEØ:One · MEMORY ARCHITECTURE
+========================================
+Storage: HYBRID (REDIS + LOCAL)
+Security: SOVEREIGN SESSIONS
+========================================
+```
 
-## Atual (Beta v1.1.0)
+## ⟠ Objetivo
 
-- **Storage:** Híbrido (Redis Server-Side + LocalStorage Client-Side).
-- **Engine de Memória:** Redis (Railway) via `src/lib/redis.ts`.
-- **Identidade:** `sessionId` (UUID) persistente por dispositivo, salvo no client e validado no server.
-- **Expiração:** TTL de 7 dias de inatividade no Redis para cada sessão.
-- **Sincronização:** O histórico é carregado do Redis e atualizado a cada conclusão de stream da IA.
-- **Limite Histórico:** 40 mensagens (contexto enviado à IA).
+Definição técnica da persistência de estado e memória de 
+longo prazo para o agente NEØ:One.
 
-## Próximo
+────────────────────────────────────────
 
-- **Contexto RAG:** Injeção de conhecimento do repositório root organizacional.
-- **Sentiment State:** Persistência do estado emocional do agente entre sessões baseado na análise do histórico.
-- **Cross-Device Link:** Opção de vincular sessões via chave criptográfica manual.
+## ⧉ Camada Atual
 
----
-> Status: Memória Soberana Ativa (Railway)
+▓▓▓ PERSISTÊNCIA ATIVA
+────────────────────────────────────────
+└─ Engine: Redis (Railway) via ioredis.
+└─ Identidade: sessionId (UUID) persistente no Client/Server.
+└─ TTL: 7 dias de inatividade por sessão no Redis.
+└─ Sincronização: Handoff a cada conclusão de stream SSE.
+└─ Limite: 40 mensagens de profundidade contextual.
+
+────────────────────────────────────────
+
+## ◬ Roadmap de Memória
+
+▓▓▓ EVOLUÇÃO E ESTADO
+────────────────────────────────────────
+└─ RAG Context: Injeção dinâmica de conhecimento organizacional.
+└─ Sentiment Logic: Persistência de tom emocional via histórico.
+└─ Cross-Link: Sincronização manual via chave criptográfica.
+
+────────────────────────────────────────
+
+## ⍟ Status do Sistema
+
+> **Status:** Active  
+> **Provider:** Railway Redis  
+> **Encryption:** Data-at-rest (Server)
+
+```text
+▓▓▓ NΞØ MELLØ
+────────────────────────────────────────
+Core Architect · NΞØ Protocol
+neo@neoprotocol.space
+
+"Code is law. Expand until 
+chaos becomes protocol."
+
+Security by design.
+Exploits find no refuge here.
+────────────────────────────────────────
+```

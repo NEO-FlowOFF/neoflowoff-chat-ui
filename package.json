@@ -23,6 +23,10 @@
   "pnpm": {
     "overrides": {
       "yaml": ">=2.8.3"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }

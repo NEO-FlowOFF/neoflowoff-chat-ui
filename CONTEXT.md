@@ -1,63 +1,77 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
-# NEOFLOWOFF CHAT UI (NØX)
-
+  
 ```text
 ========================================
-      NEO-FLOWOFF CHAT UI · CONTEXT
+       NEØ:One · SYSTEM CONTEXT
 ========================================
-Status: ACTIVE (v1.1.0-beta)
-Role: Interface Web/PWA do Agente NØX
-Framework: Astro 6 (SSR Mode)
-Memory: Redis (Railway)
-Engine: Venice AI (Uncensored)
+Status: ACTIVE
+Version: v1.1.0
 ========================================
 ```
 
-## ⟠ Mapa Mental
+## ⟠ Objetivo
 
-Este repositório (`neoflowoff-chat-ui`) contém o front-end e a interface de comunicação do **NØX**, o agente autônomo do ecossistema NEØ FlowOFF.
-
-Ele atua como um repositório soberano, mantendo seu próprio runtime, histórico (git) e dependências de produto, conectado ao GitHub organizacional sob o protocolo de segurança NΞØ.
+Definição arquitetural e contextual da interface soberana
+do agente NEØ:One (núcleo de inteligência FlowOFF).
 
 ────────────────────────────────────────
 
-## ⧉ Identidade e Design (Tactile Cyber-Dashboard)
+## ⧉ Mapa Mental
 
-A interface segue o conceito **Tactile 3D Cyber-Dashboard**:
-- **Cores:** Fundo cinza-claro oficial (`#f2f2f2`) em modo light, contrastando com HUDs e balões de mensagem escuros (`#111110`). Acentos em **Verde Neon** e **Rosa Neon**.
-- **Volume:** Uso de *Rim Lights* (top highlights), *Inset Shadows* profundas e gradientes 145° para simular hardware físico.
-- **Tipografia:** `Codystar` (LED dot-matrix) para nomes e dados táticos; `Geist Mono` para o stream de consciência da IA.
+Este repositório (`neoflowoff-chat-ui`) contém o front-end
+e o proxy de comunicação do NEØ:One.
+
+Opera como repositório soberano com runtime próprio,
+mantendo histórico (git) e dependências de produto,
+alinhado ao protocolo de segurança NΞØ.
+
+────────────────────────────────────────
+
+## ⨷ Design (Tactile HUD)
+
+▓▓▓ ESTÉTICA CIBERNÉTICA
+────────────────────────────────────────
+└─ Cores: Fundo cinza oficial (#f2f2f2) vs HUDs (#111110).
+└─ Acentos: Neon Green e Neon Pink (Strategic Highlights).
+└─ Volume: Rim Lights, Inset Shadows e Gradientes 145°.
+└─ Fontes: Codystar (LED Dot) e Geist Mono (Cognition).
 
 ────────────────────────────────────────
 
 ## ⧇ Arquitetura de Produção
 
-O aplicativo utiliza **Astro 6** em modo **Server-Side Rendering (SSR)** via adaptador Node:
+▓▓▓ FLUXO DE DADOS (SSR)
+────────────────────────────────────────
+└─ Client (PWA) -> /api/chat (Astro POST)
+└─ Middle: Redis History Sync + Memory Guard
+└─ Backend: Venice AI (Uncensored / SSE Proxy)
+
+────────────────────────────────────────
+
+## ⍟ Pilares Técnicos
+
+1. **Memória Soberana:** Redis (Railway) via sessionId.
+2. **Venice AI:** Streaming SSE em tempo real (No Buffer).
+3. **Strategic Guard:** Limite de sessão e extração Regis.
+
+────────────────────────────────────────
+
+## ◱ Navegação
+
+- [MEMORY.md](./MEMORY.md) (Estrutura Redis)
+- [README.md](./README.md) (Setup e Operação)
+- [SKILL.md](./SKILL.md) (Manifesto de Capacidades)
 
 ```text
-Client (PWA) -> /api/chat (Astro POST Route) -> Redis (History Sync)
-                                           -> Venice AI (Proxy Streaming)
+▓▓▓ NΞØ MELLØ
+────────────────────────────────────────
+Core Architect · NΞØ Protocol
+neo@neoprotocol.space
+
+"Code is law. Expand until 
+chaos becomes protocol."
+
+Security by design.
+Exploits find no refuge here.
+────────────────────────────────────────
 ```
-
-1. **Memória Soberana:** Utiliza **Redis** (Railway) para persistência server-side via `sessionId`. O `localStorage` atua como cache redundante e identificador de sessão.
-2. **Venice AI Integration:** Respostas em tempo real via SSE (Server-Sent Events) utilizando o modelo `venice-uncensored-role-play`.
-3. **Proxy Server-Side:** A rota `/api/chat.ts` protege a `VENICE_API_KEY` e sincroniza o histórico com o Redis antes e depois de cada interação.
-4. **Beta Guard:** Limite de mensagens por sessão para controle de custos e experiência guiada de teste.
-
-────────────────────────────────────────
-
-## ◯ Roadmap Evolutivo
-
-1. **Contexto RAG:** Injeção de conhecimento do repositório root organizacional.
-2. **Sentiment State:** Persistência do estado emocional do agente entre sessões baseado no histórico do Redis.
-3. **PWA Avançado:** Web Push Notifications e Background Sync.
-
-────────────────────────────────────────
-
-## ◱ Próxima Leitura
-
-Consulte `MEMORY.md` para detalhes sobre a estrutura de dados no Redis e `README.md` para instruções de setup.
-
----
-> **Protocolo NΞØ FlowOFF**  
-> "A soberania digital não é pedida, é construída."

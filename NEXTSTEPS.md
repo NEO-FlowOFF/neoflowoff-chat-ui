@@ -1,32 +1,60 @@
-# NEXT STEPS (Roadmap & Tarefas Futuras)
+<!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
+  
+```text
+========================================
+       NEØ:One · EVOLUTION ROADMAP
+========================================
+Focus: SOVEREIGNTY & CONTEXT
+Version: v1.1.0
+========================================
+```
 
-Este documento registra as intenções de evolução e débito técnico planejado para a interface do **NØX**.
+## ⟠ Objetivo
 
-## PWA — Próximos poderes
+Planejamento de evolução técnica e resolução de débitos
+da interface soberana NEØ:One.
 
-- [x] Limite de Sessão Beta (10 msgs)
-- [ ] Background Sync (IndexedDB → retry offline)
-- [ ] Web Push Notifications
-      ⚠ iOS: requer instalação na home screen + iOS 16.4+
-- [ ] Badging API
-- [ ] Botão de instalação customizado (BeforeInstallPromptEvent)
-      ⚠ iOS: não expõe esse evento — workaround: banner manual com detecção de standalone
+────────────────────────────────────────
 
-## Restrições conhecidas
+## ⧉ PWA Core
 
-- Safari/iOS < 16.4: sem push, sem background sync
-- Chrome Android: sem restrições
+▓▓▓ PRÓXIMOS PODERES
+────────────────────────────────────────
+- [x] Limite de Sessão Beta (10 msgs).
+- [ ] Background Sync (IndexedDB → retry offline).
+- [ ] Web Push Notifications (iOS 16.4+).
+- [ ] Custom Install Trigger (Banner manual para iOS).
+- [ ] Badging API para notificações pendentes.
 
-## 2. Migração de Estado para Redis
+────────────────────────────────────────
 
-- Transição do armazenamento de histórico em `localStorage` para persistência segura server-side utilizando Redis, garantindo a memória de longo prazo da entidade.
+## ◬ Infraestrutura & IA
 
-## 3. Injeção Contextual via RAG
+▓▓▓ ESTRATÉGIA TÉCNICA
+────────────────────────────────────────
+└─ RAG Logic: Injeção de manifestos organizacionais.
+└─ Regis Extraction: Estruturação de dados para CRM.
+└─ Type Safety: Eliminação total de 'any' (Strategic Typing).
+└─ Testing: Suíte robusta para rotas de API e Redis.
 
-- Ler os manifestos (ex: `ecosystem.json`) do repositório root e injetar via RAG no system prompt da Azure AI Foundry para dar consciência de infraestrutura ao agente.
+────────────────────────────────────────
 
-## 4. Integração Final e Testes
+## ⨷ Restrições Conhecidas
 
-- [ ] Implementar a integração completa do RAG
-- [ ] Implementar e estabilizar o sistema de memória com Redis
-- [ ] Desenvolver e executar uma suíte de testes robusta ("fazer um bom teste") para garantir a estabilidade das rotas de API, Redis e RAG.
+> **iOS < 16.4:** Sem push e background sync.  
+> **Standalone:** Requisito para notificações em Webkit.  
+> **Memory:** Limitada a 40 mensagens por performance.
+
+```text
+▓▓▓ NΞØ MELLØ
+────────────────────────────────────────
+Core Architect · NΞØ Protocol
+neo@neoprotocol.space
+
+"Code is law. Expand until 
+chaos becomes protocol."
+
+Security by design.
+Exploits find no refuge here.
+────────────────────────────────────────
+```

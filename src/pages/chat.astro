@@ -679,8 +679,8 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
     }
 
-      function showEmptyState() {
-      emptyState.style.display = 'flex';
+    function showEmptyState() {
+      empty?.classList.remove('hidden');
       scrollToBottom();
     }
   </script>

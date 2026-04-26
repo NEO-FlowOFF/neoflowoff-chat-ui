@@ -1,29 +1,43 @@
-import type { APIRoute, APIContext } from "astro";
+import type { APIContext, APIRoute } from "astro";
 import { saveChatHistory } from "../../lib/redis";
+import { type Message } from "../../types/chat";
 
 export const POST: APIRoute = async ({ request }: APIContext) => {
   try {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
-    
+
     // Proteção de Origin (Permite localhost e o próprio host oficial)
-    const isAllowedOrigin = !origin || origin.includes(host || "") || origin.includes("neoflowoff.agency");
-    
+    const isAllowedOrigin =
+      !origin ||
+      origin.includes(host || "") ||
+      origin.includes("neoflowoff.agency");
+
     if (!isAllowedOrigin) {
-       console.warn(`[SECURITY] Acesso bloqueado: ${origin}`);
-       return new Response(JSON.stringify({ error: "Unauthorized Origin" }), { status: 403 });
+      console.warn(`[SECURITY] Acesso bloqueado: ${origin}`);
+      return new Response(JSON.stringify({ error: "Unauthorized Origin" }), {
+        status: 403,
+      });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as {
+      messages: Message[];
+      sessionId?: string;
+    };
     const { messages, sessionId } = body;
-    
-    console.log(`[NØX API] Gerando resposta para o usuário... Session: ${sessionId || 'anon'}`);
+
+    console.log(
+      `[NØX API] Gerando resposta para o usuário... Session: ${sessionId || "anon"}`,
+    );
 
     const veniceApiKey = process.env.VENICE_API_KEY;
-    const veniceModel = process.env.VENICE_MODEL || "venice-uncensored-role-play";
+    const veniceModel =
+      process.env.VENICE_MODEL || "venice-uncensored-role-play";
 
     if (!veniceApiKey) {
-      return new Response(JSON.stringify({ error: "Venice API Key missing" }), { status: 500 });
+      return new Response(JSON.stringify({ error: "Venice API Key missing" }), {
+        status: 500,
+      });
     }
 
     const res = await fetch("https://api.venice.ai/api/v1/chat/completions", {
@@ -41,7 +55,9 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
 
     if (!res.ok) {
       const err = await res.text();
-      return new Response(JSON.stringify({ error: err }), { status: res.status });
+      return new Response(JSON.stringify({ error: err }), {
+        status: res.status,
+      });
     }
 
     const stream = new ReadableStream({
@@ -55,19 +71,19 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           const chunk = decoder.decode(value);
           controller.enqueue(value);
 
           // Extrai o conteúdo para salvar no Redis depois
-          const lines = chunk.split('\n');
+          const lines = chunk.split("\n");
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const jsonStr = line.replace('data: ', '').trim();
-              if (jsonStr === '[DONE]') continue;
+            if (line.startsWith("data: ")) {
+              const jsonStr = line.replace("data: ", "").trim();
+              if (jsonStr === "[DONE]") continue;
               try {
                 const data = JSON.parse(jsonStr);
-                accumulatedResponse += data.choices?.[0]?.delta?.content || '';
+                accumulatedResponse += data.choices?.[0]?.delta?.content || "";
               } catch {}
             }
           }
@@ -75,9 +91,12 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
 
         // Ao finalizar, salva no Redis se houver sessionId
         if (sessionId && accumulatedResponse) {
-          const updatedHistory = [...messages, { role: 'assistant', content: accumulatedResponse }];
+          const updatedHistory: Message[] = [
+            ...messages,
+            { role: "assistant", content: accumulatedResponse },
+          ];
           await saveChatHistory(sessionId, updatedHistory);
-          
+
           // Tenta extrair dados para o CRM (Regis)
           try {
             const { updateRegisLead } = await import("../../lib/regis");
@@ -95,12 +114,15 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
         "X-Accel-Buffering": "no",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[API ERROR]", error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+    });
   }
 };
