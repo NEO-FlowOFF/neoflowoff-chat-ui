@@ -1,0 +1,102 @@
+---
+// src/components/ChatBubble.astro
+interface Props {
+  role: 'user' | 'agent';
+  content: string;
+  time?: string;
+}
+
+const { role, content, time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) } = Astro.props;
+const isUser = role === 'user';
+---
+
+<div class={`msg-container ${isUser ? 'user-side' : 'agent-side'}`}>
+  <div class="bubble-wrapper">
+    {!isUser && <span class="label">NEØ:one</span>}
+    {isUser && <span class="label">USER</span>}
+    
+    <div class="bubble">
+      {content}
+    </div>
+    
+    <span class="timestamp">{time}</span>
+  </div>
+</div>
+
+<style>
+  .msg-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 16px;
+    animation: bubbleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .user-side { justify-content: flex-end; }
+  .agent-side { justify-content: flex-start; }
+
+  .bubble-wrapper {
+    max-width: 85%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-side .bubble-wrapper { align-items: flex-end; }
+  .agent-side .bubble-wrapper { align-items: flex-start; }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .user-side .label { color: var(--neon-pink); text-align: right; }
+  .agent-side .label { color: var(--neon-green); text-align: left; }
+
+  .bubble {
+    padding: 12px 18px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    position: relative;
+    box-shadow: var(--shadow-hud);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* BALÃO DO AGENTE (Esquerda - Frio/Tátil) */
+  .agent-side .bubble {
+    background: linear-gradient(145deg, #1a1a18, #111110);
+    color: var(--text-hud);
+    border: 1px solid var(--border-hud);
+    border-radius: 2px 20px 20px 20px;
+    border-left: 3px solid var(--neon-green);
+  }
+
+  /* BALÃO DO USUÁRIO (Direita - Deep Gray) */
+  .user-side .bubble {
+    background: rgba(25, 25, 25, 0.85);
+    color: #f5f5f5;
+    border: 1px solid var(--border);
+    border-radius: 20px 2px 20px 20px;
+    border-right: 3px solid var(--neon-pink);
+  }
+
+  .timestamp {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    margin-top: 5px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    letter-spacing: 0.05em;
+  }
+
+  .user-side .timestamp { text-align: right; }
+  .agent-side .timestamp { text-align: left; }
+</style>
