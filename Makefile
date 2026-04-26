@@ -1,7 +1,7 @@
 # NEO-FlowOFF Chat UI - Makefile
 
 # Package Manager
-PM := pnpm
+PM := npm
 
 # Shell configuration
 SHELL := /bin/zsh
