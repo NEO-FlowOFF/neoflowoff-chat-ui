@@ -29,7 +29,7 @@ NEØ:One em todas as implementações de prompt e lógica de IA.
 
 ## ⧉ Contrato Operacional
 
-1. **Streaming SSE**: Respostas em tempo real via Venice AI.
+1. **Streaming SSE**: Respostas em tempo real via ASI1 AI.
 2. **Sovereign Memory**: Histórico persistente via Redis.
 3. **Regis System**: Extração estruturada de dados para CRM.
 
