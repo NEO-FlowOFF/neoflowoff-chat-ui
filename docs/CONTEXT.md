@@ -61,7 +61,7 @@ alinhado ao protocolo de segurança NΞØ.
 ## ◱ Navegação
 
 - [MEMORY.md](./MEMORY.md) (Estrutura Redis)
-- [README.md](./README.md) (Setup e Operação)
+- [README.md](../README.md) (Setup e Operação)
 - [SKILL.md](./SKILL.md) (Manifesto de Capacidades)
 
 ```text
