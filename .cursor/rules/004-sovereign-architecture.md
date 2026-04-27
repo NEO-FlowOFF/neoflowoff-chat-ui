@@ -22,7 +22,7 @@ respeitem os pilares de soberania e resiliência do sistema.
 ## ⨷ Pilares Técnicos
 
 1. **Redis**: Persistência via Railway usando `sessionId`.
-2. **Venice AI**: Proxy SSE para streaming em tempo real.
+2. **ASI1 AI**: Proxy SSE para streaming em tempo real.
 3. **PWA**: Suporte offline e interface tátil (HUD/3D).
 
 ────────────────────────────────────────
