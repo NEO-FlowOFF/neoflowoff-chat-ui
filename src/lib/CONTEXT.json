@@ -12,19 +12,29 @@
     "name": "Neo Mello",
     "title": "Fundador e Arquiteto",
     "email": "neo@neoflowoff.agency",
-    "experience": "18 anos de experiência em ecossistemas digitais",
+    "experience": "mais de 20 anos de experiência em marketing, desenvolvimento e ecossistemas digitais",
     "scheduling": "e-mail ou WhatsApp"
   },
   "services": {
     "consulting": {
       "name": "Consultoria em Arquitetura de Ecossistemas Digitais",
       "description": "Mapeamento e transformação de processos de marketing em sistemas automatizados e escaláveis.",
-      "results": ["Redução de até 85% no trabalho manual", "ROI de 3x a 5x", "Redução de custos entre 60% e 70%"]
+      "results": [
+        "Redução de até 85% no trabalho manual",
+        "ROI de 3x a 5x",
+        "Redução de custos entre 60% e 70%"
+      ]
     },
     "development": {
       "name": "Desenvolvimento de Ecossistemas Digitais",
       "description": "Construção de sites de alta performance, WebApps complexos e infraestruturas que operam com mínima intervenção humana.",
-      "technologies": ["Astro", "Next.js", "Node.js", "Automação de fluxos", "Integrações via API"]
+      "technologies": [
+        "Astro",
+        "Next.js",
+        "Node.js",
+        "Automação de fluxos",
+        "Integrações via API"
+      ]
     },
     "ai_solutions": {
       "name": "Inteligência Artificial Aplicada",
@@ -48,7 +58,7 @@
     },
     {
       "question": "Quem é Neo Mello?",
-      "answer": "Fundador da NEO FlowOFF, com 18 anos de experiência em ecossistemas digitais e estratégia de marketing."
+      "answer": "Fundador da NEO FlowOFF, com mais de 20 anos de experiência em marketing, desenvolvimento e ecossistemas digitais."
     },
     {
       "question": "Como posso contratar a NEO FlowOFF?",
