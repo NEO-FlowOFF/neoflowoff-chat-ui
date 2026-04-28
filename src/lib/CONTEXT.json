@@ -22,9 +22,14 @@
       "results": ["Redução de até 85% no trabalho manual", "ROI de 3x a 5x", "Redução de custos entre 60% e 70%"]
     },
     "development": {
-      "name": "Desenvolvimento de Infraestruturas Autônomas",
-      "description": "Construção de sistemas que operam com mínima intervenção humana.",
-      "technologies": ["Automação de fluxos", "Integrações via API", "IA aplicada a marketing"]
+      "name": "Desenvolvimento de Ecossistemas Digitais",
+      "description": "Construção de sites de alta performance, WebApps complexos e infraestruturas que operam com mínima intervenção humana.",
+      "technologies": ["Astro", "Next.js", "Node.js", "Automação de fluxos", "Integrações via API"]
+    },
+    "ai_solutions": {
+      "name": "Inteligência Artificial Aplicada",
+      "description": "Implementação de agentes autônomos e LLMs customizados para otimizar processos de marketing e vendas.",
+      "technologies": ["ASI1", "OpenAI", "RAG", "Agentes Autônomos"]
     },
     "strategy": {
       "name": "Estratégia de Marketing Autônomo",

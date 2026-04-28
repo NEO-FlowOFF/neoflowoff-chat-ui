@@ -1,5 +1,7 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
 
+![NEO FlowOFF Banner](./public/banner.svg)
+
 # NEØ:one — NEO FlowOFF CHAT UI
 
 ```text
