@@ -1,8 +1,7 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
+# NEØ:one — NEO FlowOFF CHAT UI
 
 ![NEO FlowOFF Banner](./public/banner.svg)
-
-# NEØ:one — NEO FlowOFF CHAT UI
 
 ```text
 ========================================
@@ -10,7 +9,7 @@
 ========================================
 Status:  ACTIVE
 Version: v1.1.0
-Deploy:  Railway
+Type:    PWA (Progressive Web App)
 ========================================
 ```
 
@@ -19,105 +18,30 @@ Deploy:  Railway
 Interface de atendimento do agente NEØ:One — assistente de
 primeiro contato da NEO FlowOFF, agência especializada em
 automação de marketing e infraestrutura digital autônoma.
-PWA mobile-first de alto desempenho.
+
+O sistema opera como um front-end direto (estilo ChatGPT), focado
+em proporcionar uma experiência humana, consultiva e de alta
+conversão para empresários e visionários.
 
 ────────────────────────────────────────
 
-## ⧉ Core Features
+## ⧉ Diferenciais
 
 ▓▓▓ CAPACIDADES
 ────────────────────────────────────────
-└─ SSE Streaming: Respostas em tempo real via ASI1 AI.
-└─ Session Memory: Histórico persistente via Redis.
-└─ Lead Capture: Extração e armazenamento via PostgreSQL.
-└─ Regis System: Extração de nome/email/tel/empresa via IA.
-└─ Mobile-First: Interface tátil, max 480px, PWA instalável.
-└─ Compliance: SEO, JSON-LD e políticas de dados.
+└─ Respostas em tempo real e inteligentes.
+└─ Memória de contexto para conversas fluidas.
+└─ Captura automática de dados qualificados (CRM).
+└─ Interface mobile-first ultra-rápida (PWA).
+└─ Foco total em ROI e escala de negócios.
 
 ────────────────────────────────────────
 
-## ⧇ Pipeline de Dados
+## ◬ Documentação
 
-▓▓▓ FLUXO SERVER-SIDE (chat.ts)
-────────────────────────────────────────
-
-```text
-       ┌──────────────────────────────┐
-       │   1. SYSTEM PROMPT           │
-       │   (system-prompt.md)         │
-       └──────────────┬───────────────┘
-                      │ (Persona + Regras)
-       ┌──────────────▼───────────────┐
-       │   2. CONTEXT                 │
-       │   (CONTEXT.json)             │
-       └──────────────┬───────────────┘
-                      │ (Dados da Agência)
-       ┌──────────────▼───────────────┐
-       │   3. SESSION MEMORY          │
-       │   (Histórico via Redis)      │
-       └──────────────┬───────────────┘
-                      │ (Memória de Sessão)
-       ┌──────────────▼───────────────┐
-       │   4. USER INPUT              │
-       │   (Mensagem Atual)           │
-       └──────────────┬───────────────┘
-                      │ (ASI1 Streaming SSE)
-       ┌──────────────▼───────────────┐
-       │   5. NEØ:one RESPONSE        │
-       │   + REGIS LEAD EXTRACTION    │
-       │   (PostgreSQL upsert)        │
-       └──────────────────────────────┘
-```
-
-────────────────────────────────────────
-
-## ⨷ Stack Técnica
-
-▓▓▓ INFRAESTRUTURA
-────────────────────────────────────────
-└─ Framework: Astro 6.x (SSR · Node Adapter)
-└─ Runtime:   Node.js v20+
-└─ LLM:       ASI1 AI (api.asi1.ai)
-└─ Memory:    Redis (Railway)
-└─ Leads:     PostgreSQL (Railway)
-└─ Deploy:    Railway
-
-────────────────────────────────────────
-
-## ◬ Operação
-
-▓▓▓ COMANDOS (pnpm)
-────────────────────────────────────────
-
-### Instalação
-
-```bash
-pnpm install
-```
-
-### Desenvolvimento
-
-```bash
-pnpm dev
-```
-
-### Build
-
-```bash
-pnpm build
-```
-
-────────────────────────────────────────
-
-## ⍟ Variáveis de Ambiente
-
-```text
-ASI1_API_KEY=   # Chave ASI1 AI
-ASI1_MODEL=asi1 # Modelo (padrão: asi1)
-REDIS_URL=      # Redis Railway (interno ou externo)
-DATABASE_URL=   # PostgreSQL Railway
-SITE_URL=       # Domínio oficial (https://chat.neoflowoff.agency)
-```
+Para detalhes de infraestrutura, stack técnica e comandos de
+desenvolvimento, consulte o arquivo:
+👉 [**SETUP.md**](./SETUP.md)
 
 ────────────────────────────────────────
 
