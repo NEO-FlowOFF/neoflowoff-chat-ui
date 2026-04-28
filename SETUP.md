@@ -28,19 +28,19 @@ Environment: Node.js v20+
        └──────────────┬───────────────┘
                       │ (Dados da Agência)
        ┌──────────────▼───────────────┐
-       │   3. SESSION MEMORY          │
-       │   (Histórico via Redis)      │
-       └──────────────┬───────────────┘
-                      │ (Memória de Sessão)
-       ┌──────────────▼───────────────┐
-       │   4. USER INPUT              │
+       │   3. USER INPUT              │
        │   (Mensagem Atual)           │
        └──────────────┬───────────────┘
                       │ (ASI1 Streaming SSE)
        ┌──────────────▼───────────────┐
-       │   5. NEØ:one RESPONSE        │
+       │   4. NEØ:one RESPONSE        │
        │   + REGIS LEAD EXTRACTION    │
        │   (PostgreSQL upsert)        │
+       └──────────────┬───────────────┘
+                      │ (Persistência)
+       ┌──────────────▼───────────────┐
+       │   5. SESSION MEMORY          │
+       │   (Gravação via Redis)       │
        └──────────────────────────────┘
 ```
 
@@ -100,7 +100,7 @@ SITE_URL=       # Domínio oficial (https://chat.neoflowoff.agency)
 ▓▓▓ Neo Mello
 ────────────────────────────────────────
 Fundador · NEO FlowOFF
-neo@neoflowoff.agency · (62) 98323-1110
+neo@neoflowoff.agency
 
 "Automação de marketing e infraestrutura
 digital autônoma."

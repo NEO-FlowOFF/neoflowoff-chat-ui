@@ -49,7 +49,7 @@ desenvolvimento, consulte o arquivo:
 ▓▓▓ Neo Mello
 ────────────────────────────────────────
 Fundador · NEO FlowOFF
-neo@neoflowoff.agency · (62) 98323-1110
+neo@neoflowoff.agency
 
 "Automação de marketing e infraestrutura
 digital autônoma."
