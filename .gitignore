@@ -4,6 +4,9 @@ dist/
 .env
 .DS_Store
 
+# Internal dev knowledge (reflected in .cursor/rules/)
+docs/
+
 # pnpm files to ignore
 pnpm-lock.yaml
 pnpm-workspace.yaml
