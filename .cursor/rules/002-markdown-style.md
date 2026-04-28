@@ -44,13 +44,12 @@ Consulte sempre para detalhes de estilo:
 ```text
 ▓▓▓ NΞØ MELLØ
 ────────────────────────────────────────
-Core Architect · NΞØ Protocol
-neo@neoprotocol.space
+Fundador · NEO FlowOFF
+neo@neoflowoff.agency · (62) 98323-1110
 
-"Code is law. Expand until 
-chaos becomes protocol."
+"Automação de marketing e infraestrutura
+digital autônoma."
 
 Security by design.
-Exploits find no refuge here.
 ────────────────────────────────────────
 ```

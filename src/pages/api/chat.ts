@@ -2,7 +2,11 @@ import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { saveChatHistory } from "../../lib/redis";
+import { ensureLeadsTable } from "../../lib/db";
 import { type Message } from "../../types/chat";
+
+// Garante o schema no primeiro request (idempotente)
+ensureLeadsTable().catch((e) => console.error("[DB INIT]", e));
 
 export const POST: APIRoute = async ({ request }: APIContext) => {
   try {
@@ -71,6 +75,10 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         model: llmModel,
         messages: finalMessages,
         stream: true,
+        temperature: 0.7,
+        max_tokens: 600,
+        frequency_penalty: 0.4,
+        presence_penalty: 0.3,
       }),
     });
 
@@ -121,6 +129,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
           // Tenta extrair dados para o CRM (Regis)
           try {
             const { updateRegisLead } = await import("../../lib/regis");
+            // Passa o histórico completo — regis extrai nome/email/tel/empresa/obs
             await updateRegisLead(sessionId, updatedHistory);
           } catch (err) {
             console.error("[REGIS ERROR]", err);
