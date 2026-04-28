@@ -6,6 +6,7 @@ dist/
 
 # Internal dev knowledge (reflected in .cursor/rules/)
 docs/
+docs
 
 # pnpm files to ignore
 pnpm-lock.yaml
