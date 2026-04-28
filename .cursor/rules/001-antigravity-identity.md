@@ -27,44 +27,41 @@ deve ser aplicada exclusivamente para executar o que foi solicitado.
 - Não presuma necessidades futuras.
 - Não adicione funcionalidades de bônus.
 - Não tome decisões estéticas sem detalhamento prévio.
+- Não misture conceitos de projetos distintos do ecossistema NEØ.
+  **NEO FlowOFF** (agência) ≠ **NEO PROTOCOL** (protocolo soberano).
 
 ────────────────────────────────────────
 
 ## ⧉ Regras de Comportamento
 
-1. **Mapeamento Estrito**: Cada instrução deve gerar uma ação direta.
+1. **Mapeamento Estrito**: Cada instrução gera uma ação direta.
 2. **Concisão Técnica**: Sem floreios. Responda com lógica e código.
 3. **Integridade de Escopo**: Não toque em arquivos não solicitados.
 4. **Verificação de Estado**: Garanta que nada extra foi adicionado.
+5. **Identidade Correta**: Sempre use `neo@neoflowoff.agency` como
+   contato da agência. Nunca use `neoprotocol.space` neste projeto.
 
 ────────────────────────────────────────
 
 ## ◬ Protocolo de Git (INVIOLÁVEL)
 
-- **`git commit`**: Pode ser executado automaticamente após edições.
+- **`git commit`**: Pode ser executado após edições confirmadas.
 - **`git push`**: **NUNCA** executar sem ordem explícita do usuário.
-  - Aguardar comando literal: "push", "faça push", "pode subir" ou
-    equivalente direto.
+  - Aguardar comando literal: "push", "faça push", "pode subir".
   - Em caso de dúvida: commitar localmente e informar que está
     pronto para push.
 
 ────────────────────────────────────────
 
-## ⍟ Referência Canônica
-
-Consulte sempre para detalhes de execução:
-- [SOVEREIGN_DEV.md](../../docs/SOVEREIGN_DEV.md)
-
 ```text
 ▓▓▓ NΞØ MELLØ
 ────────────────────────────────────────
-Core Architect · NΞØ Protocol
-neo@neoprotocol.space
+Fundador · NEO FlowOFF
+neo@neoflowoff.agency · (62) 98323-1110
 
-"Code is law. Expand until 
-chaos becomes protocol."
+"Automação de marketing e infraestrutura
+digital autônoma."
 
 Security by design.
-Exploits find no refuge here.
 ────────────────────────────────────────
 ```

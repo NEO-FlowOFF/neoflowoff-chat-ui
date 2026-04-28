@@ -1,0 +1,59 @@
+<svg width="1200" height="420" viewBox="0 0 1200 420" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10222D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0B151C;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="420" fill="#09131A" />
+  
+  <!-- Grid Pattern (Subtle) -->
+  <path d="M 0 40 L 1200 40 M 0 80 L 1200 80 M 0 120 L 1200 120 M 0 160 L 1200 160 M 0 200 L 1200 200 M 0 240 L 1200 240 M 0 280 L 1200 280 M 0 320 L 1200 320 M 0 360 L 1200 360" stroke="#10222D" stroke-width="1" fill="none" />
+  <path d="M 40 0 L 40 420 M 80 0 L 80 420 M 120 0 L 120 420 M 160 0 L 160 420 M 200 0 L 200 420 M 240 0 L 240 420 M 280 0 L 280 420 M 320 0 L 320 420" stroke="#10222D" stroke-width="1" fill="none" />
+
+  <!-- Nucleus (Left) -->
+  <g transform="translate(180, 210)">
+    <circle r="90" stroke="#6EE7F9" stroke-width="1" fill="none" opacity="0.1" />
+    <circle r="70" stroke="#6EE7F9" stroke-width="2" fill="none" opacity="0.3" stroke-dasharray="10 5" />
+    <circle r="50" stroke="#6EE7F9" stroke-width="4" fill="none" opacity="0.6" filter="url(#glow)" />
+    <circle r="30" fill="#D7FF64" filter="url(#glow)" />
+  </g>
+
+  <!-- Connectors -->
+  <path d="M 230 180 L 350 100" stroke="#6EE7F9" stroke-width="1" opacity="0.4" fill="none" />
+  <path d="M 230 210 L 350 210" stroke="#6EE7F9" stroke-width="1" opacity="0.4" fill="none" />
+  <path d="M 230 240 L 350 320" stroke="#6EE7F9" stroke-width="1" opacity="0.4" fill="none" />
+
+  <!-- Card 1 (Code Style) -->
+  <rect x="350" y="60" width="360" height="280" rx="24" fill="url(#cardGrad)" stroke="#6EE7F9" stroke-width="1" opacity="0.9" />
+  <text x="380" y="100" font-family="monospace" font-size="16" fill="#6EE7F9" opacity="0.6">// IDENTITY_PROTOCOL</text>
+  <text x="380" y="140" font-family="monospace" font-size="22" fill="#E8F4F8">NEO:one_core</text>
+  <text x="380" y="180" font-family="monospace" font-size="18" fill="#6EE7F9" opacity="0.8">type Agency = {</text>
+  <text x="400" y="210" font-family="monospace" font-size="18" fill="#E8F4F8">  name: "FlowOFF",</text>
+  <text x="400" y="240" font-family="monospace" font-size="18" fill="#E8F4F8">  status: "Sovereign",</text>
+  <text x="400" y="270" font-family="monospace" font-size="18" fill="#E8F4F8">  stack: "ASI1_PG"</text>
+  <text x="380" y="300" font-family="monospace" font-size="18" fill="#6EE7F9" opacity="0.8">};</text>
+
+  <!-- Card 2 (Concepts) -->
+  <rect x="740" y="60" width="360" height="280" rx="24" fill="url(#cardGrad)" stroke="#6EE7F9" stroke-width="1" opacity="0.9" />
+  <text x="770" y="100" font-family="monospace" font-size="24" fill="#D7FF64" font-weight="bold" filter="url(#glow)">NEO FLOWOFF</text>
+  <rect x="770" y="115" width="120" height="2" fill="#D7FF64" opacity="0.5" />
+  
+  <text x="770" y="160" font-family="monospace" font-size="18" fill="#E8F4F8">● MARKETING_AUTO</text>
+  <text x="770" y="200" font-family="monospace" font-size="18" fill="#E8F4F8">● INFRA_DIGITAL</text>
+  <text x="770" y="240" font-family="monospace" font-size="18" fill="#E8F4F8">● SCALABLE_ROI</text>
+  
+  <text x="770" y="290" font-family="monospace" font-size="14" fill="#6EE7F9" opacity="0.7">STATUS: OPTIMIZED_CORE</text>
+
+  <!-- Footer -->
+  <text x="600" y="395" font-family="monospace" font-size="14" fill="#6EE7F9" text-anchor="middle" letter-spacing="6" opacity="0.8">NEO FLOWOFF · AUTOMAÇÃO E INFRAESTRUTURA DIGITAL</text>
+</svg>

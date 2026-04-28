@@ -16,9 +16,11 @@ export interface ChatSession {
 
 export interface UserLead {
   sessionId: string;
-  name?: string;
-  occupation?: string;
-  goal?: string;
-  interest?: string;
-  timestamp: number;
+  nome?: string | null;
+  email?: string | null;
+  telefone?: string | null;
+  empresa?: string | null;
+  observacoes?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

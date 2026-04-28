@@ -1,21 +1,25 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
 
-# NEØ:one — NEØ FlowOFF CHAT UI
+![NEO FlowOFF Banner](./public/banner.svg)
+
+# NEØ:one — NEO FlowOFF CHAT UI
 
 ```text
 ========================================
-       NEØ:One · SOVEREIGN INTERFACE
+       NEØ:One · CHAT INTERFACE
 ========================================
-Status: ACTIVE
+Status:  ACTIVE
 Version: v1.1.0
+Deploy:  Railway
 ========================================
 ```
 
 ## ⟠ Objetivo
 
-Interface soberana do agente NEØ:One, o núcleo de
-inteligência e marketing do ecossistema NEØFlowOFF.
-PWA de alto desempenho para operação tátil e resiliente.
+Interface de atendimento do agente NEØ:One — assistente de
+primeiro contato da NEO FlowOFF, agência especializada em
+automação de marketing e infraestrutura digital autônoma.
+PWA mobile-first de alto desempenho.
 
 ────────────────────────────────────────
 
@@ -23,32 +27,33 @@ PWA de alto desempenho para operação tátil e resiliente.
 
 ▓▓▓ CAPACIDADES
 ────────────────────────────────────────
-└─ SSE Streaming: Respostas em tempo real via Venice AI.
-└─ Sovereign Memory: Persistência server-side via Redis.
-└─ Tactile UI: Boot coreografado e interface 3D/HUD.
-└─ Compliance: SEO, JSON-LD e políticas de dados NΞØ.
-└─ Hybrid PWA: Suporte offline e instalação nativa.
+└─ SSE Streaming: Respostas em tempo real via ASI1 AI.
+└─ Session Memory: Histórico persistente via Redis.
+└─ Lead Capture: Extração e armazenamento via PostgreSQL.
+└─ Regis System: Extração de nome/email/tel/empresa via IA.
+└─ Mobile-First: Interface tátil, max 480px, PWA instalável.
+└─ Compliance: SEO, JSON-LD e políticas de dados.
 
 ────────────────────────────────────────
 
-## ⧇ Arquitetura de Consciência
+## ⧇ Pipeline de Dados
 
-▓▓▓ PIPELINE DE INJEÇÃO (Server-Side)
+▓▓▓ FLUXO SERVER-SIDE (chat.ts)
 ────────────────────────────────────────
 
 ```text
        ┌──────────────────────────────┐
-       │   1. IDENTITY PROTOCOL       │
+       │   1. SYSTEM PROMPT           │
        │   (system-prompt.md)         │
        └──────────────┬───────────────┘
-                      │ (Injeção de Persona)
+                      │ (Persona + Regras)
        ┌──────────────▼───────────────┐
-       │   2. STRATEGIC CONTEXT       │
-       │   (CONTEXT.json / RAG)       │
+       │   2. CONTEXT                 │
+       │   (CONTEXT.json)             │
        └──────────────┬───────────────┘
-                      │ (Consciência de Marca)
+                      │ (Dados da Agência)
        ┌──────────────▼───────────────┐
-       │   3. SOVEREIGN MEMORY        │
+       │   3. SESSION MEMORY          │
        │   (Histórico via Redis)      │
        └──────────────┬───────────────┘
                       │ (Memória de Sessão)
@@ -56,10 +61,11 @@ PWA de alto desempenho para operação tátil e resiliente.
        │   4. USER INPUT              │
        │   (Mensagem Atual)           │
        └──────────────┬───────────────┘
-                      │ (Processamento)
+                      │ (ASI1 Streaming SSE)
        ┌──────────────▼───────────────┐
        │   5. NEØ:one RESPONSE        │
-       │   (Streaming SSE)            │
+       │   + REGIS LEAD EXTRACTION    │
+       │   (PostgreSQL upsert)        │
        └──────────────────────────────┘
 ```
 
@@ -69,10 +75,12 @@ PWA de alto desempenho para operação tátil e resiliente.
 
 ▓▓▓ INFRAESTRUTURA
 ────────────────────────────────────────
-└─ Framework: Astro 6.x (SSR Mode)
-└─ Runtime: Node.js v22+
-└─ DB: Redis (Memory Store)
-└─ Deploy: Railway (Node Adapter)
+└─ Framework: Astro 6.x (SSR · Node Adapter)
+└─ Runtime:   Node.js v20+
+└─ LLM:       ASI1 AI (api.asi1.ai)
+└─ Memory:    Redis (Railway)
+└─ Leads:     PostgreSQL (Railway)
+└─ Deploy:    Railway
 
 ────────────────────────────────────────
 
@@ -93,30 +101,35 @@ pnpm install
 pnpm dev
 ```
 
-### Verificação (Audit + Build + Check)
+### Build
 
 ```bash
-make verify
+pnpm build
 ```
 
 ────────────────────────────────────────
 
-## ⍟ Configuração
-
-> **VENICE_API_KEY:** Chave de acesso Venice AI  
-> **REDIS_URL:** Endpoint de memória Railway  
-> **SITE_URL:** Domínio oficial da aplicação
+## ⍟ Variáveis de Ambiente
 
 ```text
-▓▓▓ NΞØ MELLØ
-────────────────────────────────────────
-Core Architect · NΞØ Protocol
-neo@neoprotocol.space
+ASI1_API_KEY=   # Chave ASI1 AI
+ASI1_MODEL=asi1 # Modelo (padrão: asi1)
+REDIS_URL=      # Redis Railway (interno ou externo)
+DATABASE_URL=   # PostgreSQL Railway
+SITE_URL=       # Domínio oficial (https://chat.neoflowoff.agency)
+```
 
-"Code is law. Expand until 
-chaos becomes protocol."
+────────────────────────────────────────
+
+```text
+▓▓▓ Neo Mello
+────────────────────────────────────────
+Fundador · NEO FlowOFF
+neo@neoflowoff.agency · (62) 98323-1110
+
+"Automação de marketing e infraestrutura
+digital autônoma."
 
 Security by design.
-Exploits find no refuge here.
 ────────────────────────────────────────
 ```

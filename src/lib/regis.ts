@@ -1,36 +1,83 @@
-import { type Message, type UserLead } from "../types/chat";
-import { redis } from "./redis";
+import { type Message } from "../types/chat";
+import { upsertLead } from "./leads";
 
 /**
- * Sistema Regis - Extrator de Inteligência de CRM
- * Analisa as mensagens para identificar dados estruturados e salvar na base de CRM (Redis)
+ * Sistema Regis — Extrator de dados de lead via IA.
+ *
+ * Faz uma chamada separada e leve à ASI1 para analisar o histórico
+ * da conversa e extrair dados estruturados do visitante.
+ * Salva no PostgreSQL via upsertLead.
  */
-export async function updateRegisLead(sessionId: string, _messages: Message[]) {
-  if (!redis) return;
+export async function updateRegisLead(
+  sessionId: string,
+  messages: Message[],
+): Promise<void> {
+  const apiKey = process.env.ASI1_API_KEY;
+  const model = process.env.ASI1_MODEL || "asi1";
 
-  const lead: Partial<UserLead> = {
-    sessionId,
-    timestamp: Date.now(),
-  };
+  if (!apiKey) {
+    console.warn("[REGIS] ASI1_API_KEY ausente. Extração de lead ignorada.");
+    return;
+  }
 
-  // Lógica de extração simples baseada no histórico (Poderia ser melhorada com uma chamada de IA específica)
-  // Por enquanto, vamos manter uma estrutura para receber os dados
+  // Formata o histórico como texto simples para o extractor
+  const transcript = messages
+    .map((m) => `${m.role === "user" ? "VISITANTE" : "AGENTE"}: ${m.content}`)
+    .join("\n");
 
-  // Busca se já existe um lead parcial
-  const existingRaw = await redis.get(`regis:lead:${sessionId}`);
-  const existingLead = existingRaw ? JSON.parse(existingRaw) : {};
+  const extractionPrompt = `Analise esta conversa de atendimento e extraia dados do visitante.
+Retorne APENAS um JSON válido, sem markdown, sem explicações.
 
-  // Aqui integraríamos uma chamada de IA para "resumir" os dados do usuário detectados no histórico
-  // Como fallback, salvamos o histórico de intenção
+Campos:
+- nome: nome completo do visitante (null se não mencionado)
+- email: endereço de e-mail (null se não mencionado)
+- telefone: número de telefone com DDD (null se não mencionado)
+- empresa: nome da empresa ou projeto (null se não mencionado)
+- observacoes: resumo em 1-2 frases do objetivo/necessidade do visitante (null se não há conteúdo suficiente)
 
-  const updatedLead = { ...existingLead, ...lead };
+Conversa:
+${transcript}
 
-  await redis.set(
-    `regis:lead:${sessionId}`,
-    JSON.stringify(updatedLead),
-    "EX",
-    60 * 60 * 24 * 30, // Leads duram 30 dias
-  );
+JSON:`;
 
-  console.log(`[REGIS] Lead atualizado para sessão ${sessionId}`);
+  try {
+    const res = await fetch("https://api.asi1.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: extractionPrompt }],
+        stream: false,
+        temperature: 0.1,
+        max_tokens: 300,
+      }),
+    });
+
+    if (!res.ok) {
+      console.warn(`[REGIS] Extração falhou: HTTP ${res.status}`);
+      return;
+    }
+
+    const data = await res.json();
+    const raw = data?.choices?.[0]?.message?.content?.trim();
+    if (!raw) return;
+
+    // Sanitiza: remove possíveis blocos de markdown (```json ... ```)
+    const jsonStr = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+    const extracted = JSON.parse(jsonStr);
+
+    await upsertLead({
+      sessionId,
+      nome: extracted.nome ?? null,
+      email: extracted.email ?? null,
+      telefone: extracted.telefone ?? null,
+      empresa: extracted.empresa ?? null,
+      observacoes: extracted.observacoes ?? null,
+    });
+  } catch (err) {
+    console.error("[REGIS] Erro ao extrair/salvar lead:", err);
+  }
 }
