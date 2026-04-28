@@ -16,7 +16,7 @@ RESET   := \033[0m
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev build preview clean audit verify commit docs
+.PHONY: help install dev build preview clean audit verify commit docs repair repair-lockfile update
 
 help: ## Exibe esta mensagem de ajuda
 	@echo "$(CYAN)========================================$(RESET)"
@@ -58,11 +58,22 @@ clean: ## Limpa artefatos de build (preserva lockfile)
 	@echo "$(CYAN)➜ Limpando artefatos temporários...$(RESET)"
 	rm -rf dist/ .astro/
 
-repair: clean ## Limpa cache/node_modules e reinstala do zero
-	@echo "$(RED)➜ EXECUTANDO REPARO TOTAL...$(RESET)"
-	rm -rf node_modules/ pnpm-lock.yaml
+repair: clean ## Limpa node_modules e reinstala (preserva lockfile)
+	@echo "$(RED)➜ EXECUTANDO REPARO...$(RESET)"
+	rm -rf node_modules/
 	$(PM) install
 	@echo "$(GREEN)➜ Projeto reparado.$(RESET)"
+
+repair-lockfile: clean ## Limpa TUDO incluindo lockfile (use apenas em último caso)
+	@echo "$(RED)➜ REPARO TOTAL COM RESET DO LOCKFILE...$(RESET)"
+	rm -rf node_modules/ pnpm-lock.yaml
+	$(PM) install
+	@echo "$(GREEN)➜ Projeto reparado com lockfile regenerado.$(RESET)"
+
+update: ## Atualiza o Astro e todas as dependências
+	@echo "$(CYAN)➜ Atualizando dependências...$(RESET)"
+	$(PM) dlx @astrojs/upgrade -y
+	$(PM) install --no-frozen-lockfile
 
 audit: ## Executa auditoria de segurança
 	@echo "$(CYAN)➜ Executando auditoria de segurança...$(RESET)"

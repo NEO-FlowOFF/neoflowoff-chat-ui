@@ -51,7 +51,7 @@ Certifique-se de que as seguintes chaves estão configuradas:
 
 ────────────────────────────────────────
 
-## 🚀 Status de Operação
+## ⍟ Status de Operação
 
 O projeto está **ESTÁVEL**. O erro crítico de `import.meta.env` no 
 ambiente de produção Node foi erradicado. 
