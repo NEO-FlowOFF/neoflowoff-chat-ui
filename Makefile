@@ -68,7 +68,7 @@ audit: ## Executa auditoria de segurança
 	@echo "$(CYAN)➜ Executando auditoria de segurança...$(RESET)"
 	$(PM) audit
 
-commit: verify ## Fluxo NΞØ Protocol: Verify -> Add -> Commit -> Push
+commit: verify ## Fluxo NΞØ Protocol: Verifica, Adiciona, Comita e Faz Push (Branch Atual)
 	@echo "$(MAGENTA)========================================$(RESET)"
 	@echo "$(MAGENTA)    NΞØ PROTOCOL · SECURE COMMIT        $(RESET)"
 	@echo "$(MAGENTA)========================================$(RESET)"
