@@ -39,6 +39,17 @@ deve ser aplicada exclusivamente para executar o que foi solicitado.
 
 ────────────────────────────────────────
 
+## ◬ Protocolo de Git (INVIOLÁVEL)
+
+- **`git commit`**: Pode ser executado automaticamente após edições.
+- **`git push`**: **NUNCA** executar sem ordem explícita do usuário.
+  - Aguardar comando literal: "push", "faça push", "pode subir" ou
+    equivalente direto.
+  - Em caso de dúvida: commitar localmente e informar que está
+    pronto para push.
+
+────────────────────────────────────────
+
 ## ⍟ Referência Canônica
 
 Consulte sempre para detalhes de execução:
