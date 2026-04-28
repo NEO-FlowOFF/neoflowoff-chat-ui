@@ -661,7 +661,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       agentMsg.querySelector('.stream-cursor')?.remove();
       const meta = document.createElement('div');
       meta.className = 'msg-meta';
-      meta.innerHTML = `<span style="font-weight:800; color:var(--text-primary); margin-right:4px;">NEØ:One</span> • ${formatTime()}`;
+      meta.innerHTML = `<span style="font-size:8px; color:var(--text-muted); opacity:0.5; letter-spacing:0.05em;">${formatTime()}</span>`;
       agentMsg.querySelector('.bubble')?.after(meta);
       return fullText;
     }
