@@ -45,7 +45,9 @@ Para detalhes de infraestrutura, stack técnica e comandos de
 desenvolvimento, consulte o arquivo:
 👉 [**SETUP.md**](./SETUP.md)
 
+```line
 ────────────────────────────────────────
+```
 
 ```text
 ▓▓▓ Neo Mello
