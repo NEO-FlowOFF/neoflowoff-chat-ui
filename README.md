@@ -23,6 +23,7 @@ O sistema opera como um front-end direto (estilo ChatGPT), focado
 em proporcionar uma experiência humana, consultiva e de alta
 conversão para empresários e visionários.
 
+```text
 ────────────────────────────────────────
 
 ## ⧉ Diferenciais
@@ -36,6 +37,7 @@ conversão para empresários e visionários.
 └─ Foco total em ROI e escala de negócios.
 
 ────────────────────────────────────────
+```
 
 ## ◬ Documentação
 
