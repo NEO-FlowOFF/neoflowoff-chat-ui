@@ -18,12 +18,12 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
       </div>
     </div>
     <div class="header-actions">
-      <div class="theme-switch" id="themeToggle" aria-label="Toggle Theme">
+      <button type="button" class="theme-switch" id="themeToggle" aria-label="Alternar tema" aria-pressed="false">
         <div class="theme-switch-knob">
           <svg class="sun-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M22 12h2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>
           <svg class="moon-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </div>
-      </div>
+      </button>
       <button class="icon-btn" id="clearBtn" aria-label="Limpar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
@@ -388,7 +388,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
         inset 0 4px 10px rgba(255,255,255,0.4),
         inset 0 -2px 10px rgba(0,0,0,0.05);
       color: var(--text-primary);
-      filter: url(#liquid-refraction);
+      filter: none;
     }
     .send-btn svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); stroke-width: 2; }
     
@@ -415,9 +415,9 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     
     .footer-dots { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 5px; }
     .footer-dot { width: 4px; height: 4px; border-radius: 50%; }
-    .footer-dot:nth-child(1) { background: var(--aqua); opacity: 0.7; }
+    .footer-dot:nth-child(1) { background: var(--neon-pink); opacity: 0.7; }
     .footer-dot:nth-child(2) { background: var(--text-muted); opacity: 0.4; }
-    .footer-dot:nth-child(3) { background: var(--pink); opacity: 0.7; }
+    .footer-dot:nth-child(3) { background: var(--neon-pink-secondary); opacity: 0.7; }
 
     /* EMPTY STATE */
     .empty-state {
@@ -513,7 +513,7 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     const input   = document.getElementById('msgInput') as HTMLTextAreaElement;
     const sendBtn = document.getElementById('sendBtn') as HTMLButtonElement;
     const clearBtn= document.getElementById('clearBtn') as HTMLButtonElement;
-    const themeBtn= document.getElementById('themeToggle') as HTMLDivElement;
+    const themeBtn= document.getElementById('themeToggle') as HTMLButtonElement;
     const empty   = document.getElementById('emptyState');
     const toastEl = document.getElementById('toast') as HTMLDivElement;
 
@@ -591,7 +591,6 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
         saveHistory();
 
         if (sessionCount >= MAX_SESSION_MESSAGES) {
-          isStreaming = true; // Block further sending
           renderBubble('agent', 'foi um prazer conversar! Para continuar ou receber uma proposta, entre em contato pelo e-mail neo@neoflowoff.agency ou WhatsApp (62) 98323-1110. 👋', true);
           sendBtn.disabled = true;
           input.disabled = true;
@@ -728,11 +727,13 @@ console.log(`[NEØ:One LOG] Nova sessão de chat iniciada em ${new Date().toISOS
     // Theme Toggle Logic
     const savedTheme = localStorage.getItem('nox_theme');
     if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+    themeBtn.setAttribute('aria-pressed', document.body.classList.contains('dark-mode') ? 'true' : 'false');
     
     themeBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
       localStorage.setItem('nox_theme', isDark ? 'dark' : 'light');
+      themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
       showToast(isDark ? 'Modo Escuro Ativado' : 'Modo Claro Ativado');
     });
 
