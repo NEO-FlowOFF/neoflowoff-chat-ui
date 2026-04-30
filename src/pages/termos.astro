@@ -3,7 +3,8 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base>
-  <main style="padding:24px; max-width: 720px; margin: 0 auto; color: var(--text-primary);">
+  <main transition:name="legal-content" style="padding:24px; max-width: 720px; margin: 0 auto; color: var(--text-primary);">
+    <a href="/chat" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.3);text-decoration:none;color:inherit;font-family:var(--font-mono);font-size:12px;letter-spacing:0.04em;">← Voltar ao chat</a>
     <h1 style="font-family: var(--font-display); font-size: 28px; margin-bottom: 12px;">Termos de Uso</h1>
     <p style="line-height: 1.6; margin-bottom: 10px;">
       O uso desta interface implica concordância com as condições operacionais do atendimento digital da NEØ FlowOFF.

@@ -7,7 +7,7 @@
        NEØ:One · TECHNICAL SETUP
 ========================================
 Stack: Astro + ASI1 + Redis + Postgres
-Environment: Node.js v20+
+Environment: Node.js >=22.12.0
 ========================================
 ```
 
@@ -51,7 +51,7 @@ Environment: Node.js v20+
 ▓▓▓ INFRAESTRUTURA
 ────────────────────────────────────────
 └─ Framework: Astro 6.x (SSR · Node Adapter)
-└─ Runtime:   Node.js v20+
+└─ Runtime:   Node.js >=22.12.0
 └─ LLM:       ASI1 AI (api.asi1.ai)
 └─ Memory:    Redis (Railway)
 └─ Leads:     PostgreSQL (Railway)

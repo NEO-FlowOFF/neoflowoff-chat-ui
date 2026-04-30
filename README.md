@@ -43,6 +43,9 @@ Para detalhes de infraestrutura, stack técnica e comandos de
 desenvolvimento, consulte o arquivo:
 👉 [**SETUP.md**](./SETUP.md)
 
+Requisito de runtime:
+└─ Node.js `>=22.12.0`
+
 ────────────────────────────────────────
 
 ```text
