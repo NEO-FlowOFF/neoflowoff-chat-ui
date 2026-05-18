@@ -40,7 +40,7 @@
   <text x="380" y="180" font-family="monospace" font-size="18" fill="#6EE7F9" opacity="0.8">type Agency = {</text>
   <text x="400" y="210" font-family="monospace" font-size="18" fill="#E8F4F8">  name: "FlowOFF",</text>
   <text x="400" y="240" font-family="monospace" font-size="18" fill="#E8F4F8">  status: "Sovereign",</text>
-  <text x="400" y="270" font-family="monospace" font-size="18" fill="#E8F4F8">  stack: "ASI1_PG"</text>
+  <text x="400" y="270" font-family="monospace" font-size="18" fill="#E8F4F8">  stack: "ASI1_PG_RESEND"</text>
   <text x="380" y="300" font-family="monospace" font-size="18" fill="#6EE7F9" opacity="0.8">};</text>
 
   <!-- Card 2 (Concepts) -->
