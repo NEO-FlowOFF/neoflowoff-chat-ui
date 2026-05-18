@@ -37,6 +37,15 @@ conversão para empresários e visionários.
 
 ────────────────────────────────────────
 
+```graph
+graph TD
+    Client[Browser /chat] -->|POST /api/chat| API[src/pages/api/chat.ts]
+    API -->|Lê no Servidor| SP[src/lib/system-prompt.md]
+    API -->|Lê no Servidor| CX[src/lib/CONTEXT.json]
+    SP & CX -->|Concatena em 'systemPrompt'| FinalPrompt[Prompt do Sistema Completo]
+    FinalPrompt -->|Injetado no topo das mensagens| LLM[API da LLM / Completions]
+```
+
 ## ◬ Documentação
 
 Para detalhes de infraestrutura, stack técnica e comandos de

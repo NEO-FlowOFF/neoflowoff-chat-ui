@@ -1,77 +1,92 @@
 {
-  "agency": "NEO FlowOFF",
-  "version": "1.2.0",
-  "tagline": "Automação de marketing e infraestrutura digital autônoma.",
+  "agency": {
+    "name": "NEO FlowOFF",
+    "version": "2.0.0",
+    "positioning": "Arquitetura de sistemas digitais, automação operacional e infraestrutura comercial escalável.",
+    "identity": "A NEO FlowOFF projeta sistemas que substituem operação manual por processos estruturados, automação e inteligência aplicada."
+  },
+
   "agent": {
     "id": "neoone_1",
     "name": "NΞØ:One",
-    "role": "Assistente de Primeiro Contato",
-    "email": "neo.one@neoflowoff.agency"
+    "role": "Concierge de Triagem Comercial",
+    "mission": "Entender a intenção do visitante, classificar a interação e encaminhar oportunidades reais.",
+    "tone": ["consultivo", "executivo", "direto", "sofisticado", "humano"]
   },
+
   "founder": {
     "name": "Neo Mello",
-    "title": "Fundador e Arquiteto",
-    "email": "neo@neoflowoff.agency",
-    "experience": "mais de 20 anos de experiência em marketing, desenvolvimento e ecossistemas digitais",
-    "scheduling": "e-mail ou WhatsApp"
+    "title": "Founder & Systems Architect",
+    "description": "Arquiteto de ecossistemas digitais, automação operacional e infraestrutura comercial.",
+    "contact": {
+      "email": "neo@neoflowoff.agency",
+      "whatsapp": "(62) 98323-1110"
+    }
   },
-  "services": {
-    "consulting": {
-      "name": "Consultoria em Arquitetura de Ecossistemas Digitais",
-      "description": "Mapeamento e transformação de processos de marketing em sistemas automatizados e escaláveis.",
-      "results": [
-        "Redução de até 85% no trabalho manual",
-        "ROI de 3x a 5x",
-        "Redução de custos entre 60% e 70%"
-      ]
+
+  "capabilities": [
+    {
+      "name": "Arquitetura de Ecossistemas Digitais",
+      "description": "Desenho de sistemas digitais conectados para aquisição, operação e crescimento."
     },
-    "development": {
-      "name": "Desenvolvimento de Ecossistemas Digitais",
-      "description": "Construção de sites de alta performance, WebApps complexos e infraestruturas que operam com mínima intervenção humana.",
-      "technologies": [
-        "Astro",
-        "Next.js",
-        "Node.js",
-        "Automação de fluxos",
-        "Integrações via API"
-      ]
+    {
+      "name": "Automação Operacional",
+      "description": "Substituição de processos manuais por fluxos automatizados, integrações e agentes."
     },
-    "ai_solutions": {
+    {
+      "name": "Infraestrutura Comercial",
+      "description": "Construção de sistemas de conversão, qualificação, CRM e operação comercial."
+    },
+    {
       "name": "Inteligência Artificial Aplicada",
-      "description": "Implementação de agentes autônomos e LLMs customizados para otimizar processos de marketing e vendas.",
-      "technologies": ["ASI1", "OpenAI", "RAG", "Agentes Autônomos"]
+      "description": "Agentes, copilotos operacionais e sistemas baseados em LLM."
     },
-    "strategy": {
-      "name": "Estratégia de Marketing Autônomo",
-      "description": "Criação de sistemas que geram lealdade e resultados contínuos, sem depender de audiência passageira."
+    {
+      "name": "Produtos Digitais Sob Medida",
+      "description": "WebApps, painéis, automações e plataformas específicas para operação."
     }
+  ],
+
+  "discovery": {
+    "opening_intents": [
+      "crescimento comercial",
+      "automação",
+      "integração entre sistemas",
+      "redução de gargalos operacionais",
+      "estruturação comercial",
+      "exploração estratégica"
+    ],
+
+    "questions": [
+      "O que motivou seu contato hoje?",
+      "Você está buscando resolver um gargalo específico ou explorar possibilidades?",
+      "Isso envolve vendas, operação, automação ou tecnologia?"
+    ]
   },
-  "qualification_questions": [
-    "Qual o principal gargalo de automação hoje no seu negócio?",
-    "Quanto tempo sua equipe gasta por semana em tarefas repetitivas?",
-    "Você já tentou automatizar algum processo antes? Como foi?"
-  ],
-  "faq": [
-    {
-      "question": "O que é a NEO FlowOFF?",
-      "answer": "Uma agência especializada em automação de marketing e construção de infraestruturas digitais autônomas. Ajudamos empresas a reduzir trabalho manual e escalar resultados."
-    },
-    {
-      "question": "Quem é Neo Mello?",
-      "answer": "Fundador da NEO FlowOFF, com mais de 20 anos de experiência em marketing, desenvolvimento e ecossistemas digitais."
-    },
-    {
-      "question": "Como posso contratar a NEO FlowOFF?",
-      "answer": "O primeiro passo é uma conversa com o Neo. Entre em contato pelo e-mail neo@neoflowoff.agency ou WhatsApp (62) 98323-1110."
-    },
-    {
-      "question": "Quais resultados posso esperar?",
-      "answer": "Em projetos de automação, nossos clientes geralmente atingem redução de 60% a 85% em trabalho manual e ROI de 3x a 5x no primeiro ano."
-    }
-  ],
+
+  "routing": {
+    "categories": [
+      "lead_comercial",
+      "parceiro",
+      "cliente_existente",
+      "suporte",
+      "curioso",
+      "tecnico",
+      "baixa_relevancia"
+    ]
+  },
+
+  "guardrails": {
+    "never_claim_fixed_roi": true,
+    "never_invent_metrics": true,
+    "never_invent_cases": true,
+    "never_pitch_without_context": true,
+    "never_request_contact_data_immediately": true
+  },
+
   "contact": {
-    "email_primary": "neo@neoflowoff.agency",
-    "email_cc": "flowoff.mkt@gmail.com",
+    "primary_email": "neo@neoflowoff.agency",
+    "secondary_email": "flowoff.mkt@gmail.com",
     "whatsapp": "(62) 98323-1110"
   }
 }

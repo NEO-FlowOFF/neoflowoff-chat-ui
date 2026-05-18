@@ -162,11 +162,11 @@
             if (json === '[DONE]') break;
             try {
               const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
-              fullText += delta; 
-              textEl.textContent = fullText; 
-              scrollToBottom();
-              // Jitter humano no streaming
-              if (delta.length > 0) await sleep(10 + Math.random() * 25);
+          fullText += delta; 
+          textEl.innerHTML = formatMarkdown(fullText); 
+          scrollToBottom();
+          // Jitter humano no streaming
+          if (delta.length > 0) await sleep(10 + Math.random() * 25);
             } catch {}
           }
         }
@@ -192,13 +192,111 @@
       // Injeta conteúdo e tempo
       const bubbleEl = clone.querySelector('.bubble');
       const timeEl = clone.querySelector('.timestamp');
-      if (bubbleEl) bubbleEl.textContent = text;
+      if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text);
       if (timeEl) timeEl.textContent = formatTime();
 
       if (!animate) clone.style.animation = 'none';
       wrap.appendChild(clone);
       scrollToBottom();
       return clone;
+    }
+
+    function escapeHtml(text: string) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function formatMarkdown(text: string) {
+      const escaped = escapeHtml(text);
+      const lines = escaped.split('\n');
+      let inCodeBlock = false;
+      const codeLines: string[] = [];
+      let listType: 'ul' | 'ol' | null = null;
+      let listItems: string[] = [];
+      let output = '';
+
+      const flushList = () => {
+        if (!listType) return '';
+        const tag = listType === 'ul' ? 'ul' : 'ol';
+        const listHtml = `<${tag}>${listItems.map((item) => `<li>${inlineMarkdown(item.trim())}</li>`).join('')}</${tag}>`;
+        listType = null;
+        listItems = [];
+        return listHtml;
+      };
+
+      const inlineMarkdown = (value: string) => {
+        const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
+        const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer noopener">$1</a>');
+        const bold = links.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        return bold.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      };
+
+      for (const line of lines) {
+        if (line.trim().startsWith('```')) {
+          if (inCodeBlock) {
+            output += `<pre><code>${codeLines.join('\n')}</code></pre>`;
+            codeLines.length = 0;
+            inCodeBlock = false;
+            continue;
+          }
+          inCodeBlock = true;
+          continue;
+        }
+
+        if (inCodeBlock) {
+          codeLines.push(line);
+          continue;
+        }
+
+        const headerMatch = line.match(/^\s{0,3}(#{1,6})\s+(.+)$/);
+        const blockquoteMatch = line.match(/^\s{0,3}>\s?(.*)$/);
+        const unorderedMatch = line.match(/^\s*[-*+]\s+(.+)$/);
+        const orderedMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
+
+        if (headerMatch) {
+          output += flushList();
+          const level = headerMatch[1].length;
+          output += `<h${level}>${inlineMarkdown(headerMatch[2].trim())}</h${level}>`;
+          continue;
+        }
+
+        if (blockquoteMatch) {
+          output += flushList();
+          output += `<blockquote>${inlineMarkdown(blockquoteMatch[1].trim())}</blockquote>`;
+          continue;
+        }
+
+        if (unorderedMatch) {
+          if (listType === 'ol') {
+            output += flushList();
+          }
+          listType = 'ul';
+          listItems.push(unorderedMatch[1]);
+          continue;
+        }
+
+        if (orderedMatch) {
+          if (listType === 'ul') {
+            output += flushList();
+          }
+          listType = 'ol';
+          listItems.push(orderedMatch[2]);
+          continue;
+        }
+
+        output += flushList();
+        if (line.trim() === '') {
+          output += '<br>';
+        } else {
+          output += inlineMarkdown(line);
+          output += '<br>';
+        }
+      }
+
+      output += flushList();
+      return output.replace(/<br>$/,'');
     }
 
     function renderStreamingBubble() {
@@ -211,8 +309,9 @@
       const bubble = msg.querySelector('.bubble') as HTMLElement | null;
       if (!bubble) throw new Error('Bolha do agente não encontrada');
 
-      bubble.textContent = '';
+      bubble.innerHTML = '';
       const textEl = document.createElement('span');
+      textEl.className = 'markdown-text';
       const cursor = document.createElement('span');
       cursor.className = 'stream-cursor';
       bubble.appendChild(textEl);
