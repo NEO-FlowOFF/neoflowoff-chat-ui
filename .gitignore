@@ -10,5 +10,4 @@ docs
 
 # pnpm files to ignore
 pnpm-lock.yaml
-pnpm-workspace.yaml
 .pnpm-store
