@@ -55,6 +55,7 @@ Environment: Node.js >=22.12.0
 └─ LLM:       ASI1 AI (api.asi1.ai)
 └─ Memory:    Redis (Railway)
 └─ Leads:     PostgreSQL (Railway)
+└─ Notificações: Resend API
 └─ Deploy:    Railway
 
 ────────────────────────────────────────
@@ -87,11 +88,12 @@ pnpm build
 ## ⍟ Variáveis de Ambiente
 
 ```text
-ASI1_API_KEY=   # Chave ASI1 AI
-ASI1_MODEL=asi1 # Modelo (padrão: asi1)
-REDIS_URL=      # Redis Railway (interno ou externo)
-DATABASE_URL=   # PostgreSQL Railway
-SITE_URL=       # Domínio oficial (https://chat.neoflowoff.agency)
+ASI1_API_KEY=    # Chave ASI1 AI
+ASI1_MODEL=asi1  # Modelo (padrão: asi1)
+REDIS_URL=       # Redis Railway (interno ou externo)
+DATABASE_URL=    # PostgreSQL Railway
+SITE_URL=        # Domínio oficial (https://chat.neoflowoff.agency)
+RESEND_API_KEY=  # Chave da API do Resend (para disparos de Handoff)
 ```
 
 ────────────────────────────────────────
