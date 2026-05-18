@@ -2,7 +2,7 @@ import pg from "pg";
 
 const { Pool } = pg;
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = import.meta.env.DATABASE_URL || process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   console.warn(

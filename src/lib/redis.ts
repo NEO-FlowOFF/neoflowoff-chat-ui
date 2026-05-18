@@ -1,6 +1,6 @@
 import Redis from "ioredis";
 
-const redisUrl = process.env.REDIS_URL;
+const redisUrl = import.meta.env.REDIS_URL || process.env.REDIS_URL;
 
 if (!redisUrl) {
   console.warn(

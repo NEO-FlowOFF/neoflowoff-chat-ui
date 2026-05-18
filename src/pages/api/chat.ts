@@ -53,8 +53,8 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       `[NEOONE API] Gerando resposta para o usuário... Session: ${sessionId || "anon"}`,
     );
 
-    const llmApiKey = process.env.ASI1_API_KEY;
-    const llmModel = process.env.ASI1_MODEL || "asi1";
+    const llmApiKey = import.meta.env.ASI1_API_KEY || process.env.ASI1_API_KEY;
+    const llmModel = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
 
     if (!llmApiKey) {
       return new Response(
