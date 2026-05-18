@@ -21,14 +21,24 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
+  const url = new URL(e.request.url);
+
+  // Ignora esquemas não suportados (ex: chrome-extension:, data:, blob:)
+  if (!(url.protocol === "http:" || url.protocol === "https:")) return;
+
+  // Apenas mesma origem
+  if (url.origin !== self.location.origin) return;
+
   // API calls nunca vão para cache
-  if (e.request.url.includes("/api/")) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   e.respondWith(
     caches.match(e.request).then((cached) => {
       return (
         cached ||
         fetch(e.request).then((res) => {
+          // Só cacheia respostas válidas
+          if (!res || !res.ok || res.type === "opaque") return res;
           const clone = res.clone();
           caches.open(CACHE).then((c) => c.put(e.request, clone));
           return res;

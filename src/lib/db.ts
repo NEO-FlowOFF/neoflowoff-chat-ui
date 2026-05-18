@@ -2,7 +2,7 @@ import pg from "pg";
 
 const { Pool } = pg;
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = import.meta.env.DATABASE_URL || process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   console.warn(
@@ -40,9 +40,12 @@ export async function ensureLeadsTable(): Promise<void> {
       telefone     TEXT,
       empresa      TEXT,
       observacoes  TEXT,
+      qualificado  BOOLEAN NOT NULL DEFAULT FALSE,
       created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS qualificado BOOLEAN NOT NULL DEFAULT FALSE;
 
     CREATE OR REPLACE FUNCTION update_updated_at()
     RETURNS TRIGGER AS $$

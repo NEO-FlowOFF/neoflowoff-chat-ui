@@ -12,8 +12,8 @@ export async function updateRegisLead(
   sessionId: string,
   messages: Message[],
 ): Promise<void> {
-  const apiKey = process.env.ASI1_API_KEY;
-  const model = process.env.ASI1_MODEL || "asi1";
+  const apiKey = import.meta.env.ASI1_API_KEY || process.env.ASI1_API_KEY;
+  const model = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
 
   if (!apiKey) {
     console.warn("[REGIS] ASI1_API_KEY ausente. Extração de lead ignorada.");

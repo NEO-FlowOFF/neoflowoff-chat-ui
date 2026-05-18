@@ -16,7 +16,10 @@ RESET   := \033[0m
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev build preview clean audit verify commit docs repair repair-lockfile update
+.PHONY: help install dev build preview clean audit verify commit docs repair repair-lockfile update check-node
+
+check-node: ## Valida runtime Node.js >=22.12.0
+	@node -e "const v=process.versions.node.split('.').map(Number);const ok=v[0]>22||(v[0]===22&&(v[1]>12||(v[1]===12&&v[2]>=0)));if(!ok){console.error('ERRO: Node.js >=22.12.0 requerido. Atual: '+process.versions.node);process.exit(1)}"
 
 help: ## Exibe esta mensagem de ajuda
 	@echo "$(CYAN)========================================$(RESET)"
@@ -27,9 +30,11 @@ help: ## Exibe esta mensagem de ajuda
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-15s$(RESET) %s\n", $$1, $$2}'
 
-verify: audit docs build ## Executa todas as verificações (audit + docs + build + check)
+verify: check-node audit docs ## Executa todas as verificações (node + audit + docs + check + build)
 	@echo "$(CYAN)➜ Verificando integridade com astro check...$(RESET)"
 	$(PM) run check
+	@echo "$(CYAN)➜ Validando build de produção...$(RESET)"
+	$(PM) run build
 	@echo "$(GREEN)➜ Verificação de protocolo concluída com sucesso!$(RESET)"
 
 docs: ## Verifica a integridade das pastas de documentação e regras
@@ -91,4 +96,3 @@ commit: verify ## Fluxo NΞØ Protocol: Verifica, Adiciona, Comita e Faz Push (B
 	@echo "$(CYAN)➜ Fazendo push para a branch atual...$(RESET)"
 	git push origin $$(git rev-parse --abbrev-ref HEAD)
 	@echo "$(GREEN)➜ Operação concluída com sucesso.$(RESET)"
-

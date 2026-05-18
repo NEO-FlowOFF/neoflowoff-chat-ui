@@ -2,7 +2,10 @@
   "name": "neoflowoff-chat-ui",
   "type": "module",
   "version": "1.2.0",
-  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499",
   "scripts": {
     "dev": "astro dev",
     "start": "HOST=0.0.0.0 node ./dist/server/entry.mjs",
@@ -12,24 +15,15 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.1.9",
+    "astro": "^6.1.10",
     "ioredis": "^5.6.0",
     "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.8",
+    "@astrojs/check": "0.9.9",
     "@astrojs/node": "^10.0.6",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
     "typescript": "^5.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "yaml": ">=2.8.3"
-    },
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ]
   }
 }
