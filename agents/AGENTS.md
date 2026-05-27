@@ -35,7 +35,7 @@ Foca em resultados e infraestrutura soberana.
 ────────────────────────────────────────
 └─ Frontend: Astro 6.x (Node Adapter)
 └─ Hosting: Railway (Sovereign Infrastructure)
-└─ LLM: Venice AI (Uncensored / Proxy SSE)
+└─ LLM: ASI1 AI (Streaming SSE)
 └─ Memory: Redis (Server) + LocalStorage (Client)
 └─ Context: Dynamic RAG via CONTEXT.json
 

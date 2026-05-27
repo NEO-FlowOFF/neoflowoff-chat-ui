@@ -82,7 +82,7 @@ Depois de `MEMORY.md`, leia `SKILL.md`.
 ## Stored Secrets Reference
 
 ### Available Keys
-- Venice API: `~/.venice-api-key`
+- ASI1 API: `~/.asi1-api-key`
 - VoiceTune API: `~/.vt-api-key`
 - MCP configs: `secrets/mcp/.env`
 
@@ -90,4 +90,3 @@ Depois de `MEMORY.md`, leia `SKILL.md`.
 ```bash
 source ~/neomello/load-secrets.sh
 ```
-
