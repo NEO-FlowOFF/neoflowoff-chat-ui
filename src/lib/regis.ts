@@ -81,16 +81,13 @@ JSON:`;
     const extracted = JSON.parse(jsonStr);
 
     // Função auxiliar para evitar strings 'null' vazando para o banco
-    const sanitizeStr = (val: any) => {
-      if (!val) return null;
-      if (typeof val === "string") {
-        const lower = val.trim().toLowerCase();
-        if (lower === "null" || lower === "undefined" || lower === "none" || lower === "" || lower === "não informado" || lower === "não mencionado") {
-          return null;
-        }
-        return val.trim();
+    const sanitizeStr = (val: unknown): string | null => {
+      if (!val || typeof val !== "string") return null;
+      const lower = val.trim().toLowerCase();
+      if (lower === "null" || lower === "undefined" || lower === "none" || lower === "" || lower === "não informado" || lower === "não mencionado") {
+        return null;
       }
-      return val;
+      return val.trim();
     };
 
     await upsertLead({

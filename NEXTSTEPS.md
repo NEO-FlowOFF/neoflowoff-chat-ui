@@ -22,9 +22,9 @@ da interface soberana NEØ:One.
 ▓▓▓ PRÓXIMOS PODERES
 ────────────────────────────────────────
 - [x] Limite de Sessão Beta (10 msgs).
-- [ ] Background Sync (IndexedDB → retry offline).
+- [x] Background Sync (IndexedDB → retry offline).
 - [ ] Web Push Notifications (iOS 16.4+).
-- [ ] Custom Install Trigger (Banner manual para iOS).
+- [x] Custom Install Trigger (Banner manual para iOS).
 - [ ] Badging API para notificações pendentes.
 
 ────────────────────────────────────────
@@ -35,7 +35,7 @@ da interface soberana NEØ:One.
 ────────────────────────────────────────
 - [x] RAG Logic: Injeção de manifestos organizacionais.
 - [x] Regis Extraction: Estruturação de dados para CRM.
-- [x] Type Safety: Eliminação total de 'any' (Strategic Typing).
+- [x] Type Safety: Eliminação total de 'any' (Strategic Typing). ✓ zero `any` em produção.
 - [ ] Testing: Suíte robusta para rotas de API e Redis.
 - [ ] SDK para identificação do user (Wallet Abstraction, Redis e PostgreSQL).
 - [ ] Sentiment Analysis: Análise de tom emocional para mudanças dinâmicas na UI.
@@ -48,21 +48,19 @@ da interface soberana NEØ:One.
 > **Standalone:** Requisito para notificações em Webkit.  
 > **Memory:** Limitada a 40 mensagens por performance.
 
-## ⍟ SEO Local — Goiânia
+## ⍟ SEO Nacional — Brasil
 
 ▓▓▓ PESQUISA DE PALAVRAS-CHAVE PENDENTE
 ────────────────────────────────────────
-- [ ] Validar e expandir keywords do meta tag em Base.astro.
-- [ ] Foco: empresários, visionários, escala de negócios, Goiânia.
-- [ ] Raio configurado: 6km a partir de -16.701819, -49.245187.
-- [ ] Google Maps linkado: https://maps.app.goo.gl/WJffZwDtkTweZCn19
-- [ ] Sugestões para pesquisar no Google Keyword Planner / SEMrush:
-      "automação de marketing Goiânia"
-      "consultoria digital para empresários Goiás"
-      "escala de negócios Goiânia"
-      "marketing digital para CEOs Goiânia"
-      "agência de automação Goiânia"
-      "infraestrutura digital para empresas GO"
+- [x] Keywords meta tag em Base.astro — escopo nacional.
+- [x] JSON-LD atualizado para Organization com areaServed: BR.
+- [x] Geo tags removidas (agência nacional, sem restrição geográfica).
+- [x] Keywords definidas (B2B, foco em IA e automação empresarial):
+      "transformação digital com IA", "automação empresarial",
+      "agentes inteligentes para empresas", "multiagent systems",
+      "AI workflow automation", "CRM automation", "sales automation",
+      "lead qualification automation", "enterprise AI implementation",
+      "custom AI solutions", "digital ecosystem architecture"
 
 ────────────────────────────────────────
 

@@ -1,0 +1,200 @@
+---
+---
+<div id="install-banner" class="install-banner" aria-live="polite" aria-atomic="true" hidden>
+  <div class="install-banner__body">
+    <div class="install-banner__icon" aria-hidden="true">⬇</div>
+    <div class="install-banner__text">
+      <strong id="install-banner-title">Instalar WebApp</strong>
+      <span id="install-banner-desc">Salve NEØ:one à sua tela de início.</span>
+    </div>
+  </div>
+  <div class="install-banner__actions">
+    <button id="install-btn" class="install-banner__cta" type="button">Baixar</button>
+    <button id="install-dismiss" class="install-banner__dismiss" type="button" aria-label="Fechar">✕</button>
+  </div>
+</div>
+
+<style>
+  .install-banner {
+    position: absolute;
+    bottom: 80px;
+    left: 12px;
+    right: 12px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: var(--hud);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-hud);
+    box-shadow: var(--glass-shadow);
+    transform: translateY(16px);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.18, 0.8, 0.25, 1), opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .install-banner:not([hidden]) {
+    pointer-events: auto;
+  }
+
+  .install-banner.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .install-banner__body {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .install-banner__icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px var(--neon-glow));
+  }
+
+  .install-banner__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .install-banner__text strong {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .install-banner__text span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .install-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .install-banner__cta {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--neon-pink);
+    border: none;
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+    box-shadow: 0 0 14px var(--neon-glow);
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+
+  .install-banner__cta:active {
+    opacity: 0.8;
+  }
+
+  .install-banner__dismiss {
+    font-size: 13px;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    line-height: 1;
+    border-radius: 6px;
+    transition: color 0.15s;
+  }
+
+  .install-banner__dismiss:active {
+    color: var(--text-primary);
+  }
+</style>
+
+<script>
+  const DISMISSED_KEY = 'neo_install_dismissed';
+  const SHOW_DELAY_MS = 12000;
+
+  const banner = document.getElementById('install-banner') as HTMLElement;
+  const installBtn = document.getElementById('install-btn') as HTMLButtonElement;
+  const dismissBtn = document.getElementById('install-dismiss') as HTMLButtonElement;
+  const titleEl = document.getElementById('install-banner-title') as HTMLElement;
+  const descEl = document.getElementById('install-banner-desc') as HTMLElement;
+
+  if (!banner) throw new Error('InstallBanner: elemento não encontrado');
+
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    ('standalone' in navigator && (navigator as Navigator & { standalone?: boolean }).standalone === true);
+
+  const isDismissed = localStorage.getItem(DISMISSED_KEY) === '1';
+
+  if (isStandalone || isDismissed) {
+    banner.remove();
+  } else {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+      !/chrome|crios|fxios/i.test(navigator.userAgent);
+
+    let deferredPrompt: BeforeInstallPromptEvent | null = null;
+
+    if (isIOS) {
+      titleEl.textContent = 'Adicionar à Tela de Início';
+      descEl.innerHTML = 'Toque em <strong>Compartilhar</strong> <span aria-hidden="true">⎙</span> → <strong>Adicionar à Tela</strong>';
+      installBtn.textContent = 'Ver como';
+      installBtn.addEventListener('click', () => {
+        dismiss();
+      });
+      scheduleShow();
+    } else {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e as BeforeInstallPromptEvent;
+        scheduleShow();
+      });
+
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') dismiss();
+        deferredPrompt = null;
+      });
+
+      window.addEventListener('appinstalled', () => dismiss());
+    }
+
+    dismissBtn.addEventListener('click', dismiss);
+
+    function scheduleShow() {
+      setTimeout(() => {
+        banner.hidden = false;
+        requestAnimationFrame(() => banner.classList.add('is-visible'));
+      }, SHOW_DELAY_MS);
+    }
+
+    function dismiss() {
+      banner.classList.remove('is-visible');
+      localStorage.setItem(DISMISSED_KEY, '1');
+      setTimeout(() => banner.remove(), 320);
+    }
+  }
+
+  interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+</script>

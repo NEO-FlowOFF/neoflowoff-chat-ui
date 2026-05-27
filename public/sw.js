@@ -14,6 +14,16 @@ self.addEventListener("install", (event) => {
   );
 });
 
+self.addEventListener("sync", (event) => {
+  if (event.tag === "neo-chat-sync") {
+    event.waitUntil(
+      self.clients.matchAll({ includeUncontrolled: true, type: "window" }).then((clients) => {
+        clients.forEach((client) => client.postMessage({ type: "SYNC_READY" }));
+      })
+    );
+  }
+});
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin === self.location.origin && url.pathname.startsWith("/api/")) return;

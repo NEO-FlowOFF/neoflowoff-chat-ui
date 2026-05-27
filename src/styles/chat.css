@@ -11,14 +11,11 @@
 }
 
 .agent-pill {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.24);
-  padding: 7px 14px 7px 8px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  gap: 12px;
 }
 body.dark-mode .agent-pill {
   border: none;
@@ -129,14 +126,11 @@ body:not(.dark-mode) .agent-name {
 }
 
 .agent-status::before {
-  content: "";
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--neon-pink);
-  box-shadow: 0 0 8px var(--neon-glow);
-  animation: pulse-dot 2.4s ease-in-out infinite;
+  width: 5px;
+  height: 5px;
+  box-shadow: none;
+  animation: none;
+  opacity: .5;
 }
 
 @keyframes pulse-dot {
@@ -188,30 +182,12 @@ button:active,
 
 /* 3D THEME SWITCH */
 .theme-switch {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  min-height: 48px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.07);
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 .theme-ring {
-  position: absolute;
-  inset: 7px;
-  border: 1px solid rgba(255, 7, 124, 0.22);
-  border-radius: 10px;
-  transition:
-    transform 0.35s ease,
-    opacity 0.35s ease;
+  display: none;
 }
 .theme-switch svg {
   position: absolute;
@@ -456,32 +432,16 @@ body.dark-mode .input-area {
 }
 
 .input-card {
-  background: linear-gradient(
-    150deg,
-    rgba(255, 255, 255, 0.22),
-    rgba(255, 255, 255, 0.08)
-  );
-  backdrop-filter: blur(40px) saturate(2.5) brightness(1.1);
-  -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.1);
-  border-radius: var(--radius-card);
-  border: 1px solid rgba(255, 255, 255, 0.44);
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.07),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
-    inset 0 2px 15px rgba(255, 255, 255, 0.1);
-  padding: 6px 6px 6px 16px;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  transition: all 0.3s ease;
+  background: rgba(255,255,255,.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.35);
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
 }
 body.dark-mode .input-card {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05),
-    rgba(0, 0, 0, 0.4)
-  );
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(20,20,20,.72);
+  border-color: rgba(255,255,255,.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,.24);
 }
 
 .input-card:focus-within {
@@ -743,16 +703,14 @@ body.dark-mode .theme-switch {
 }
 .led-text {
   font-family: var(--font-display);
-  font-size: 50px;
-  font-weight: 800;
-  color: rgba(0, 0, 0, 0.87);
-  letter-spacing: -1px;
-  position: relative;
-  z-index: 1;
-  transition: color 0.3s ease;
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(0,0,0,.82);
+  letter-spacing: -0.4px;
+  line-height: 1.15;
 }
 body.dark-mode .led-text {
-  color: rgba(255, 255, 255, 0.87);
+  color: rgba(255,255,255,.82);
 }
 
 @keyframes drop-float {
@@ -766,16 +724,11 @@ body.dark-mode .led-text {
 }
 
 .empty-title {
-  font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 800;
-  color: #9d9d9a;
-  letter-spacing: 0.1em;
-  text-align: center;
-  text-transform: uppercase;
-  max-width: 280px;
-  line-height: 1.5;
-  opacity: 0.78;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  text-transform: none;
+  opacity: .55;
 }
 body.dark-mode .empty-title {
   color: var(--text-primary);

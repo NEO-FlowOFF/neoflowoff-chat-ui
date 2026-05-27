@@ -1,3 +1,5 @@
+    import { enqueue, getPending, dequeue } from '../lib/idb-queue';
+
     try {
       const introSeen = sessionStorage.getItem("flow_intro_seen");
       if (!introSeen) {
@@ -79,24 +81,23 @@
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) handleSend(); }
     });
 
-    sendBtn.addEventListener('click', handleSend);
+    sendBtn.addEventListener('click', () => handleSend());
 
-    async function handleSend() {
-      const text = input.value.trim();
+    async function handleSend(queuedText?: string) {
+      const text = queuedText ?? input.value.trim();
       if (!text || isStreaming) return;
-      
-      // Esconde o empty state ao começar a digitar/enviar primeira msg
+
       empty?.classList.add('hidden');
-      input.value = ''; input.style.height = 'auto';
+      if (!queuedText) { input.value = ''; input.style.height = 'auto'; }
       sendBtn.disabled = true; isStreaming = true;
       pushHistory('user', text);
-      renderBubble('user', text, true);
+      const userBubble = renderBubble('user', text, true);
       const typingEl = renderTyping();
       scrollToBottom();
 
       try {
         // Humanize: Pausa proporcional ao tamanho da mensagem (leitura) + reflexão
-        const readingTime = Math.min(text.length * 15, 1200); 
+        const readingTime = Math.min(text.length * 15, 1200);
         const thinkingTime = 600 + Math.random() * 1000;
         await sleep(readingTime + thinkingTime);
 
@@ -111,15 +112,48 @@
           input.disabled = true;
           input.placeholder = 'Sessão Beta finalizada.';
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         typingEl.remove();
-        renderBubble('agent', `⚠ Erro de conexão: ${err.message}`, true);
+        const isNetworkError = err instanceof TypeError;
+        if (isNetworkError && !queuedText) {
+          chatHistory.pop();
+          saveHistory();
+          userBubble?.remove();
+          await enqueue({ sessionId: sessionId!, text, timestamp: Date.now() }).catch(() => {});
+          renderBubble('agent', '⚡ Sem conexão. Sua mensagem foi salva e será reenviada automaticamente.', true);
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready
+              .then(reg => (reg as ServiceWorkerRegistration & { sync?: { register(t: string): Promise<void> } }).sync?.register('neo-chat-sync'))
+              .catch(() => {});
+          }
+        } else {
+          renderBubble('agent', `⚠ Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, true);
+        }
       } finally {
         isStreaming = false;
         sendBtn.disabled = !input.value.trim();
         input.focus();
       }
     }
+
+    async function flushQueue() {
+      const pending = await getPending().catch(() => []);
+      if (pending.length === 0) return;
+      showToast(`Reconectado. Reenviando ${pending.length} mensagem${pending.length > 1 ? 's' : ''}…`);
+      for (const msg of pending) {
+        if (msg.id != null) await dequeue(msg.id).catch(() => {});
+        await handleSend(msg.text);
+      }
+    }
+
+    window.addEventListener('online', () => flushQueue());
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (e: MessageEvent) => {
+        if ((e.data as { type?: string })?.type === 'SYNC_READY') flushQueue();
+      });
+    }
+
+    flushQueue();
 
     async function streamProxy(_userText: string, typingEl: HTMLElement) {
       const messages = [
