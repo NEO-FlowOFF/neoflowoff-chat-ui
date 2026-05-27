@@ -245,9 +245,9 @@ import { ClientRouter } from "astro:transitions";
       (function(){var t=localStorage.getItem('flow_theme');if(t!=='light')document.body.classList.add('dark-mode');})();
     </script>
     <ClientRouter />
-    <div id="app-shell">
+    <main id="app-shell">
       <slot />
-    </div>
+    </main>
     <script is:inline>
       if ("serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname)) {
         window.addEventListener("load", () => {
