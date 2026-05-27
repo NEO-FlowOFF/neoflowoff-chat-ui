@@ -6,7 +6,7 @@ const SHELL_URLS = [
   "/chat",
   "/manifest.json",
   "/favicon.ico",
-  "https://fonts.googleapis.com/css2?family=Codystar&family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@500;600;700&display=swap",
+  "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600;700&display=swap",
   "https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp",
 ];
 

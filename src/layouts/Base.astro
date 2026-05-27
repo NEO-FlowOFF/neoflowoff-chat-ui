@@ -75,26 +75,28 @@ import { ClientRouter } from "astro:transitions";
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
   rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Codystar&family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@500;600;700&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600;700&display=swap"
 />
 
   <style is:global>
     :root {
-      --bg:          #ececec;
-      --bg-alt:      #dddddd;
-      --surface:     rgba(255, 255, 255, 0.38) !important;
-      --surface-dark:rgba(255, 255, 255, 0.22) !important;
-      --hud:         rgba(255, 255, 255, 0.44) !important;
-      --hud-soft:    rgba(255, 255, 255, 0.28) !important;
-      --border:      rgba(22, 22, 22, 0.08) !important;
-      --border-hud:  rgba(255, 255, 255, 0.42) !important;
-      --glass-blur:  blur(24px) saturate(1.3) !important;
-      --glass-shadow: 0 10px 26px rgba(20, 20, 20, 0.09), inset 0 1px 0.5px rgba(255, 255, 255, 0.45), inset 0 -1px 2px rgba(0, 0, 0, 0.03) !important;
+      --bg:          #ff077c;
+      --bg-alt:      #c8005a;
+      --surface:     rgba(255, 255, 255, 0.16) !important;
+      --surface-dark:rgba(255, 255, 255, 0.10) !important;
+      --hud:         rgba(180, 0, 70, 0.55) !important;
+      --hud-soft:    rgba(155, 0, 55, 0.38) !important;
+      --border:      rgba(255, 255, 255, 0.22) !important;
+      --border-hud:  rgba(255, 255, 255, 0.28) !important;
+      --glass-blur:  blur(24px) saturate(1.4) !important;
+      --glass-shadow: 0 10px 26px rgba(140, 0, 55, 0.28), inset 0 1px 0.5px rgba(255, 255, 255, 0.3) !important;
       
       --neon-pink:  #ff077c;
       --neon-pink-dim: rgba(255, 7, 124, 0.15);
       --neon-glow:   rgba(255, 7, 124, 0.4);
       --neon-glow-intense: rgba(255, 7, 124, 0.6);
+      --neon-orange: #ff6d00;
+      --neon-orange-glow: rgba(255, 109, 0, 0.4);
       --neon-green: var(--neon-pink);
       --neon-green-dim: var(--neon-pink-dim);
       --neon-green-glow: var(--neon-glow);
@@ -103,10 +105,10 @@ import { ClientRouter } from "astro:transitions";
       --neon-pink-secondary:   #ff077c;
       --neon-pink-dim-secondary: rgba(255, 7, 124, 0.15);
       
-      --text-primary:#1e1f22;
-      --text-muted:  #666a73;
-      --text-hud:    #1e1f22;
-      --text-hud-dim:#818793;
+      --text-primary:#ffffff;
+      --text-muted:  rgba(255, 255, 255, 0.6);
+      --text-hud:    #ffffff;
+      --text-hud-dim:rgba(255, 255, 255, 0.55);
       
       --radius-card: 24px;
       --radius-pill: 999px;
@@ -118,7 +120,6 @@ import { ClientRouter } from "astro:transitions";
       
       --font-display:'Inter Tight', sans-serif;
       --font-mono:   'Geist Mono', monospace;
-      --font-dot:    'Codystar', sans-serif;
       
       --safe-top:    env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -150,7 +151,7 @@ import { ClientRouter } from "astro:transitions";
       width: 100%;
       min-height: 100%;
       overflow: hidden;
-      background: #111111;
+      background: var(--bg);
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -162,7 +163,7 @@ import { ClientRouter } from "astro:transitions";
 
     body {
       font-family: var(--font-mono);
-      background: #111111;
+      background: var(--bg);
       color: var(--text-primary);
       display: flex;
       flex-direction: column;
@@ -171,10 +172,13 @@ import { ClientRouter } from "astro:transitions";
     body::before {
       content: '';
       position: fixed; inset: 0;
-      opacity: 0.08; pointer-events: none; z-index: 9999;
+      opacity: 0.12; pointer-events: none; z-index: 9999;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-repeat: repeat; background-size: 150px;
       mix-blend-mode: overlay;
+    }
+    body.dark-mode::before {
+      opacity: 0.20;
     }
     body::after {
       content: '';
