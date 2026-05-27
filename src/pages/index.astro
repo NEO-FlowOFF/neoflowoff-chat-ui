@@ -38,10 +38,15 @@ import Base from "../layouts/Base.astro";
     }
 
     .splash {
+      width: 100%;
       min-height: 100dvh;
       display: grid;
       place-items: center;
       padding: 24px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255, 7, 124, 0.12), transparent 34%),
+        radial-gradient(circle at center, #171717 0%, #050505 100%);
+      color: #f0f0f0;
       animation: fade-in 0.35s ease both;
       transition: opacity var(--splash-fade-out) ease;
     }
@@ -67,7 +72,7 @@ import Base from "../layouts/Base.astro";
 
     .splash-text {
       font-family: var(--font-mono);
-      color: var(--text-primary);
+      color: #f0f0f0;
       font-size: clamp(18px, 2.35vw, 26px);
       line-height: 1.45;
       letter-spacing: 0.02em;
@@ -75,7 +80,7 @@ import Base from "../layouts/Base.astro";
       max-width: 30ch;
       margin: 0;
       text-wrap: balance;
-      text-shadow: 0 2px 18px rgba(0,0,0,0.10);
+      text-shadow: 0 2px 18px rgba(0,0,0,0.45);
       animation: pop-in 0.45s cubic-bezier(0.18, 0.8, 0.25, 1) 0.14s both;
     }
 

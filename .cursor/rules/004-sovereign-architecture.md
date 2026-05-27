@@ -34,7 +34,7 @@ sejam implementadas de forma consistente e resiliente.
 
 ## ⧉ Fluxo de Dados (chat.ts)
 
-```
+```eco
 POST /api/chat
   ├── Lê system-prompt.md + CONTEXT.json
   ├── Chama ASI1 com streaming SSE
@@ -49,7 +49,6 @@ POST /api/chat
 ## ⧉ Arquivos-Chave
 
 | Arquivo | Responsabilidade |
-|---|---|
 | `src/lib/system-prompt.md` | Prompt e comportamento do agente |
 | `src/lib/CONTEXT.json` | Dados factuais da agência |
 | `src/lib/db.ts` | Pool PostgreSQL + schema migration |
@@ -62,7 +61,7 @@ POST /api/chat
 
 ## ⍟ Variáveis de Ambiente Necessárias
 
-```
+```keys
 ASI1_API_KEY=   # Chave da API ASI1
 ASI1_MODEL=asi1 # Modelo (padrão: asi1)
 REDIS_URL=      # URL do Redis (Railway interno ou externo)

@@ -659,10 +659,6 @@ body.dark-mode .footer-links a {
   .messages-wrap {
     padding-top: 88px;
   }
-
-  .input-area {
-    margin-bottom: 72px;
-  }
 }
 
 /* Dark theme contrast cleanup: remove bright translucent whites */
