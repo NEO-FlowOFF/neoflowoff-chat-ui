@@ -27,14 +27,16 @@ import { ClientRouter } from "astro:transitions";
   <meta property="og:url" content="https://chat.neoflowoff.agency/" />
   <meta property="og:title" content="NEØ:one · NEO FlowOFF" />
   <meta property="og:description" content="Automação de marketing e infraestrutura digital autônoma. Fale com a NEO FlowOFF." />
-  <meta property="og:image" content="https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp" />
+  <meta property="og:image" content="https://chat.neoflowoff.agency/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://chat.neoflowoff.agency/" />
   <meta property="twitter:title" content="NEØ:one · NEO FlowOFF" />
   <meta property="twitter:description" content="Automação de marketing e infraestrutura digital autônoma. Fale com a NEO FlowOFF." />
-  <meta property="twitter:image" content="https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp" />
+  <meta property="twitter:image" content="https://chat.neoflowoff.agency/og-image.png" />
 
   <!-- Schema.org Markup -->
   <script type="application/ld+json" is:inline>
@@ -238,6 +240,9 @@ import { ClientRouter } from "astro:transitions";
   </svg>
 </head>
 <body>
+    <script is:inline>
+      (function(){var t=localStorage.getItem('flow_theme');if(t!=='light')document.body.classList.add('dark-mode');})();
+    </script>
     <ClientRouter />
     <div id="app-shell">
       <slot />

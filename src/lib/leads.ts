@@ -122,6 +122,8 @@ export async function upsertLead(lead: Lead): Promise<void> {
  */
 async function sendResendNotification(lead: Lead): Promise<void> {
   const apiKey = import.meta.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
+  const fromEmail = import.meta.env.RESEND_FROM || process.env.RESEND_FROM || "neo@neoflowoff.agency";
+  const toEmail = import.meta.env.RESEND_TO || process.env.RESEND_TO || "neo@neoflowoff.agency";
   if (!apiKey) {
     console.warn("[RESEND] RESEND_API_KEY não configurada no ambiente. E-mail de handoff não enviado.");
     return;
@@ -189,7 +191,7 @@ async function sendResendNotification(lead: Lead): Promise<void> {
     </div>
   `;
 
-  console.log(`[RESEND] Enviando e-mail de notificação para neo@neoflowoff.agency...`);
+  console.log(`[RESEND] Enviando e-mail de notificação para ${toEmail}...`);
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -198,8 +200,8 @@ async function sendResendNotification(lead: Lead): Promise<void> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      from: "NEO:One <onboarding@resend.dev>",
-      to: "neo@neoflowoff.agency",
+      from: `NEO:One <${fromEmail}>`,
+      to: toEmail,
       subject,
       html,
     }),

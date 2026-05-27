@@ -87,8 +87,13 @@ function renderBubble(role: string, text: string, animate: boolean) {
   if (!clone) return;
   const bubbleEl = clone.querySelector('.bubble');
   const timeEl = clone.querySelector('.timestamp');
+  const visitorLabelEl = clone.querySelector('.visitor-label');
   if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text);
   if (timeEl) timeEl.textContent = formatTime();
+  if (visitorLabelEl && sessionId) {
+    const code = sessionId.replace(/-/g, '').slice(0, 6).toUpperCase();
+    visitorLabelEl.textContent = `VISITANTE: %${code}`;
+  }
   if (!animate) clone.style.animation = 'none';
   wrap.appendChild(clone);
   scrollToBottom();
@@ -244,6 +249,7 @@ async function handleSend(queuedText?: string) {
   }
 
   empty?.classList.add('hidden');
+  document.querySelector('.header')?.classList.add('chat-active');
   pushHistory('user', text);
   saveHistory();
   const userBubble = renderBubble('user', text, true);

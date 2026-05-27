@@ -13,7 +13,7 @@ const isUser = role === 'user';
 <div class={`msg-container ${isUser ? 'user-side' : 'agent-side'}`}>
   <div class="bubble-wrapper">
     {!isUser && <span class="label">NEØ:One</span>}
-    {isUser && <span class="label">Visitante: %100110</span>}
+    {isUser && <span class="label visitor-label">VISITANTE: %------</span>}
     
     <div class="bubble">
       {content}
