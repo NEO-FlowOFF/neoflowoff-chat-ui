@@ -25,15 +25,26 @@ export async function updateRegisLead(
     .map((m) => `${m.role === "user" ? "VISITANTE" : "AGENTE"}: ${m.content}`)
     .join("\n");
 
-  const extractionPrompt = `Analise esta conversa de atendimento e extraia dados do visitante.
-Retorne APENAS um JSON válido, sem markdown, sem explicações.
+  const extractionPrompt = `Você é um sistema de extração de CRM. Analise a conversa abaixo e extraia os dados do visitante.
+Retorne APENAS um JSON válido e absoluto nada mais.
 
-Campos:
-- nome: nome completo do visitante (null se não mencionado)
-- email: endereço de e-mail (null se não mencionado)
-- telefone: número de telefone com DDD (null se não mencionado)
-- empresa: nome da empresa ou projeto (null se não mencionado)
-- observacoes: resumo em 1-2 frases do objetivo/necessidade do visitante (null se não há conteúdo suficiente)
+Regras:
+1. Extraia o "nome" completo do visitante.
+2. Extraia "email" e "telefone".
+3. Extraia "empresa" se mencionada.
+4. "observacoes" deve ser um resumo de 1-2 frases do que o visitante deseja.
+5. "visitor_intent" DEVE obrigatoriamente ser UMA destas tags: "orçamento", "parceria", "suporte", "projeto_webapp", "agents_empresa", "curioso" ou "outro".
+6. Se o dado (nome, email, telefone, empresa, observacoes) não foi fornecido, o valor no JSON DEVE ser null (tipo primitivo).
+
+Formato de Saída (JSON estrito):
+{
+  "nome": string | null,
+  "email": string | null,
+  "telefone": string | null,
+  "empresa": string | null,
+  "observacoes": string | null,
+  "visitor_intent": string | null
+}
 
 Conversa:
 ${transcript}
@@ -52,7 +63,7 @@ JSON:`;
         messages: [{ role: "user", content: extractionPrompt }],
         stream: false,
         temperature: 0.1,
-        max_tokens: 300,
+        max_tokens: 350,
       }),
     });
 
@@ -69,13 +80,27 @@ JSON:`;
     const jsonStr = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
     const extracted = JSON.parse(jsonStr);
 
+    // Função auxiliar para evitar strings 'null' vazando para o banco
+    const sanitizeStr = (val: any) => {
+      if (!val) return null;
+      if (typeof val === "string") {
+        const lower = val.trim().toLowerCase();
+        if (lower === "null" || lower === "undefined" || lower === "none" || lower === "" || lower === "não informado" || lower === "não mencionado") {
+          return null;
+        }
+        return val.trim();
+      }
+      return val;
+    };
+
     await upsertLead({
       sessionId,
-      nome: extracted.nome ?? null,
-      email: extracted.email ?? null,
-      telefone: extracted.telefone ?? null,
-      empresa: extracted.empresa ?? null,
-      observacoes: extracted.observacoes ?? null,
+      nome: sanitizeStr(extracted.nome),
+      email: sanitizeStr(extracted.email),
+      telefone: sanitizeStr(extracted.telefone),
+      empresa: sanitizeStr(extracted.empresa),
+      observacoes: sanitizeStr(extracted.observacoes),
+      visitorIntent: sanitizeStr(extracted.visitor_intent),
     });
   } catch (err) {
     console.error("[REGIS] Erro ao extrair/salvar lead:", err);

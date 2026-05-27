@@ -46,6 +46,8 @@ export async function ensureLeadsTable(): Promise<void> {
     );
 
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS qualificado BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS visitor_intent TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS handoff_sent BOOLEAN NOT NULL DEFAULT FALSE;
 
     CREATE OR REPLACE FUNCTION update_updated_at()
     RETURNS TRIGGER AS $$
