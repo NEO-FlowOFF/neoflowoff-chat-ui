@@ -20,8 +20,6 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const STORAGE_KEY = 'flow_history_v1';
 const SESSION_KEY = 'flow_session_id';
 const MAX_HISTORY = 40;
-const MAX_SESSION_MESSAGES = 10;
-let sessionCount = 0;
 
 function loadHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
 function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY))); } catch {} }
@@ -261,28 +259,9 @@ async function handleSend(queuedText?: string) {
     const thinkingTime = 600 + Math.random() * 1000;
     await sleep(readingTime + thinkingTime);
 
-    sessionCount++;
     const reply = await streamProxy(text, typingEl);
     pushHistory('agent', reply);
     saveHistory();
-
-    if (sessionCount >= MAX_SESSION_MESSAGES) {
-      const { contact, handoff_rules } = await import("../lib/CONTEXT.json");
-      const handoffMessage = encodeURIComponent(
-        "Olá Neo, conversei com o NΞØ:One e quero continuar a conversa."
-      );
-      const whatsappUrl = handoff_rules?.build_whatsapp_url
-        ? `${contact.whatsapp_base_url}?text=${handoffMessage}`
-        : contact.whatsapp_base_url;
-      renderBubble(
-        "agent",
-        `Foi um prazer conversar. Para continuar com o Neo, acesse: ${whatsappUrl}`,
-        true
-      );
-      sendBtn.disabled = true;
-      input.disabled = true;
-      input.placeholder = "Sessão Beta finalizada.";
-    }
   } catch (err: unknown) {
     typingEl.remove();
     const isNetworkError = err instanceof TypeError;
@@ -391,7 +370,6 @@ clearBtn.addEventListener('click', async () => {
   }
 
   chatHistory = [];
-  sessionCount = 0;
   saveHistory();
 
   showEmptyState();
