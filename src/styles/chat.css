@@ -43,7 +43,7 @@
   right: 16px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--neon-pink) 50%, transparent);
-  opacity: 0.25;
+  opacity: 0.65;
   pointer-events: none;
 }
 body.dark-mode .header {

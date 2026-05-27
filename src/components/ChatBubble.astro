@@ -57,8 +57,8 @@ const isUser = role === 'user';
     text-transform: uppercase;
   }
 
-  .user-side .label { color: var(--neon-pink); text-align: right; }
-  .agent-side .label { color: var(--neon-green); text-align: left; }
+  .user-side .label { color: var(--neon-pink); opacity: 0.7; text-align: right; }
+  .agent-side .label { color: var(--neon-green); opacity: 0.7; text-align: left; }
 
   .bubble {
     padding: 12px 16px;
@@ -72,41 +72,24 @@ const isUser = role === 'user';
     transition: background 0.3s ease;
   }
 
-  /* BALÃO DO AGENTE (Esquerda - Cristalino/Acqua) */
+  /* BALÃO DO AGENTE */
   .agent-side .bubble {
     background: var(--surface);
     color: var(--text-hud);
     border: 1px solid var(--border-hud);
     border-radius: 2px 20px 20px 20px;
-    border-left: 2px solid rgba(255, 7, 124, 1);
-    box-shadow: 
-      0 10px 30px rgba(0,0,0,0.08),
-      -2px 0 8px rgba(255, 255, 255, 0.4), /* Luz Branca Neutra */
-      2px 0 8px rgba(255, 7, 124, 0.4);   /* Magenta da Marca */
+    border-left: 2px solid rgba(255, 7, 124, 0.45);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   }
 
-  .agent-side .bubble::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.22) 0%,
-      rgba(255, 255, 255, 0.08) 45%,
-      rgba(255, 7, 124, 0.08) 100%
-    ); pointer-events: none;
-    border-radius: inherit;
-  }
-
-  /* BALÃO DO USUÁRIO (Direita - Glass Deep) */
+  /* BALÃO DO USUÁRIO */
   .user-side .bubble {
     background: var(--hud-soft);
     color: var(--text-hud);
     border: 1px solid var(--border-hud);
     border-radius: 20px 2px 20px 20px;
-    border-right: 2px solid rgba(255, 7, 124, 1);
-    box-shadow: 
-      0 10px 30px rgba(0,0,0,0.08),
-      2px 0 8px rgba(255, 255, 255, 0.4),
-      -2px 0 8px rgba(255, 7, 124, 0.4);
+    border-right: 2px solid rgba(255, 7, 124, 0.45);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   }
 
   .timestamp {

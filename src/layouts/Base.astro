@@ -249,13 +249,73 @@ import { ClientRouter } from "astro:transitions";
       if (import.meta.env.PROD && "serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("/sw.js")
-            .then(() => {
-              if (import.meta.env.DEV) console.debug("SW registrado");
+            .register("/sw.js", { updateViaCache: "none" })
+            .then((reg) => {
+              reg.addEventListener("updatefound", () => {
+                const next = reg.installing;
+                next.addEventListener("statechange", () => {
+                  if (next.state === "installed" && navigator.serviceWorker.controller) {
+                    showUpdateBanner(reg);
+                  }
+                });
+              });
             })
-            .catch((err) => {
-              if (import.meta.env.DEV) console.debug("SW falhou:", err);
-            });
+            .catch(() => {});
+        });
+      }
+
+      function showUpdateBanner(reg) {
+        if (document.getElementById("sw-update-banner")) return;
+        const banner = document.createElement("div");
+        banner.id = "sw-update-banner";
+        banner.setAttribute("role", "status");
+        banner.innerHTML =
+          '<span>Nova versão disponível</span>' +
+          '<button id="sw-update-btn" type="button">Atualizar</button>';
+        Object.assign(banner.style, {
+          position: "fixed",
+          bottom: "calc(80px + env(safe-area-inset-bottom))",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: "9000",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px 16px",
+          borderRadius: "999px",
+          background: "rgba(10,10,10,0.88)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(255,7,124,0.35)",
+          boxShadow: "0 4px 24px rgba(255,7,124,0.18)",
+          fontFamily: "var(--font-mono, monospace)",
+          fontSize: "12px",
+          color: "#f0f0f0",
+          whiteSpace: "nowrap",
+          animation: "sw-banner-in 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
+        });
+        const btn = banner.querySelector("#sw-update-btn");
+        Object.assign(btn.style, {
+          background: "#ff077c",
+          color: "#fff",
+          border: "none",
+          borderRadius: "999px",
+          padding: "5px 14px",
+          fontSize: "12px",
+          fontFamily: "inherit",
+          fontWeight: "600",
+          cursor: "pointer",
+        });
+        if (!document.getElementById("sw-banner-style")) {
+          const s = document.createElement("style");
+          s.id = "sw-banner-style";
+          s.textContent = "@keyframes sw-banner-in{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}";
+          document.head.appendChild(s);
+        }
+        document.body.appendChild(banner);
+        btn.addEventListener("click", () => {
+          reg.waiting.postMessage({ type: "SKIP_WAITING" });
+          navigator.serviceWorker.addEventListener("controllerchange", () => location.reload());
+          banner.remove();
         });
       }
 

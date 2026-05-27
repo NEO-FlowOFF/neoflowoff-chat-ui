@@ -1,4 +1,4 @@
-const CACHE_NAME = "neoflow-v2";
+const CACHE_NAME = "neoflow-v3";
 
 // Apenas shell estático sem hashes — assets Astro são servidos network-first
 const SHELL_URLS = [
@@ -10,13 +10,15 @@ const SHELL_URLS = [
   "https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp",
 ];
 
-// Ativa imediatamente sem esperar o app fechar
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(SHELL_URLS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_URLS))
   );
+});
+
+// Recebe sinal do cliente para assumir controle imediatamente
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 // Assume controle de todas as abas abertas e limpa caches antigos
