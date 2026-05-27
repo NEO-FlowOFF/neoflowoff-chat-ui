@@ -1,4 +1,4 @@
-const CACHE = "neoone-v1.0.3";
+const CACHE = "neoone-v1.0.4";
 
 const SHELL = ["/", "/chat"];
 
@@ -31,6 +31,10 @@ self.addEventListener("fetch", (e) => {
 
   // API calls nunca vão para cache
   if (url.pathname.startsWith("/api/")) return;
+  // Assets e HMR do Vite nunca passam pelo SW
+  if (url.pathname.startsWith("/@vite/")) return;
+  if (url.pathname.startsWith("/@fs/")) return;
+  if (url.pathname.startsWith("/src/")) return;
 
   e.respondWith(
     caches.match(e.request).then((cached) => {
