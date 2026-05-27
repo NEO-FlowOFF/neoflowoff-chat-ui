@@ -180,6 +180,12 @@ body:not(.dark-mode) .agent-name {
   color: var(--text-primary);
 }
 
+button:active,
+.icon-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
 /* 3D THEME SWITCH */
 .theme-switch {
   position: relative;
@@ -628,6 +634,35 @@ body.dark-mode .footer-links a {
 .footer-dot:nth-child(3) {
   background: var(--neon-pink-secondary);
   opacity: 0.7;
+}
+
+/* iOS viewport quirks: fixed chrome with safe-area compensation */
+@supports (-webkit-touch-callout: none) {
+  .header,
+  .footer {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    z-index: 100;
+  }
+
+  .header {
+    top: env(safe-area-inset-top);
+  }
+
+  .footer {
+    bottom: env(safe-area-inset-bottom);
+  }
+
+  .messages-wrap {
+    padding-top: 88px;
+  }
+
+  .input-area {
+    margin-bottom: 72px;
+  }
 }
 
 /* EMPTY STATE */

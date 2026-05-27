@@ -1,12 +1,12 @@
 {
-  "name": "NEØ:one — NEØ FlowOFF",
-  "short_name": "NEØ:one",
+  "name": "NEØ:one",
+  "short_name": "NEØ",
   "description": "Agente autônomo do ecossistema NEØ FlowOFF",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f0f0f",
-  "theme_color": "#111110",
+  "background_color": "#111111",
+  "theme_color": "#111111",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -20,5 +20,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "splash_pages": null
 }
