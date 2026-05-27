@@ -41,6 +41,11 @@ export async function ensureLeadsTable(): Promise<void> {
       empresa      TEXT,
       observacoes  TEXT,
       qualificado  BOOLEAN NOT NULL DEFAULT FALSE,
+      followup_status TEXT NOT NULL DEFAULT 'pending',
+      followup_due_at TIMESTAMPTZ,
+      followup_attempts INTEGER NOT NULL DEFAULT 0,
+      last_followup_at TIMESTAMPTZ,
+      followup_notes TEXT,
       created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -48,6 +53,19 @@ export async function ensureLeadsTable(): Promise<void> {
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS qualificado BOOLEAN NOT NULL DEFAULT FALSE;
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS visitor_intent TEXT;
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS handoff_sent BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS followup_status TEXT NOT NULL DEFAULT 'pending';
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS followup_due_at TIMESTAMPTZ;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS followup_attempts INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS last_followup_at TIMESTAMPTZ;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS followup_notes TEXT;
+
+    UPDATE leads
+    SET followup_status = 'ready'
+    WHERE qualificado = TRUE
+      AND followup_status = 'pending';
+
+    CREATE INDEX IF NOT EXISTS leads_followup_status_due_at_idx
+      ON leads (followup_status, followup_due_at);
 
     CREATE OR REPLACE FUNCTION update_updated_at()
     RETURNS TRIGGER AS $$

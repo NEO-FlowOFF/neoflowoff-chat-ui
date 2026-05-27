@@ -32,10 +32,11 @@ export async function upsertLead(lead: Lead): Promise<void> {
   let existingTelefone = "";
   let existingObservacoes = "";
   let existingHandoffSent = false;
+  let existingFollowupStatus = "";
 
   try {
     const existing = await pool.query(
-      `SELECT nome, empresa, email, telefone, observacoes, qualificado, handoff_sent FROM leads WHERE session_id = $1`,
+      `SELECT nome, empresa, email, telefone, observacoes, qualificado, handoff_sent, followup_status FROM leads WHERE session_id = $1`,
       [lead.sessionId]
     );
     if (existing.rows.length > 0) {
@@ -45,6 +46,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       existingTelefone = existing.rows[0].telefone || "";
       existingObservacoes = existing.rows[0].observacoes || "";
       existingHandoffSent = !!existing.rows[0].handoff_sent;
+      existingFollowupStatus = existing.rows[0].followup_status || "";
     }
   } catch (err) {
     console.error("[LEADS] Erro ao consultar lead existente:", err);
@@ -62,12 +64,16 @@ export async function upsertLead(lead: Lead): Promise<void> {
   const hasNeed = !!finalObservacoes;
 
   const isQualified = hasContact && hasIdentity && hasNeed;
+  const followupStatus =
+    isQualified && (!existingFollowupStatus || existingFollowupStatus === "pending")
+      ? "ready"
+      : existingFollowupStatus || "pending";
 
   // 3. Insere ou atualiza no banco com a classificação correta
   await pool.query(
     `
-    INSERT INTO leads (session_id, nome, email, telefone, empresa, observacoes, visitor_intent, qualificado, handoff_sent)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    INSERT INTO leads (session_id, nome, email, telefone, empresa, observacoes, visitor_intent, qualificado, handoff_sent, followup_status)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     ON CONFLICT (session_id) DO UPDATE SET
       nome           = COALESCE(EXCLUDED.nome,           leads.nome),
       email          = COALESCE(EXCLUDED.email,          leads.email),
@@ -76,6 +82,11 @@ export async function upsertLead(lead: Lead): Promise<void> {
       observacoes    = COALESCE(EXCLUDED.observacoes,    leads.observacoes),
       visitor_intent = COALESCE(EXCLUDED.visitor_intent, leads.visitor_intent),
       qualificado    = EXCLUDED.qualificado,
+      followup_status = CASE
+        WHEN leads.followup_status = 'pending' AND EXCLUDED.qualificado = TRUE
+          THEN 'ready'
+        ELSE leads.followup_status
+      END,
       updated_at     = NOW()
     `,
     [
@@ -88,6 +99,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       lead.visitorIntent ?? null,
       isQualified,
       existingHandoffSent, // Mantém o status anterior na inserção/update
+      followupStatus,
     ],
   );
 
@@ -128,4 +140,3 @@ export async function upsertLead(lead: Lead): Promise<void> {
       });
   }
 }
-

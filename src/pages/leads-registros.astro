@@ -1,0 +1,228 @@
+---
+import Base from "../layouts/Base.astro";
+import {
+  leadIntentSummary,
+  leadSnapshotDate,
+  leadSnapshotRows,
+} from "../lib/leads-snapshot";
+---
+
+<Base>
+  <main class="leads-page" transition:name="leads-registros">
+    <header class="leads-header">
+      <a href="/chat" class="back-link">Voltar ao chat</a>
+      <div>
+        <p class="eyebrow">Snapshot sanitizado · {leadSnapshotDate}</p>
+        <h1>Leads: registros e intenção</h1>
+        <p class="summary">
+          Exportação sem nome, email, telefone ou conversa bruta.
+        </p>
+      </div>
+      <a href="/leads-registros.csv" class="download-link">Baixar CSV</a>
+    </header>
+
+    <section class="table-section" aria-labelledby="registros-title">
+      <h2 id="registros-title">Registros</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Sessão</th>
+              <th>Criado UTC</th>
+              <th>Update UTC</th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Tel</th>
+              <th>Empresa</th>
+              <th>Qual</th>
+              <th>Handoff</th>
+              <th>Intenção</th>
+              <th>Obs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              leadSnapshotRows.map((row) => (
+                <tr>
+                  <td><code>{row.sessionRef}</code></td>
+                  <td>{row.createdAtUtc}</td>
+                  <td>{row.updatedAtUtc}</td>
+                  <td>{row.temNome}</td>
+                  <td>{row.temEmail}</td>
+                  <td>{row.temTelefone}</td>
+                  <td>{row.temEmpresa}</td>
+                  <td>{row.qualificado}</td>
+                  <td>{row.handoffSent}</td>
+                  <td>{row.visitorIntent}</td>
+                  <td>{row.observacoesChars}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="table-section" aria-labelledby="intencao-title">
+      <h2 id="intencao-title">Intenção</h2>
+      <div class="table-wrap compact">
+        <table>
+          <thead>
+            <tr>
+              <th>Intenção</th>
+              <th>Total</th>
+              <th>Qualificados</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              leadIntentSummary.map((item) => (
+                <tr>
+                  <td>{item.visitorIntent}</td>
+                  <td>{item.total}</td>
+                  <td>{item.qualificados}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <style>
+    .leads-page {
+      width: min(1120px, 100%);
+      min-height: 100dvh;
+      padding: 28px 18px 48px;
+      color: var(--text-primary);
+    }
+
+    .leads-header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .back-link,
+    .download-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: inherit;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .download-link {
+      border-color: rgba(255, 7, 124, 0.38);
+      color: var(--neon-pink);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.05;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .summary {
+      max-width: 56ch;
+      margin: 10px 0 0;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .table-section {
+      margin-top: 24px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .table-wrap.compact {
+      max-width: 520px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .compact table {
+      min-width: 0;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      color: var(--neon-pink);
+      font-family: var(--font-mono);
+    }
+
+    @media (max-width: 720px) {
+      .leads-header {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+
+      .back-link,
+      .download-link {
+        justify-self: start;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</Base>
