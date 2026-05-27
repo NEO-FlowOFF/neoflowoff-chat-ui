@@ -1,5 +1,5 @@
     try {
-      const introSeen = sessionStorage.getItem("nox_intro_seen");
+      const introSeen = sessionStorage.getItem("flow_intro_seen");
       if (!introSeen) {
         window.location.replace("/");
       }
@@ -9,8 +9,8 @@
 
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const STORAGE_KEY = 'nox_history_v1';
-    const SESSION_KEY = 'nox_session_id';
+    const STORAGE_KEY = 'flow_history_v1';
+    const SESSION_KEY = 'flow_session_id';
     const MAX_HISTORY = 40;
     const MAX_SESSION_MESSAGES = 10;
     let sessionCount = 0;
@@ -365,14 +365,19 @@
     });
 
     // Theme Toggle Logic
-    const savedTheme = localStorage.getItem('nox_theme');
-    if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+    const savedTheme = localStorage.getItem('flow_theme');
+    if (savedTheme === 'light') {
+      document.body.classList.remove('dark-mode');
+    } else {
+      document.body.classList.add('dark-mode');
+      if (!savedTheme) localStorage.setItem('flow_theme', 'dark');
+    }
     themeBtn.setAttribute('aria-pressed', document.body.classList.contains('dark-mode') ? 'true' : 'false');
     
     themeBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
-      localStorage.setItem('nox_theme', isDark ? 'dark' : 'light');
+      localStorage.setItem('flow_theme', isDark ? 'dark' : 'light');
       themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
       showToast(isDark ? 'Modo Escuro Ativado' : 'Modo Claro Ativado');
     });

@@ -11,21 +11,35 @@ if (!redisUrl) {
 import { type Message } from "../types/chat";
 
 export const redis = redisUrl ? new Redis(redisUrl) : null;
+if (redis) {
+  redis.on("error", (err) => {
+    console.error("[REDIS] Connection error:", err instanceof Error ? err.message : err);
+  });
+}
 
 export async function getChatHistory(sessionId: string): Promise<Message[]> {
   if (!redis) return [];
-  const data = await redis.get(`chat:${sessionId}`);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = await redis.get(`chat:${sessionId}`);
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    console.error("[REDIS] Failed to read chat history:", err instanceof Error ? err.message : err);
+    return [];
+  }
 }
 
 export async function saveChatHistory(sessionId: string, history: Message[]) {
   if (!redis) return;
   // Mantém apenas as últimas 40 mensagens para performance e custo
   const limitedHistory = history.slice(-40);
-  await redis.set(
-    `chat:${sessionId}`,
-    JSON.stringify(limitedHistory),
-    "EX",
-    60 * 60 * 24 * 7,
-  ); // Expira em 7 dias
+  try {
+    await redis.set(
+      `chat:${sessionId}`,
+      JSON.stringify(limitedHistory),
+      "EX",
+      60 * 60 * 24 * 7,
+    ); // Expira em 7 dias
+  } catch (err) {
+    console.error("[REDIS] Failed to persist chat history:", err instanceof Error ? err.message : err);
+  }
 }

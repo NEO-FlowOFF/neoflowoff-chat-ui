@@ -665,6 +665,44 @@ body.dark-mode .footer-links a {
   }
 }
 
+/* Dark theme contrast cleanup: remove bright translucent whites */
+body.dark-mode .agent-pill {
+  background: rgba(20, 20, 20, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .input-card {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 26, 26, 0.82),
+    rgba(10, 10, 10, 0.88)
+  );
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 8px rgba(255, 255, 255, 0.03);
+}
+
+body.dark-mode .send-btn {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(36, 36, 36, 0.9),
+    rgba(14, 14, 14, 0.92)
+  );
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.38),
+    inset 0 2px 6px rgba(255, 255, 255, 0.06),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.28);
+}
+
+body.dark-mode .theme-switch {
+  background: rgba(18, 18, 18, 0.82);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 /* EMPTY STATE */
 .empty-state {
   position: absolute;
