@@ -136,14 +136,18 @@ function renderTyping(): HTMLElement {
   return msg;
 }
 
+function clearMessages() {
+  wrap.querySelectorAll('.msg-container, .msg').forEach(m => m.remove());
+}
+
 function renderAllMessages() {
   if (chatHistory.length > 0) {
     empty?.classList.add('hidden');
-    wrap.querySelectorAll('.msg').forEach(m => m.remove());
+    clearMessages();
     chatHistory.forEach((m: any) => renderBubble(m.role, m.content, false));
     scrollToBottom();
   } else {
-    wrap.querySelectorAll('.msg').forEach(m => m.remove());
+    clearMessages();
     empty?.classList.remove('hidden');
   }
 }
