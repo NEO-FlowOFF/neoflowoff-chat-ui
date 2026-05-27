@@ -155,13 +155,15 @@ body:not(.dark-mode) .agent-name {
 
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
 }
 
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,8 +183,10 @@ body:not(.dark-mode) .agent-name {
 /* 3D THEME SWITCH */
 .theme-switch {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   cursor: pointer;
   transition: all 0.25s ease;
   flex-shrink: 0;

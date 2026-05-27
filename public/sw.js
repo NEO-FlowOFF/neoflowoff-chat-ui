@@ -1,53 +1,20 @@
-const CACHE = "neoone-v1.0.4";
+const CACHE_NAME = "flowoff-v2";
+const urlsToCache = ["/", "/index.html", "/styles.css", "/app.js"];
 
-const SHELL = ["/", "/chat"];
-
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)),
-        ),
-      ),
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)),
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (e) => {
-  const url = new URL(e.request.url);
-
-  // Ignora esquemas não suportados (ex: chrome-extension:, data:, blob:)
-  if (!(url.protocol === "http:" || url.protocol === "https:")) return;
-
-  // Apenas mesma origem
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
-  // API calls nunca vão para cache
   if (url.pathname.startsWith("/api/")) return;
-  // Assets e HMR do Vite nunca passam pelo SW
-  if (url.pathname.startsWith("/@vite/")) return;
-  if (url.pathname.startsWith("/@fs/")) return;
-  if (url.pathname.startsWith("/src/")) return;
 
-  e.respondWith(
-    caches.match(e.request).then((cached) => {
-      return (
-        cached ||
-        fetch(e.request).then((res) => {
-          // Só cacheia respostas válidas
-          if (!res || !res.ok || res.type === "opaque") return res;
-          const clone = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, clone));
-          return res;
-        })
-      );
-    }),
+  event.respondWith(
+    caches
+      .match(event.request)
+      .then((response) => response || fetch(event.request)),
   );
 });

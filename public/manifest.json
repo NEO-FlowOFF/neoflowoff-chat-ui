@@ -2,7 +2,7 @@
   "name": "NEØ:one — NEØ FlowOFF",
   "short_name": "NEØ:one",
   "description": "Agente autônomo do ecossistema NEØ FlowOFF",
-  "start_url": "/chat",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f0f0f",

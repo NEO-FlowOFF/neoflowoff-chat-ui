@@ -5,7 +5,7 @@ import { ClientRouter } from "astro:transitions";
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="theme-color" content="#111111" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -162,10 +162,18 @@ import { ClientRouter } from "astro:transitions";
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       margin: 0;
+      padding: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: hidden;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
     }
 
     body {
@@ -209,6 +217,7 @@ import { ClientRouter } from "astro:transitions";
     #app-shell {
       width: 100%;
       max-width: 480px;
+      height: 100vh;
       height: 100dvh;
       height: var(--app-height, 100dvh);
       display: flex;
@@ -252,7 +261,14 @@ import { ClientRouter } from "astro:transitions";
     <script is:inline>
       if (import.meta.env.PROD && "serviceWorker" in navigator) {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js").catch(() => {});
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then(() => {
+              if (import.meta.env.DEV) console.debug("SW registrado");
+            })
+            .catch((err) => {
+              if (import.meta.env.DEV) console.debug("SW falhou:", err);
+            });
         });
       }
 
