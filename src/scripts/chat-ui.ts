@@ -1,434 +1,428 @@
-    import { enqueue, getPending, dequeue } from '../lib/idb-queue';
+import { enqueue, getPending, dequeue } from '../lib/idb-queue';
 
-    try {
-      const introSeen = sessionStorage.getItem("flow_intro_seen");
-      if (!introSeen) {
-        window.location.replace("/");
-      }
-    } catch {}
+try {
+  const introSeen = sessionStorage.getItem("flow_intro_seen");
+  if (!introSeen) {
+    window.location.replace("/");
+  }
+} catch {}
 
-    const wrap    = document.getElementById('messagesWrap') as HTMLDivElement;
+const wrap    = document.getElementById('messagesWrap') as HTMLDivElement;
+const input   = document.getElementById('msgInput') as HTMLTextAreaElement;
+const sendBtn = document.getElementById('sendBtn') as HTMLButtonElement;
+const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
+const themeBtn = document.getElementById('themeToggle') as HTMLButtonElement;
+const empty   = document.getElementById('emptyState');
+const toastEl = document.getElementById('toast') as HTMLDivElement;
 
-    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    const STORAGE_KEY = 'flow_history_v1';
-    const SESSION_KEY = 'flow_session_id';
-    const MAX_HISTORY = 40;
-    const MAX_SESSION_MESSAGES = 10;
-    let sessionCount = 0;
+const STORAGE_KEY = 'flow_history_v1';
+const SESSION_KEY = 'flow_session_id';
+const MAX_HISTORY = 40;
+const MAX_SESSION_MESSAGES = 10;
+let sessionCount = 0;
 
-    // Identidade Única do Usuário
-    let sessionId = localStorage.getItem(SESSION_KEY);
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem(SESSION_KEY, sessionId);
-    }
+function loadHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
+function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY))); } catch {} }
+function pushHistory(role: string, content: string) { chatHistory.push({ role, content, ts: Date.now() }); }
+function scrollToBottom() { requestAnimationFrame(() => { wrap.scrollTop = wrap.scrollHeight; }); }
+function formatTime() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
 
-    let chatHistory = loadHistory();
-    let isStreaming = false;
+function escapeHtml(s: string) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
-    const input   = document.getElementById('msgInput') as HTMLTextAreaElement;
-    const sendBtn = document.getElementById('sendBtn') as HTMLButtonElement;
-    const clearBtn= document.getElementById('clearBtn') as HTMLButtonElement;
-    const themeBtn= document.getElementById('themeToggle') as HTMLButtonElement;
-    const empty   = document.getElementById('emptyState');
-    const toastEl = document.getElementById('toast') as HTMLDivElement;
-
-    async function syncHistoryWithRedis() {
-      try {
-        const res = await fetch(`/api/history?sessionId=${sessionId}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        
-        if (data.history && data.history.length > 0) {
-          chatHistory = data.history.map((m: any) => ({
-            role: m.role === 'assistant' ? 'agent' : m.role,
-            content: m.content
-          }));
-          saveHistory();
-          renderAllMessages();
-          showToast('Memória sincronizada');
-        }
-      } catch (err) {
-        console.error('[SYNC ERROR]', err);
-      }
-    }
-
-    function renderAllMessages() {
-      if (chatHistory.length > 0) {
-        empty?.classList.add('hidden');
-        // Limpa apenas as bolhas de mensagem, mantém o emptyState no DOM
-        wrap.querySelectorAll('.msg').forEach(m => m.remove());
-        chatHistory.forEach((m: any) => renderBubble(m.role, m.content, false));
-        scrollToBottom();
-      } else {
-        wrap.querySelectorAll('.msg').forEach(m => m.remove());
-        empty?.classList.remove('hidden');
-      }
-    }
-
-    // Inicialização
-    renderAllMessages();
-    syncHistoryWithRedis();
-
-    input.addEventListener('input', () => {
-      input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-      sendBtn.disabled = !input.value.trim() || isStreaming;
+function formatMarkdown(text: string) {
+  const escaped = escapeHtml(text);
+  const lines = escaped.split('\n');
+  let inCodeBlock = false;
+  const codeLines: string[] = [];
+  let listType: 'ul' | 'ol' | null = null;
+  let listItems: string[] = [];
+  let output = '';
+  const inlineMarkdown = (value: string) => {
+    const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
+    const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, (_, linkText, url) => {
+      const safe = /^https?:\/\//i.test(url) ? url : '#';
+      return `<a href="${safe}" target="_blank" rel="noreferrer noopener">${linkText}</a>`;
     });
-
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) handleSend(); }
-    });
-
-    sendBtn.addEventListener('click', () => handleSend());
-
-    async function handleSend(queuedText?: string) {
-      const text = queuedText ?? input.value.trim();
-      if (!text || isStreaming) return;
-
-      empty?.classList.add('hidden');
-      if (!queuedText) { input.value = ''; input.style.height = 'auto'; }
-      sendBtn.disabled = true; isStreaming = true;
-      pushHistory('user', text);
-      const userBubble = renderBubble('user', text, true);
-      const typingEl = renderTyping();
-      scrollToBottom();
-
-      try {
-        // Humanize: Pausa proporcional ao tamanho da mensagem (leitura) + reflexão
-        const readingTime = Math.min(text.length * 15, 1200);
-        const thinkingTime = 600 + Math.random() * 1000;
-        await sleep(readingTime + thinkingTime);
-
-        sessionCount++;
-        const reply = await streamProxy(text, typingEl);
-        pushHistory('assistant', reply);
-        saveHistory();
-
-        if (sessionCount >= MAX_SESSION_MESSAGES) {
-          renderBubble('agent', 'foi um prazer conversar! Para continuar ou receber uma proposta, entre em contato pelo e-mail neo@neoflowoff.agency ou WhatsApp (62) 98323-1110. 👋', true);
-          sendBtn.disabled = true;
-          input.disabled = true;
-          input.placeholder = 'Sessão Beta finalizada.';
-        }
-      } catch (err: unknown) {
-        typingEl.remove();
-        const isNetworkError = err instanceof TypeError;
-        if (isNetworkError && !queuedText) {
-          chatHistory.pop();
-          saveHistory();
-          userBubble?.remove();
-          await enqueue({ sessionId: sessionId!, text, timestamp: Date.now() }).catch(() => {});
-          renderBubble('agent', '⚡ Sem conexão. Sua mensagem foi salva e será reenviada automaticamente.', true);
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready
-              .then(reg => (reg as ServiceWorkerRegistration & { sync?: { register(t: string): Promise<void> } }).sync?.register('neo-chat-sync'))
-              .catch(() => {});
-          }
-        } else {
-          renderBubble('agent', `⚠ Erro: ${err instanceof Error ? err.message : 'desconhecido'}`, true);
-        }
-      } finally {
-        isStreaming = false;
-        sendBtn.disabled = !input.value.trim();
-        input.focus();
-      }
+    const bold = links.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return bold.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  };
+  const flushList = () => {
+    if (!listType) return '';
+    const tag = listType === 'ul' ? 'ul' : 'ol';
+    const html = `<${tag}>${listItems.map(item => `<li>${inlineMarkdown(item.trim())}</li>`).join('')}</${tag}>`;
+    listType = null; listItems = [];
+    return html;
+  };
+  for (const line of lines) {
+    if (line.trim().startsWith('```')) {
+      if (inCodeBlock) { output += `<pre><code>${codeLines.join('\n')}</code></pre>`; codeLines.length = 0; inCodeBlock = false; }
+      else { inCodeBlock = true; }
+      continue;
     }
+    if (inCodeBlock) { codeLines.push(line); continue; }
+    const headerMatch = line.match(/^\s{0,3}(#{1,6})\s+(.+)$/);
+    const blockquoteMatch = line.match(/^\s{0,3}>\s?(.*)$/);
+    const unorderedMatch = line.match(/^\s*[-*+]\s+(.+)$/);
+    const orderedMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
+    if (headerMatch) { output += flushList(); output += `<h${headerMatch[1].length}>${inlineMarkdown(headerMatch[2].trim())}</h${headerMatch[1].length}>`; continue; }
+    if (blockquoteMatch) { output += flushList(); output += `<blockquote>${inlineMarkdown(blockquoteMatch[1].trim())}</blockquote>`; continue; }
+    if (unorderedMatch) { if (listType === 'ol') output += flushList(); listType = 'ul'; listItems.push(unorderedMatch[1]); continue; }
+    if (orderedMatch) { if (listType === 'ul') output += flushList(); listType = 'ol'; listItems.push(orderedMatch[2]); continue; }
+    output += flushList();
+    output += line.trim() === '' ? '<br>' : inlineMarkdown(line) + '<br>';
+  }
+  output += flushList();
+  return output.replace(/<br>$/, '');
+}
 
-    async function flushQueue() {
-      const pending = await getPending().catch(() => []);
-      if (pending.length === 0) return;
-      showToast(`Reconectado. Reenviando ${pending.length} mensagem${pending.length > 1 ? 's' : ''}…`);
-      for (const msg of pending) {
-        if (msg.id != null) await dequeue(msg.id).catch(() => {});
-        await handleSend(msg.text);
-      }
-    }
+function renderBubble(role: string, text: string, animate: boolean) {
+  const isUser = role === 'user';
+  const tpl = document.getElementById(isUser ? 'tpl-user' : 'tpl-agent');
+  if (!tpl) return;
+  const clone = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
+  if (!clone) return;
+  const bubbleEl = clone.querySelector('.bubble');
+  const timeEl = clone.querySelector('.timestamp');
+  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text);
+  if (timeEl) timeEl.textContent = formatTime();
+  if (!animate) clone.style.animation = 'none';
+  wrap.appendChild(clone);
+  scrollToBottom();
+  return clone;
+}
 
-    window.addEventListener('online', () => flushQueue());
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (e: MessageEvent) => {
-        if ((e.data as { type?: string })?.type === 'SYNC_READY') flushQueue();
-      });
-    }
+function renderStreamingBubble() {
+  const tpl = document.getElementById('tpl-agent');
+  if (!tpl) throw new Error('Template do agente não encontrado');
+  const msg = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
+  if (!msg) throw new Error('Falha ao clonar template do agente');
 
-    flushQueue();
+  msg.classList.add('is-live');
+  const bubble = msg.querySelector('.bubble') as HTMLElement | null;
+  if (!bubble) throw new Error('Bolha do agente não encontrada');
 
-    async function streamProxy(_userText: string, typingEl: HTMLElement) {
-      const messages = [
-        ...chatHistory.slice(-MAX_HISTORY).map((m: any) => ({ role: m.role === 'agent' ? 'assistant' : m.role, content: m.content }))
-      ];
-      
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          messages, 
-          sessionId, // ID único para memória no Redis
-          stream: true, 
-          max_tokens: 1024, 
-          temperature: 0.7 
-        }),
-      });
-      
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      typingEl.remove();
-      
-      const { el: agentMsg, textEl } = renderStreamingBubble();
-      scrollToBottom();
-      
-      let fullText = '';
-      if (!res.body) throw new Error('A resposta da API está vazia (res.body é null).');
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-        
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const json = line.replace('data: ', '').trim();
-            if (json === '[DONE]') break;
-            try {
-              const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
-          fullText += delta; 
-          textEl.innerHTML = formatMarkdown(fullText); 
-          scrollToBottom();
-          // Jitter humano no streaming
-          if (delta.length > 0) await sleep(10 + Math.random() * 25);
-            } catch {}
-          }
-        }
-      }
-      
-      agentMsg.querySelector('.stream-cursor')?.remove();
-      const meta = document.createElement('div');
-      meta.className = 'msg-meta';
-      meta.innerHTML = `<span style="font-size:8px; color:var(--text-muted); opacity:0.5; letter-spacing:0.05em;">${formatTime()}</span>`;
-      agentMsg.querySelector('.bubble')?.after(meta);
-      return fullText;
-    }
+  bubble.innerHTML = '';
+  const textEl = document.createElement('span');
+  textEl.className = 'markdown-text';
+  const cursor = document.createElement('span');
+  cursor.className = 'stream-cursor';
+  bubble.appendChild(textEl);
+  bubble.appendChild(cursor);
 
-    function renderBubble(role: string, text: string, animate: boolean) {
-      const isUser = role === 'user';
-      const tplId = isUser ? 'tpl-user' : 'tpl-agent';
-      const tpl = document.getElementById(tplId);
-      if (!tpl) return;
+  wrap.appendChild(msg);
+  return { el: msg, textEl };
+}
 
-      const clone = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
-      if (!clone) return;
+function renderTyping(): HTMLElement {
+  const tpl = document.getElementById('tpl-agent');
+  if (!tpl) throw new Error('Template do agente não encontrado');
+  const msg = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
+  if (!msg) throw new Error('Falha ao clonar template do agente');
 
-      // Injeta conteúdo e tempo
-      const bubbleEl = clone.querySelector('.bubble');
-      const timeEl = clone.querySelector('.timestamp');
-      if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text);
-      if (timeEl) timeEl.textContent = formatTime();
+  msg.classList.add('is-live');
+  msg.style.animation = 'none';
+  const bubble = msg.querySelector('.bubble') as HTMLElement | null;
+  if (!bubble) throw new Error('Bolha do agente não encontrada');
 
-      if (!animate) clone.style.animation = 'none';
-      wrap.appendChild(clone);
-      scrollToBottom();
-      return clone;
-    }
+  bubble.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+  wrap.appendChild(msg);
+  return msg;
+}
 
-    function escapeHtml(text: string) {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    }
+function renderAllMessages() {
+  if (chatHistory.length > 0) {
+    empty?.classList.add('hidden');
+    wrap.querySelectorAll('.msg').forEach(m => m.remove());
+    chatHistory.forEach((m: any) => renderBubble(m.role, m.content, false));
+    scrollToBottom();
+  } else {
+    wrap.querySelectorAll('.msg').forEach(m => m.remove());
+    empty?.classList.remove('hidden');
+  }
+}
 
-    function formatMarkdown(text: string) {
-      const escaped = escapeHtml(text);
-      const lines = escaped.split('\n');
-      let inCodeBlock = false;
-      const codeLines: string[] = [];
-      let listType: 'ul' | 'ol' | null = null;
-      let listItems: string[] = [];
-      let output = '';
+function showToast(msg: string) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
 
-      const flushList = () => {
-        if (!listType) return '';
-        const tag = listType === 'ul' ? 'ul' : 'ol';
-        const listHtml = `<${tag}>${listItems.map((item) => `<li>${inlineMarkdown(item.trim())}</li>`).join('')}</${tag}>`;
-        listType = null;
-        listItems = [];
-        return listHtml;
-      };
+function showEmptyState() {
+  empty?.classList.remove('hidden');
+  scrollToBottom();
+}
 
-      const inlineMarkdown = (value: string) => {
-        const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
-        const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer noopener">$1</a>');
-        const bold = links.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        return bold.replace(/\*(.+?)\*/g, '<em>$1</em>');
-      };
+let sessionId = localStorage.getItem(SESSION_KEY);
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  localStorage.setItem(SESSION_KEY, sessionId);
+}
 
-      for (const line of lines) {
-        if (line.trim().startsWith('```')) {
-          if (inCodeBlock) {
-            output += `<pre><code>${codeLines.join('\n')}</code></pre>`;
-            codeLines.length = 0;
-            inCodeBlock = false;
-            continue;
-          }
-          inCodeBlock = true;
-          continue;
-        }
+let chatHistory = loadHistory();
+let isStreaming = false;
+let toastTimer: ReturnType<typeof setTimeout>;
 
-        if (inCodeBlock) {
-          codeLines.push(line);
-          continue;
-        }
-
-        const headerMatch = line.match(/^\s{0,3}(#{1,6})\s+(.+)$/);
-        const blockquoteMatch = line.match(/^\s{0,3}>\s?(.*)$/);
-        const unorderedMatch = line.match(/^\s*[-*+]\s+(.+)$/);
-        const orderedMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
-
-        if (headerMatch) {
-          output += flushList();
-          const level = headerMatch[1].length;
-          output += `<h${level}>${inlineMarkdown(headerMatch[2].trim())}</h${level}>`;
-          continue;
-        }
-
-        if (blockquoteMatch) {
-          output += flushList();
-          output += `<blockquote>${inlineMarkdown(blockquoteMatch[1].trim())}</blockquote>`;
-          continue;
-        }
-
-        if (unorderedMatch) {
-          if (listType === 'ol') {
-            output += flushList();
-          }
-          listType = 'ul';
-          listItems.push(unorderedMatch[1]);
-          continue;
-        }
-
-        if (orderedMatch) {
-          if (listType === 'ul') {
-            output += flushList();
-          }
-          listType = 'ol';
-          listItems.push(orderedMatch[2]);
-          continue;
-        }
-
-        output += flushList();
-        if (line.trim() === '') {
-          output += '<br>';
-        } else {
-          output += inlineMarkdown(line);
-          output += '<br>';
-        }
-      }
-
-      output += flushList();
-      return output.replace(/<br>$/,'');
-    }
-
-    function renderStreamingBubble() {
-      const tpl = document.getElementById('tpl-agent');
-      if (!tpl) throw new Error('Template do agente não encontrado');
-      const msg = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
-      if (!msg) throw new Error('Falha ao clonar template do agente');
-
-      msg.classList.add('is-live');
-      const bubble = msg.querySelector('.bubble') as HTMLElement | null;
-      if (!bubble) throw new Error('Bolha do agente não encontrada');
-
-      bubble.innerHTML = '';
-      const textEl = document.createElement('span');
-      textEl.className = 'markdown-text';
-      const cursor = document.createElement('span');
-      cursor.className = 'stream-cursor';
-      bubble.appendChild(textEl);
-      bubble.appendChild(cursor);
-
-      wrap.appendChild(msg);
-      return { el: msg, textEl };
-    }
-
-    function renderTyping() {
-      const tpl = document.getElementById('tpl-agent');
-      if (!tpl) throw new Error('Template do agente não encontrado');
-      const msg = tpl.firstElementChild?.cloneNode(true) as HTMLElement;
-      if (!msg) throw new Error('Falha ao clonar template do agente');
-
-      msg.classList.add('is-live');
-      msg.style.animation = 'none';
-      const bubble = msg.querySelector('.bubble') as HTMLElement | null;
-      if (!bubble) throw new Error('Bolha do agente não encontrada');
-
-      bubble.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
-      wrap.appendChild(msg);
-      return msg;
-    }
-
-    clearBtn.addEventListener('click', () => {
-      const shouldReset = window.confirm(
-        'Isso vai limpar e reiniciar este chat. Deseja continuar?',
-      );
-      if (!shouldReset) return;
-
-      // Rotação de Identidade: Gera um novo sessionId para "resetar" a mente do agente
-      sessionId = crypto.randomUUID();
-      localStorage.setItem(SESSION_KEY, sessionId);
-      
-      // Reseta contadores e histórico local
-      chatHistory = [];
-      sessionCount = 0;
-      saveHistory();
-      
-      showEmptyState();
+async function syncHistoryWithRedis() {
+  try {
+    const res = await fetch(`/api/history?sessionId=${sessionId}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data.history) && data.history.length > 0) {
+      chatHistory = data.history.map((m: { role?: string; content?: string }) => ({
+        role: m.role === "assistant" ? "agent" : m.role === "user" ? "user" : "agent",
+        content: typeof m.content === "string" ? m.content : ""
+      }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY)));
       renderAllMessages();
-      
-      input.value = '';
-      input.style.height = 'auto';
-      input.disabled = false;
-      input.placeholder = 'Digite sua mensagem...';
+      showToast("Memória sincronizada");
+    }
+  } catch {}
+}
+
+const streamProxy = async (
+  _userText: string,
+  typingEl: HTMLElement
+): Promise<string> => {
+  const messages = [
+    ...chatHistory.slice(-MAX_HISTORY).map((m: any) => ({
+      role: m.role === 'agent' ? 'assistant' : m.role,
+      content: m.content
+    }))
+  ];
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, sessionId, stream: true, max_tokens: 1024, temperature: 0.7 }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  typingEl.remove();
+  const { el: agentMsg, textEl } = renderStreamingBubble();
+  scrollToBottom();
+  let fullText = '';
+  if (!res.body) throw new Error('A resposta da API está vazia (res.body é null).');
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = decoder.decode(value);
+    for (const line of chunk.split('\n')) {
+      if (!line.startsWith('data: ')) continue;
+      const json = line.replace('data: ', '').trim();
+      if (json === '[DONE]') break;
+      try {
+        const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
+        fullText += delta;
+        textEl.innerHTML = formatMarkdown(fullText);
+        scrollToBottom();
+        if (delta.length > 0) await sleep(10 + Math.random() * 25);
+      } catch {}
+    }
+  }
+  agentMsg.querySelector('.stream-cursor')?.remove();
+  const meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = `<span style="font-size:8px; color:var(--text-muted); opacity:0.5; letter-spacing:0.05em;">${formatTime()}</span>`;
+  agentMsg.querySelector('.bubble')?.after(meta);
+  return fullText;
+};
+
+async function handleSend(queuedText?: string) {
+  const text = queuedText ?? input.value.trim();
+  if (!text || isStreaming) return;
+
+  isStreaming = true;
+  sendBtn.disabled = true;
+  if (!queuedText) {
+    input.value = '';
+    input.style.height = 'auto';
+  }
+
+  empty?.classList.add('hidden');
+  pushHistory('user', text);
+  saveHistory();
+  const userBubble = renderBubble('user', text, true);
+  const typingEl = renderTyping();
+  scrollToBottom();
+
+  try {
+    const readingTime = Math.min(text.length * 15, 1200);
+    const thinkingTime = 600 + Math.random() * 1000;
+    await sleep(readingTime + thinkingTime);
+
+    sessionCount++;
+    const reply = await streamProxy(text, typingEl);
+    pushHistory('agent', reply);
+    saveHistory();
+
+    if (sessionCount >= MAX_SESSION_MESSAGES) {
+      const { contact, handoff_rules } = await import("../lib/CONTEXT.json");
+      const handoffMessage = encodeURIComponent(
+        "Olá Neo, conversei com o NΞØ:One e quero continuar a conversa."
+      );
+      const whatsappUrl = handoff_rules?.build_whatsapp_url
+        ? `${contact.whatsapp_base_url}?text=${handoffMessage}`
+        : contact.whatsapp_base_url;
+      renderBubble(
+        "agent",
+        `Foi um prazer conversar. Para continuar com o Neo, acesse: ${whatsappUrl}`,
+        true
+      );
       sendBtn.disabled = true;
-      
-      showToast('Nova sessão iniciada');
-    });
+      input.disabled = true;
+      input.placeholder = "Sessão Beta finalizada.";
+    }
+  } catch (err: unknown) {
+    typingEl.remove();
+    const isNetworkError = err instanceof TypeError;
 
-    // Theme Toggle Logic
-    const savedTheme = localStorage.getItem('flow_theme');
-    if (savedTheme === 'light') {
-      document.body.classList.remove('dark-mode');
+    if (isNetworkError && !queuedText) {
+      chatHistory.pop();
+      saveHistory();
+      userBubble?.remove();
+      await enqueue({
+        sessionId: sessionId!,
+        text,
+        timestamp: Date.now()
+      }).catch(() => {});
+      renderBubble(
+        "agent",
+        "⚡ Sem conexão. Sua mensagem foi salva e será reenviada automaticamente.",
+        true
+      );
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.ready
+          .then(reg =>
+            (reg as ServiceWorkerRegistration & {
+              sync?: { register(t: string): Promise<void> };
+            }).sync?.register("neo-chat-sync")
+          )
+          .catch(() => {});
+      }
     } else {
-      document.body.classList.add('dark-mode');
-      if (!savedTheme) localStorage.setItem('flow_theme', 'dark');
+      renderBubble(
+        "agent",
+        `⚠ Erro: ${err instanceof Error ? err.message : "desconhecido"}`,
+        true
+      );
     }
-    themeBtn.setAttribute('aria-pressed', document.body.classList.contains('dark-mode') ? 'true' : 'false');
-    
-    themeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      localStorage.setItem('flow_theme', isDark ? 'dark' : 'light');
-      themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-      showToast(isDark ? 'Modo Escuro Ativado' : 'Modo Claro Ativado');
-    });
+  } finally {
+    isStreaming = false;
+    sendBtn.disabled = !input.value.trim();
+    input.focus();
+  }
+}
 
-    function loadHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
-    function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY))); } catch {} }
-    function pushHistory(role: string, content: string) { chatHistory.push({ role, content, ts: Date.now() }); }
-    function scrollToBottom() { requestAnimationFrame(() => { wrap.scrollTop = wrap.scrollHeight; }); }
-    function formatTime() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+async function flushQueue() {
+  const pending = await getPending().catch(() => []);
+  if (pending.length === 0) return;
+  showToast(`Reconectado. Reenviando ${pending.length} mensagem${pending.length > 1 ? 's' : ''}…`);
+  for (const msg of pending) {
+    if (msg.id != null) await dequeue(msg.id).catch(() => {});
+    await handleSend(msg.text);
+  }
+}
 
-    let toastTimer: any;
-    function showToast(msg: string) {
-      toastEl.textContent = msg; toastEl.classList.add('show');
-      clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
-    }
+const showConfirm = (msg: string) =>
+  new Promise<boolean>((resolve) => {
+    const backdrop = document.getElementById('confirm-backdrop') as HTMLElement;
+    const msgEl = document.getElementById('confirm-msg') as HTMLElement;
+    const okBtn = document.getElementById('confirm-ok') as HTMLButtonElement;
+    const cancelBtn = document.getElementById('confirm-cancel') as HTMLButtonElement;
 
-    function showEmptyState() {
-      empty?.classList.remove('hidden');
-      scrollToBottom();
-    }
+    msgEl.textContent = msg;
+    backdrop.hidden = false;
+
+    const close = (result: boolean) => {
+      backdrop.hidden = true;
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      backdrop.removeEventListener('click', onBackdrop);
+      resolve(result);
+    };
+
+    const onOk = () => close(true);
+    const onCancel = () => close(false);
+    const onBackdrop = (e: MouseEvent) => { if (e.target === backdrop) close(false); };
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    backdrop.addEventListener('click', onBackdrop);
+  });
+
+// Initialization
+renderAllMessages();
+syncHistoryWithRedis();
+
+// Input / send event listeners
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  sendBtn.disabled = !input.value.trim() || isStreaming;
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) handleSend(); }
+});
+
+sendBtn.addEventListener('click', () => handleSend());
+
+clearBtn.addEventListener('click', async () => {
+  const shouldReset = await showConfirm('Limpar e reiniciar este chat?');
+  if (!shouldReset) return;
+
+  sessionId = crypto.randomUUID();
+  localStorage.setItem(SESSION_KEY, sessionId);
+
+  const queued = await getPending().catch(() => []);
+  for (const msg of queued) {
+    if (msg.id != null) await dequeue(msg.id).catch(() => {});
+  }
+
+  chatHistory = [];
+  sessionCount = 0;
+  saveHistory();
+
+  showEmptyState();
+  renderAllMessages();
+
+  input.value = '';
+  input.style.height = 'auto';
+  input.disabled = false;
+  input.placeholder = 'Pergunte algo…';
+  sendBtn.disabled = true;
+
+  showToast('Nova sessão iniciada');
+});
+
+// Offline / SW sync
+window.addEventListener('online', () => flushQueue());
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (e: MessageEvent) => {
+    if ((e.data as { type?: string })?.type === 'SYNC_READY') flushQueue();
+  });
+}
+flushQueue();
+
+// Theme toggle
+const savedTheme = localStorage.getItem('flow_theme');
+if (savedTheme === 'light') {
+  document.body.classList.remove('dark-mode');
+} else {
+  document.body.classList.add('dark-mode');
+  if (!savedTheme) localStorage.setItem('flow_theme', 'dark');
+}
+themeBtn.setAttribute('aria-pressed', document.body.classList.contains('dark-mode') ? 'true' : 'false');
+
+themeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('flow_theme', isDark ? 'dark' : 'light');
+  themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+  showToast(isDark ? 'Clean Mode' : 'Night Mode');
+});

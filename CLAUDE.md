@@ -1,0 +1,86 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+pnpm run dev          # start dev server (localhost:4321)
+pnpm run build        # production build → dist/
+pnpm run check        # TypeScript check (astro check)
+pnpm run start        # run production build (HOST=0.0.0.0)
+pnpm run preview      # preview production build locally
+
+make verify           # full pre-commit check: node version + audit + astro check + build
+make commit           # verify + git add + interactive commit + push
+make repair           # clean dist/.astro/ + rm node_modules + reinstall
+```
+
+There is no test suite. `astro check` is the primary correctness gate.
+
+## Architecture
+
+This is an **Astro SSR app** (Node standalone adapter) deployed on Railway. It serves a single-page chat UI at `/chat` where users interact with **NEØ:one**, an AI lead-qualification agent for the FlowOFF digital agency.
+
+### Request flow
+
+```
+Browser (chat-ui.ts)
+  → POST /api/chat          ← streams SSE from ASI1 LLM API
+  → GET  /api/history       ← fetches session history from Redis
+```
+
+`src/pages/api/chat.ts` is the security gateway:
+1. Validates `Origin` header against allowed origins
+2. Reads `src/lib/system-prompt.md` and `src/lib/CONTEXT.json` from disk at runtime — these are **never bundled into the client**
+3. Prepends a `role: "system"` message to the history before forwarding to ASI1
+4. Streams the LLM response back as SSE
+5. After stream ends: saves history to Redis and triggers Regis (lead extraction)
+
+### Regis — silent CRM extractor
+
+`src/lib/regis.ts` runs a second ASI1 call on every completed response, asking the LLM to extract structured lead data (name, email, phone, company, intent) from the conversation. Results are upserted into PostgreSQL via `src/lib/leads.ts`. **Never mention Regis to users — it is invisible.**
+
+### Session and memory model
+
+| Layer | Storage | Scope |
+|---|---|---|
+| `sessionId` | `localStorage` | Persists across page loads; reset on "clear chat" |
+| Chat history | `localStorage` (`flow_history_v1`) | Up to 40 messages; synced from Redis on load |
+| Session history | Redis (`chat:{sessionId}`) | 7-day TTL; source of truth for server |
+| Offline queue | IndexedDB (`neo-offline-queue`) | Messages queued when network is unavailable |
+
+### Handoff trigger
+
+After **10 messages** in a session (`MAX_SESSION_MESSAGES`), `chat-ui.ts` dynamically imports `CONTEXT.json` client-side and renders a WhatsApp link to hand the user off to the real Neo Mello. Input is then disabled.
+
+### PWA / offline
+
+`public/sw.js` caches shell URLs and uses Background Sync (`neo-chat-sync` tag) to signal the page when connectivity returns. Offline messages are stored in IndexedDB via `src/lib/idb-queue.ts` and flushed on reconnect.
+
+## Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `ASI1_API_KEY` | Yes | LLM API key for asi1.ai |
+| `ASI1_MODEL` | No | Model name (default: `"asi1"`) |
+| `REDIS_URL` | No | Redis connection; session memory disabled if absent |
+| `DATABASE_URL` | No | PostgreSQL; Regis lead capture disabled if absent |
+
+See `.env.example` for format. Both Redis and PostgreSQL are optional for local development — the app degrades gracefully when they are absent.
+
+## Key files
+
+- `src/scripts/chat-ui.ts` — entire client-side runtime: rendering, streaming, offline queue, theme toggle. All UI logic lives here.
+- `src/pages/api/chat.ts` — the only backend endpoint that matters; proxies LLM + triggers Regis
+- `src/lib/system-prompt.md` — agent identity and guardrails (loaded server-side only)
+- `src/lib/CONTEXT.json` — structured ground-truth data: contact info, handoff rules, pricing, guardrails
+- `public/sw.js` — service worker; uses `skipWaiting` + `clients.claim()` for immediate activation
+
+## Known issues
+
+`chat-ui.ts` contains duplicate function definitions (`loadHistory`, `saveHistory`, `streamProxy`, `renderTyping`, `scrollToBottom`, etc.) because `handleSend` redeclares helpers that already exist in outer scope. This is a bug, not intentional — the inner declarations shadow the outer ones during `handleSend` execution.
+
+## Security note (open)
+
+`formatMarkdown` in `chat-ui.ts:40` builds `<a href="$2">` via regex with no URL scheme validation. A `javascript:` URI in an AI response survives `escapeHtml` (which only encodes `&`, `<`, `>`) and is injected via `innerHTML`. Allowlist `https?://` in the href substitution before shipping to untrusted users.

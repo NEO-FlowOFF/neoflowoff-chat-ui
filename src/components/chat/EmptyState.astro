@@ -1,5 +1,44 @@
 <div class="empty-state" id="emptyState" transition:name="chat-empty-state">
   <div class="logo-container">
     <span class="led-text">NEØ:one</span>
+    <span class="online-badge" aria-label="online">
+      <span class="online-dot" aria-hidden="true"></span>
+      online
+    </span>
   </div>
 </div>
+
+<style>
+  .logo-container {
+    position: relative;
+  }
+
+  .online-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--neon-pink);
+    opacity: 0.75;
+    margin-top: 6px;
+    justify-content: center;
+  }
+
+  .online-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--neon-pink);
+    box-shadow: 0 0 6px var(--neon-glow);
+    animation: pulse-dot 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.75); }
+  }
+</style>

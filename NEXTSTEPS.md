@@ -6,7 +6,7 @@
        NEØ:One · EVOLUTION ROADMAP
 ========================================
 Focus: SOVEREIGNTY & CONTEXT
-Version: v1.1.0
+Version: v1.2.0
 ========================================
 ```
 
@@ -48,6 +48,18 @@ da interface soberana NEØ:One.
 > **Standalone:** Requisito para notificações em Webkit.  
 > **Memory:** Limitada a 40 mensagens por performance.
 
+## ✦ UX & Design
+
+▓▓▓ REFINAMENTOS APLICADOS
+────────────────────────────────────────
+- [x] Composer redesenhado: flex row, border-radius, botão neon pink ativo.
+- [x] Confirm modal in-app substituindo window.confirm() (PWA-safe).
+- [x] InstallBanner: iOS (share manual) e Android (beforeinstallprompt).
+- [x] Online indicator movido para NEØ:one no EmptyState (dot pulsante).
+- [x] agent-name: fonte Codystar → Geist Mono (minúsculo).
+- [x] Header: avatar e box container removidos, layout limpo.
+- [x] SW v2: skipWaiting + clients.claim + limpeza de cache antigo automática.
+
 ## ⍟ SEO Nacional — Brasil
 
 ▓▓▓ PESQUISA DE PALAVRAS-CHAVE PENDENTE
@@ -62,17 +74,13 @@ da interface soberana NEØ:One.
       "lead qualification automation", "enterprise AI implementation",
       "custom AI solutions", "digital ecosystem architecture"
 
-────────────────────────────────────────
-
 ```text
 ▓▓▓ Neo Mello
 ────────────────────────────────────────
 Fundador · NEO FlowOFF
-neo@neoflowoff.agency · (62) 98323-1110
+neo@neoflowoff.agency 
 
 "Automação de marketing e infraestrutura
 digital autônoma."
-
-Security by design.
 ────────────────────────────────────────
 ```

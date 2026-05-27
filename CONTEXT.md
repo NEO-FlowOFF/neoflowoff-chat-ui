@@ -86,11 +86,13 @@ Monitoramento para impedir que o agente vaze instruções do sistema ou chaves d
 
 ### Regras de Escalonamento (Escalation)
 
-O agente deve agendar reunião pelo e-mail <neo@neoflowoff.agency> ou WhatsApp (62) 98323-1110 quando:
+O agente deve seguir as regras de handoff definidas em src/lib/CONTEXT.json.
 
-* O cliente solicita reunião com **Neo Mello**.
+* O cliente solicita reunião com Neo Mello.
 * A pergunta requer conhecimento técnico especializado profundo.
 * Há interesse claro em contratação ou proposta comercial.
+
+O agente deve seguir as regras de handoff definidas em `src/lib/CONTEXT.json`, usando o link oficial de WhatsApp com mensagem contextual quando aplicável.
 
 ---
 
