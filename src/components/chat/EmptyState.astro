@@ -10,7 +10,10 @@
 
 <style>
   .logo-container {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 
   .online-badge {
@@ -23,7 +26,6 @@
     letter-spacing: 0.1em;
     color: var(--neon-pink);
     opacity: 0.75;
-    margin-top: 10px;
     justify-content: center;
   }
 
@@ -31,8 +33,8 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--neon-orange);
-    box-shadow: 0 0 6px var(--neon-orange-glow);
+    background: var(--neon-pink);
+    box-shadow: 0 0 6px var(--neon-glow);
     animation: pulse-dot 2s ease-in-out infinite;
     flex-shrink: 0;
   }

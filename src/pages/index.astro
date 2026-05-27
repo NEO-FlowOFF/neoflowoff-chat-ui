@@ -163,8 +163,16 @@ import Base from "../layouts/Base.astro";
 
     try { sessionStorage.setItem("flow_intro_seen", "1"); } catch {}
 
+    const MIN_MS   = 2500; // tempo mínimo de exibição
+    const startAt  = Date.now();
+
+    function redirectAfterMin() {
+      const elapsed   = Date.now() - startAt;
+      const remaining = Math.max(0, MIN_MS - elapsed);
+      setTimeout(redirect, remaining);
+    }
+
     if (video && !reduced) {
-      // Safety: se o vídeo travar, o CSS fallback já está visível — redireciona em 8s
       const safety = setTimeout(redirect, 8000);
 
       video.addEventListener("canplay", () => {
@@ -173,13 +181,12 @@ import Base from "../layouts/Base.astro";
 
       video.addEventListener("ended", () => {
         clearTimeout(safety);
-        redirect();
+        redirectAfterMin(); // garante mínimo mesmo se vídeo for curto
       });
 
       video.addEventListener("error", () => {
         clearTimeout(safety);
-        // Vídeo falhou — CSS fallback já está rodando, redireciona em 3.5s
-        setTimeout(redirect, 3500);
+        setTimeout(redirect, 3500); // CSS fallback assume por 3.5s
       });
 
       // Se não começar em 3s, assume que falhou
@@ -188,7 +195,6 @@ import Base from "../layouts/Base.astro";
       }, 3000);
 
     } else {
-      // Sem vídeo ou reduced motion: CSS fallback com timer
       setTimeout(redirect, 3500);
     }
   </script>
