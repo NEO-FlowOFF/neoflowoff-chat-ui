@@ -148,9 +148,9 @@ import { ClientRouter } from "astro:transitions";
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
-      overflow-x: hidden;
-      overflow-y: auto;
+      min-height: 100%;
+      overflow: hidden;
+      background: #111111;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -162,14 +162,10 @@ import { ClientRouter } from "astro:transitions";
 
     body {
       font-family: var(--font-mono);
-      background: radial-gradient(circle at center, var(--bg) 0%, var(--bg-alt) 100%);
-      background-attachment: fixed;
+      background: #111111;
       color: var(--text-primary);
       display: flex;
       flex-direction: column;
-      /* Safe Areas para PWA Mobile */
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
     }
 
     body::before {
@@ -201,15 +197,15 @@ import { ClientRouter } from "astro:transitions";
     #app-shell {
       width: 100%;
       max-width: 480px;
-      height: 100vh;
-      height: calc(var(--vh, 1vh) * 100);
       height: 100dvh;
-      height: var(--app-height, 100dvh);
+      min-height: 100dvh;
+      padding-top: var(--safe-top);
       padding-bottom: calc(var(--safe-bottom) + env(keyboard-inset-height, 0px));
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
+      background: radial-gradient(circle at center, var(--bg) 0%, var(--bg-alt) 100%);
       /* Borda sutil nos lados em desktop */
       box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 20px 60px rgba(0,0,0,0.08);
     }

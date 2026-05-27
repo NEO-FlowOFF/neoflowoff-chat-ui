@@ -22,7 +22,7 @@
 }
 
 .header {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   padding: 14px 16px 6px;
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@
   backdrop-filter: blur(25px) saturate(2) brightness(1.05);
   -webkit-backdrop-filter: blur(25px) saturate(2) brightness(1.05);
   position: relative;
-  z-index: 100;
+  z-index: 5;
 }
 .header::after {
   content: '';
@@ -371,8 +371,10 @@ body.dark-mode .sun-icon {
 }
 
 .input-area {
-  flex-shrink: 0;
-  padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 10;
+  padding: 10px 16px 12px;
   background: linear-gradient(
     to top,
     rgba(242, 242, 242, 0.96) 35%,
@@ -544,30 +546,6 @@ body.dark-mode .footer-links a {
   opacity: 0.7;
 }
 
-/* iOS viewport quirks: fixed chrome with safe-area compensation */
-@supports (-webkit-touch-callout: none) {
-  .header,
-  .footer {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    z-index: 100;
-  }
-
-  .header {
-    top: env(safe-area-inset-top);
-  }
-
-  .footer {
-    bottom: env(safe-area-inset-bottom);
-  }
-
-  .messages-wrap {
-    padding-top: 88px;
-  }
-}
 
 
 
