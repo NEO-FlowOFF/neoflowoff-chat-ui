@@ -136,14 +136,19 @@ JSON:`;
       return trimmed;
     };
 
+    // Normalize diacritics so the LLM can return "orçamento" or "orcamento" interchangeably
+    const normalizeIntent = (s: string) =>
+      s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
     // Validate visitor_intent against the allowed enum values; fall back to "outro"
     const rawIntent = sanitizeStr(extracted.visitor_intent);
+    const normalizedIntent = rawIntent ? normalizeIntent(rawIntent) : null;
     const visitorIntent =
-      rawIntent && VALID_INTENTS.has(rawIntent) ? rawIntent : "outro";
+      normalizedIntent && VALID_INTENTS.has(normalizedIntent) ? normalizedIntent : "outro";
 
-    if (rawIntent && !VALID_INTENTS.has(rawIntent)) {
+    if (rawIntent && !VALID_INTENTS.has(normalizedIntent!)) {
       console.warn(
-        `[REGIS] Invalid visitor_intent "${rawIntent}" — falling back to "outro"`,
+        `[REGIS] Invalid visitor_intent "${rawIntent}" (normalized: "${normalizedIntent}") — falling back to "outro"`,
       );
     }
 

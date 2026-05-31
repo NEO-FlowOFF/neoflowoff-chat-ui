@@ -75,6 +75,34 @@ pnpm test
 
 ---
 
+## Operação PostgreSQL Railway
+
+- Em 2026-05-27, o Railway CLI local estava linkado em:
+  - Project: `neoflowoff-chat-ui`
+  - Environment: `production`
+  - Service: `Postgres`
+- Logs `railway:dataui` marcados como `error` tinham causa real:
+  `relation "pg_stat_statements" does not exist`.
+- Correção aplicada no Postgres:
+  `CREATE EXTENSION IF NOT EXISTS pg_stat_statements;`
+- Saúde da tabela `leads` corrigida com:
+  `VACUUM ANALYZE leads;`
+- Validação pós-correção:
+  `pg_stat_statements` presente em `pg_extension`;
+  `leads.n_dead_tup = 0`;
+  `last_vacuum` e `last_analyze` atualizados em
+  `2026-05-27 20:56 UTC`.
+- Schema operacional conhecido da tabela `leads`:
+  `id uuid`, `session_id uuid`, `text text`.
+- IDs de referência informados para rastreio:
+  - `id`: `5c98ab59-bcc2-4415-8bcc-758b70d4c945`
+  - `session_id`: `484c0e82-3248-4e79-8420-35274dc8e3c9`
+- Não remover índices `leads_pkey` ou
+  `leads_followup_status_due_at_idx` apenas por baixa contagem de scans
+  enquanto a tabela estiver pequena.
+
+---
+
 ## Próxima Leitura
 
 Depois de `MEMORY.md`, leia `SKILL.md`.

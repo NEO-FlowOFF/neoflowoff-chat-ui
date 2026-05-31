@@ -1,5 +1,5 @@
 {
-  "recommendations": [
-    "webhint.vscode-webhint"
-  ]
+    "recommendations": [
+        "webhint.vscode-webhint"
+    ]
 }
