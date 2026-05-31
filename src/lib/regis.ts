@@ -8,6 +8,18 @@ import { upsertLead } from "./leads";
  * da conversa e extrair dados estruturados do visitante.
  * Salva no PostgreSQL via upsertLead.
  */
+
+/** Allowed values for the visitor_intent enum column. */
+const VALID_INTENTS = new Set([
+  "orcamento",
+  "parceria",
+  "suporte",
+  "projeto_webapp",
+  "agents_empresa",
+  "curioso",
+  "outro",
+]);
+
 export async function updateRegisLead(
   sessionId: string,
   messages: Message[],
@@ -16,37 +28,41 @@ export async function updateRegisLead(
   const model = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
 
   if (!apiKey) {
-    console.warn("[REGIS] ASI1_API_KEY ausente. Extração de lead ignorada.");
+    console.warn("[REGIS] ASI1_API_KEY missing — lead extraction skipped.");
     return;
   }
 
-  // Formata o histórico como texto simples para o extractor
+  console.log(
+    `[REGIS] Starting extraction for session ${sessionId} (${messages.length} messages)`,
+  );
+
+  // Format the conversation history as plain text for the extractor
   const transcript = messages
-    .map((m) => `${m.role === "user" ? "VISITANTE" : "AGENTE"}: ${m.content}`)
+    .map((m) => `${m.role === "user" ? "VISITOR" : "AGENT"}: ${m.content}`)
     .join("\n");
 
-  const extractionPrompt = `Você é um sistema de extração de CRM. Analise a conversa abaixo e extraia os dados do visitante.
-Retorne APENAS um JSON válido e absoluto nada mais.
+  const extractionPrompt = `You are a CRM data extraction system. Analyze the conversation below and extract structured visitor data.
+Return ONLY a valid JSON object — nothing else, no markdown, no explanation.
 
-Regras:
-1. Extraia o "nome" completo do visitante.
-2. Extraia "email" e "telefone".
-3. Extraia "empresa" se mencionada.
-4. "observacoes" deve ser um resumo de 1-2 frases do que o visitante deseja.
-5. "visitor_intent" DEVE obrigatoriamente ser UMA destas tags: "orçamento", "parceria", "suporte", "projeto_webapp", "agents_empresa", "curioso" ou "outro".
-6. Se o dado (nome, email, telefone, empresa, observacoes) não foi fornecido, o valor no JSON DEVE ser null (tipo primitivo).
+Extraction rules:
+1. "nome": full name of the visitor if mentioned, otherwise null.
+2. "email": email address if mentioned, otherwise null.
+3. "telefone": phone or WhatsApp number if mentioned, otherwise null.
+4. "empresa": company name if mentioned, otherwise null.
+5. "observacoes": REQUIRED — write a 1-2 sentence summary of what the visitor wants or needs, based on the conversation. If the visitor said anything at all, summarize it here. Only use null if the conversation is completely empty.
+6. "visitor_intent": MUST be exactly one of these values: "orcamento", "parceria", "suporte", "projeto_webapp", "agents_empresa", "curioso", "outro". Choose the best match based on the conversation context. Never return null for this field — default to "curioso" if unsure.
 
-Formato de Saída (JSON estrito):
+Output format (strict JSON):
 {
   "nome": string | null,
   "email": string | null,
   "telefone": string | null,
   "empresa": string | null,
-  "observacoes": string | null,
-  "visitor_intent": string | null
+  "observacoes": string,
+  "visitor_intent": string
 }
 
-Conversa:
+Conversation:
 ${transcript}
 
 JSON:`;
@@ -63,43 +79,92 @@ JSON:`;
         messages: [{ role: "user", content: extractionPrompt }],
         stream: false,
         temperature: 0.1,
-        max_tokens: 350,
+        max_tokens: 400,
       }),
     });
 
     if (!res.ok) {
-      console.warn(`[REGIS] Extração falhou: HTTP ${res.status}`);
+      const body = await res.text().catch(() => "");
+      console.error(`[REGIS] Extraction failed: HTTP ${res.status} — ${body}`);
       return;
     }
 
     const data = await res.json();
     const raw = data?.choices?.[0]?.message?.content?.trim();
-    if (!raw) return;
 
-    // Sanitiza: remove possíveis blocos de markdown (```json ... ```)
-    const jsonStr = raw.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-    const extracted = JSON.parse(jsonStr);
+    if (!raw) {
+      console.warn("[REGIS] Empty response from LLM — nothing to extract.");
+      return;
+    }
 
-    // Função auxiliar para evitar strings 'null' vazando para o banco
+    console.log(`[REGIS] Raw LLM response: ${raw.slice(0, 300)}`);
+
+    // Strip possible markdown code fences (```json ... ```)
+    const jsonStr = raw
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/, "")
+      .trim();
+
+    let extracted: Record<string, unknown>;
+    try {
+      extracted = JSON.parse(jsonStr);
+    } catch (parseErr) {
+      console.error("[REGIS] JSON parse error:", parseErr);
+      console.error("[REGIS] Attempted to parse:", jsonStr);
+      return;
+    }
+
+    // Helper: reject placeholder/empty strings and return null
     const sanitizeStr = (val: unknown): string | null => {
       if (!val || typeof val !== "string") return null;
-      const lower = val.trim().toLowerCase();
-      if (lower === "null" || lower === "undefined" || lower === "none" || lower === "" || lower === "não informado" || lower === "não mencionado") {
+      const trimmed = val.trim();
+      const lower = trimmed.toLowerCase();
+      if (
+        lower === "null" ||
+        lower === "undefined" ||
+        lower === "none" ||
+        lower === "" ||
+        lower === "n/a" ||
+        lower === "não informado" ||
+        lower === "não mencionado" ||
+        lower === "not provided" ||
+        lower === "not mentioned" ||
+        lower === "unknown"
+      ) {
         return null;
       }
-      return val.trim();
+      return trimmed;
     };
 
-    await upsertLead({
+    // Validate visitor_intent against the allowed enum values; fall back to "outro"
+    const rawIntent = sanitizeStr(extracted.visitor_intent);
+    const visitorIntent =
+      rawIntent && VALID_INTENTS.has(rawIntent) ? rawIntent : "outro";
+
+    if (rawIntent && !VALID_INTENTS.has(rawIntent)) {
+      console.warn(
+        `[REGIS] Invalid visitor_intent "${rawIntent}" — falling back to "outro"`,
+      );
+    }
+
+    const leadData = {
       sessionId,
       nome: sanitizeStr(extracted.nome),
       email: sanitizeStr(extracted.email),
       telefone: sanitizeStr(extracted.telefone),
       empresa: sanitizeStr(extracted.empresa),
       observacoes: sanitizeStr(extracted.observacoes),
-      visitorIntent: sanitizeStr(extracted.visitor_intent),
+      visitorIntent,
+    };
+
+    console.log("[REGIS] Extracted lead data:", {
+      ...leadData,
+      sessionId: sessionId.slice(0, 8) + "…",
     });
+
+    await upsertLead(leadData);
+    console.log(`[REGIS] Lead upserted successfully for session ${sessionId}`);
   } catch (err) {
-    console.error("[REGIS] Erro ao extrair/salvar lead:", err);
+    console.error("[REGIS] Unexpected error during extraction/save:", err);
   }
 }

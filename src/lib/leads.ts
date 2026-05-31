@@ -63,7 +63,13 @@ export async function upsertLead(lead: Lead): Promise<void> {
   const hasIdentity = !!(finalNome || finalEmpresa);
   const hasNeed = !!finalObservacoes;
 
-  const isQualified = hasContact && hasIdentity && hasNeed;
+  // Relaxed qualification: contact is mandatory, but only ONE of identity or
+  // need is required (previously ALL three were required, causing almost no
+  // leads to qualify). Examples that now qualify:
+  //   ✓ email + company name (no stated need yet)
+  //   ✓ email + conversation summary (anonymous but engaged)
+  //   ✗ company + need but no contact (can't follow up)
+  const isQualified = hasContact && (hasIdentity || hasNeed);
   const followupStatus =
     isQualified && (!existingFollowupStatus || existingFollowupStatus === "pending")
       ? "ready"
@@ -103,9 +109,10 @@ export async function upsertLead(lead: Lead): Promise<void> {
     ],
   );
 
-  console.log(
-    `[LEADS] Lead salvo — sessão ${lead.sessionId} (Qualificado: ${isQualified})`
-  );
+  const qualReason = isQualified
+    ? `qualified (contact=${hasContact}, identity=${hasIdentity}, need=${hasNeed})`
+    : `not qualified — missing: ${!hasContact ? "contact " : ""}${!hasIdentity && !hasNeed ? "identity+need" : ""}`.trim();
+  console.log(`[LEADS] Lead saved — session ${lead.sessionId} | ${qualReason}`);
 
   const mergedLead: Lead = {
     ...lead,
