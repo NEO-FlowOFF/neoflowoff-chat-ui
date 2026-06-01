@@ -80,16 +80,39 @@ See `.env.example` for format. Both Redis and PostgreSQL are optional for local 
 
 - `src/scripts/chat-ui.ts` — entire client-side runtime: rendering, streaming, offline queue, theme toggle. All UI logic lives here.
 - `src/pages/api/chat.ts` — the only backend endpoint that matters; proxies LLM + triggers Regis
-- `src/middleware.ts` — sets `Content-Type: text/html; charset=utf-8` on all HTML responses
+- `src/middleware.ts` — security headers (HSTS, CSP, X-Frame-Options, etc.) + charset fix. CSP directives centralized in `CSP_DIRECTIVES`.
 - `src/lib/system-prompt.md` — agent identity and guardrails (loaded server-side only)
 - `src/lib/CONTEXT.json` — structured ground-truth data: contact info, handoff rules, pricing, guardrails
 - `public/sw.js` — service worker; uses `skipWaiting` + `clients.claim()` for immediate activation
-- `public/robots.txt` — disallows `/api/` for all crawlers
+- `public/robots.txt` — permite Googlebot; bloqueia `/api/` e bots de treino de IA (GPTBot, ClaudeBot, CCBot, etc.)
+- `astro.config.mjs` — inclui `@astrojs/sitemap`; gera `/sitemap.xml` no build
+
+## Security headers
+
+Todos os headers são aplicados em `src/middleware.ts`:
+
+| Header | Valor |
+|---|---|
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` |
+| `X-Frame-Options` | `SAMEORIGIN` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | camera, mic, geo, payment, usb desabilitados |
+| `Content-Security-Policy` | apenas em respostas HTML; ver `CSP_DIRECTIVES` |
+
+O CSP usa `'unsafe-inline'` em `script-src` e `style-src` porque o Astro injeta scripts inline (View Transitions, tema, SW). Migração para nonces depende de suporte nativo do Astro — manter no backlog.
+
+## SEO
+
+- Canonical: `https://chat.neoflowoff.agency/chat`
+- Sitemap: `https://chat.neoflowoff.agency/sitemap.xml` (gerado pelo `@astrojs/sitemap`)
+- JSON-LD: `WebApplication` + `Organization` em `src/layouts/Base.astro`
+- Conteúdo estático indexável em `EmptyState.astro` (visually hidden via CSS clip, legível por crawlers)
 
 ## Known issues
 
 `chat-ui.ts` contains duplicate function definitions (`loadHistory`, `saveHistory`, `streamProxy`, `renderTyping`, `scrollToBottom`, etc.) because `handleSend` redeclares helpers that already exist in outer scope. This is a bug, not intentional — the inner declarations shadow the outer ones during `handleSend` execution.
 
-## Security note (open)
+## Security — resolved
 
-`formatMarkdown` in `chat-ui.ts:40` builds `<a href="$2">` via regex with no URL scheme validation. A `javascript:` URI in an AI response survives `escapeHtml` (which only encodes `&`, `<`, `>`) and is injected via `innerHTML`. Allowlist `https?://` in the href substitution before shipping to untrusted users.
+`formatMarkdown` em `chat-ui.ts:45` valida scheme do href com `/^https?:\/\//i` antes de injetar via `innerHTML`. URIs `javascript:` são substituídas por `#`. **Vulnerabilidade resolvida.**

@@ -10,7 +10,7 @@
        NEØ:One · CHAT INTERFACE
 ========================================
 Status:  ACTIVE
-Version: v1.1.0
+Version: v1.2.0
 Type:    PWA (Progressive Web App)
 ========================================
 ```
@@ -48,6 +48,57 @@ graph TD
     API -->|Lê no Servidor| CX[src/lib/CONTEXT.json]
     SP & CX -->|Concatena em 'systemPrompt'| FinalPrompt[Prompt do Sistema Completo]
     FinalPrompt -->|Injetado no topo das mensagens| LLM[API da LLM / Completions]
+```
+
+## ⬡ Segurança
+
+```text
+────────────────────────────────────────
+▓▓▓ HEADERS HTTP (middleware.ts)
+────────────────────────────────────────
+└─ Strict-Transport-Security  max-age=31536000; includeSubDomains
+└─ Content-Security-Policy    script/style/font/img/connect restritos
+└─ X-Frame-Options            SAMEORIGIN
+└─ X-Content-Type-Options     nosniff
+└─ Referrer-Policy            strict-origin-when-cross-origin
+└─ Permissions-Policy         camera/mic/geo/payment/usb desabilitados
+
+▓▓▓ CLOUDFLARE (edge)
+────────────────────────────────────────
+└─ HSTS                       ativado (max-age=31536000)
+└─ Block AI Bots              ativado — bloqueia crawlers de treino de IA
+└─ AI Labyrinth               ativado — honeypot para bots não conformes
+└─ Bot Fight Mode             desativado (evita falsos positivos)
+
+▓▓▓ ROBOTS.TXT
+────────────────────────────────────────
+└─ Googlebot                  permitido
+└─ /api/                      bloqueado para todos
+└─ GPTBot, ClaudeBot, CCBot   bloqueados
+└─ Google-Extended, Bytespider bloqueados
+
+────────────────────────────────────────
+```
+
+## ◈ SEO
+
+```text
+────────────────────────────────────────
+▓▓▓ INDEXAÇÃO
+────────────────────────────────────────
+└─ Canonical      https://chat.neoflowoff.agency/chat
+└─ Sitemap        https://chat.neoflowoff.agency/sitemap.xml
+└─ Open Graph     og:title, og:description, og:image (1200×630)
+└─ Twitter Card   summary_large_image
+└─ JSON-LD        WebApplication + Organization (schema.org)
+└─ Meta keywords  automação de marketing, agentes de IA, CRM...
+
+▓▓▓ CONTEÚDO ESTÁTICO (crawlável)
+────────────────────────────────────────
+└─ EmptyState.astro contém texto indexável via CSS clip
+   (invisível ao usuário, legível pelo Googlebot)
+
+────────────────────────────────────────
 ```
 
 ## ◬ Documentação

@@ -79,19 +79,45 @@ da interface soberana NEØ:One.
 - [x] Header: avatar e box container removidos, layout limpo.
 - [x] SW v2: skipWaiting + clients.claim + limpeza de cache antigo automática.
 
+## ⬡ Segurança
+
+▓▓▓ CONCLUÍDO
+────────────────────────────────────────
+- [x] Security headers em `src/middleware.ts`: HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy.
+- [x] CSP_DIRECTIVES centralizado em constante — fácil manutenção.
+- [x] `frame-ancestors 'self'` alinhado com `X-Frame-Options: SAMEORIGIN`.
+- [x] CSP permite Google Fonts, Cloudflare Analytics e Cloudinary.
+- [x] `formatMarkdown`: XSS `javascript:` corrigido — href validado com `^https?://`.
+- [x] Cloudflare HSTS ativado (max-age=31536000).
+- [x] Block AI Bots ativado no Cloudflare (bloqueia em nível de firewall).
+- [x] AI Labyrinth ativado.
+
+▓▓▓ BACKLOG
+────────────────────────────────────────
+- [ ] Migrar `script-src` e `style-src` de `'unsafe-inline'` para nonces — aguardar suporte nativo no Astro.
+
+────────────────────────────────────────
+
 ## ⍟ SEO Nacional — Brasil
 
-▓▓▓ PESQUISA DE PALAVRAS-CHAVE PENDENTE
+▓▓▓ CONCLUÍDO
 ────────────────────────────────────────
 - [x] Keywords meta tag em Base.astro — escopo nacional.
 - [x] JSON-LD atualizado para Organization com areaServed: BR.
 - [x] Geo tags removidas (agência nacional, sem restrição geográfica).
-- [x] Keywords definidas (B2B, foco em IA e automação empresarial):
-      "transformação digital com IA", "automação empresarial",
-      "agentes inteligentes para empresas", "multiagent systems",
-      "AI workflow automation", "CRM automation", "sales automation",
-      "lead qualification automation", "enterprise AI implementation",
-      "custom AI solutions", "digital ecosystem architecture"
+- [x] Keywords definidas (B2B, foco em IA e automação empresarial).
+- [x] `@astrojs/sitemap` instalado — `/sitemap.xml` gerado no build.
+- [x] `<link rel="canonical">` apontando para `/chat`.
+- [x] OG URL e Twitter URL corrigidos para `/chat`.
+- [x] `<title>` descritivo com palavras-chave.
+- [x] Conteúdo estático indexável em `EmptyState.astro` (CSS clip).
+- [x] `public/robots.txt` sob controle do projeto — Googlebot permitido, bots de IA bloqueados.
+
+▓▓▓ BACKLOG
+────────────────────────────────────────
+- [ ] Desativar Cloudflare Managed robots.txt no dashboard para que `public/robots.txt` seja a única fonte.
+- [ ] Submeter `https://chat.neoflowoff.agency/sitemap.xml` no Google Search Console.
+- [ ] Criar backlinks: `neoflowoff.agency` linkando para `chat.neoflowoff.agency/chat`.
 
 ```text
 ▓▓▓ Neo Mello
