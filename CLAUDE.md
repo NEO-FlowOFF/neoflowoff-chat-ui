@@ -80,7 +80,7 @@ See `.env.example` for format. Both Redis and PostgreSQL are optional for local 
 
 - `src/scripts/chat-ui.ts` — entire client-side runtime: rendering, streaming, offline queue, theme toggle. All UI logic lives here.
 - `src/pages/api/chat.ts` — the only backend endpoint that matters; proxies LLM + triggers Regis
-- `src/middleware.ts` — security headers (HSTS, CSP, X-Frame-Options, etc.) + charset fix. CSP directives centralized em `CSP_DIRECTIVES`.
+- `src/middleware.ts` — security headers (HSTS, CSP, X-Frame-Options, etc.) + charset fix. CSP directives centralized in `CSP_DIRECTIVES`.
 - `src/lib/system-prompt.md` — agent identity and guardrails (loaded server-side only)
 - `src/lib/CONTEXT.json` — structured ground-truth data: contact info, handoff rules, pricing, guardrails
 - `public/sw.js` — service worker; uses `skipWaiting` + `clients.claim()` for immediate activation
