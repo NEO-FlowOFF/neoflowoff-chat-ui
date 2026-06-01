@@ -1,4 +1,30 @@
 User-agent: *
+Allow: /
 Disallow: /api/
+
+# Bloqueia bots de treino de IA
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
 
 Sitemap: https://chat.neoflowoff.agency/sitemap.xml
