@@ -30,8 +30,8 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  backdrop-filter: blur(25px) saturate(2) brightness(1.05);
   -webkit-backdrop-filter: blur(25px) saturate(2) brightness(1.05);
+  backdrop-filter: blur(25px) saturate(2) brightness(1.05);
   position: relative;
   z-index: 5;
 }
@@ -270,8 +270,8 @@ body:not(.dark-mode) .messages-wrap {
 
 .msg.agent .bubble {
   background: var(--surface);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--text-hud);
   border-radius: 4px 20px 20px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
@@ -285,8 +285,8 @@ body:not(.dark-mode) .msg.agent .bubble {
 
 .msg.user .bubble {
   background: var(--hud-soft);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--text-hud);
   border-radius: 20px 4px 20px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
@@ -303,8 +303,8 @@ body:not(.dark-mode) .msg.user .bubble {
 /* TYPING */
 .typing-bubble {
   background: var(--surface);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   padding: 10px 16px;
   border-radius: 18px;
   display: flex;
@@ -421,8 +421,8 @@ body.dark-mode .input-area {
   padding: 10px 10px 10px 16px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid rgba(83, 0, 40, 0.14);
   box-shadow: 0 10px 30px rgba(91, 0, 44, 0.18);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
