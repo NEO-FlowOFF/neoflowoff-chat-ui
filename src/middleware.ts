@@ -1,5 +1,18 @@
 import { defineMiddleware } from "astro:middleware";
 
+const CSP_DIRECTIVES = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com",
+  "connect-src 'self' wss: https://cloudflareinsights.com",
+  "worker-src 'self'",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+];
+
 export const onRequest = defineMiddleware(async (_ctx, next) => {
   const response = await next();
 
@@ -18,21 +31,7 @@ export const onRequest = defineMiddleware(async (_ctx, next) => {
   );
 
   if (ct.startsWith("text/html")) {
-    response.headers.set(
-      "Content-Security-Policy",
-      [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' data: https://fonts.gstatic.com",
-        "img-src 'self' data: blob: https://res.cloudinary.com",
-        "connect-src 'self' wss: https://cloudflareinsights.com",
-        "worker-src 'self'",
-        "frame-ancestors 'none'",
-        "base-uri 'self'",
-        "form-action 'self'",
-      ].join("; ")
-    );
+    response.headers.set("Content-Security-Policy", CSP_DIRECTIVES.join("; "));
   }
 
   return response;
