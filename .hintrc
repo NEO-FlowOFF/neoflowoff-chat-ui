@@ -1,7 +1,8 @@
 {
-  "extends": ["recommended"],
-  "rules": {
-    "no-heading-increment": "warn",
-    "line-length": ["error", 140],
-  },
+  "extends": ["web-recommended"],
+  "hints": {
+    "axe/semantics": ["warning", {
+      "heading-order": "warning"
+    }]
+  }
 }
