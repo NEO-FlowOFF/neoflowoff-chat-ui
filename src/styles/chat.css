@@ -30,10 +30,13 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  backdrop-filter: blur(25px) saturate(2) brightness(1.05);
   -webkit-backdrop-filter: blur(25px) saturate(2) brightness(1.05);
+  backdrop-filter: blur(25px) saturate(2) brightness(1.05);
   position: relative;
   z-index: 5;
+}
+body:not(.dark-mode) .header {
+  background: linear-gradient(180deg, rgba(249, 10, 122, 0.96), rgba(249, 10, 122, 0.76)) !important;
 }
 .header::after {
   content: '';
@@ -72,13 +75,13 @@ body.dark-mode .agent-name {
   color: #f5f5f5;
 }
 body:not(.dark-mode) .agent-name {
-  color: var(--text-primary);
+  color: rgba(42, 6, 23, 0.82);
 }
 .header.chat-active .agent-name {
   color: rgba(255, 255, 255, 0.28);
 }
 body:not(.dark-mode) .header.chat-active .agent-name {
-  color: rgba(0, 0, 0, 0.28);
+  color: rgba(42, 6, 23, 0.62);
 }
 
 
@@ -119,6 +122,9 @@ body:not(.dark-mode) .header.chat-active .agent-name {
   background: transparent;
   border: none;
 }
+body:not(.dark-mode) .icon-btn {
+  color: rgba(42, 6, 23, 0.72);
+}
 .icon-btn:active {
   transform: scale(0.92);
   color: var(--text-primary);
@@ -145,6 +151,9 @@ button:active,
   background: transparent;
   border: none;
   box-shadow: none;
+}
+body:not(.dark-mode) .theme-switch {
+  color: rgba(42, 6, 23, 0.72);
 }
 .theme-ring {
   display: none;
@@ -202,6 +211,9 @@ body.dark-mode .sun-icon {
   scroll-behavior: auto;
   position: relative;
 }
+body:not(.dark-mode) .messages-wrap {
+  background: linear-gradient(180deg, rgba(185, 0, 82, 0.28), rgba(128, 0, 61, 0.16));
+}
 .messages-wrap::-webkit-scrollbar {
   display: none;
 }
@@ -258,20 +270,32 @@ body.dark-mode .sun-icon {
 
 .msg.agent .bubble {
   background: var(--surface);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--text-hud);
   border-radius: 4px 20px 20px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
+body:not(.dark-mode) .msg.agent .bubble {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.91), rgba(255, 235, 245, 0.86));
+  color: #2a0617;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: 0 14px 34px rgba(104, 0, 47, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
 
 .msg.user .bubble {
   background: var(--hud-soft);
-  backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--text-hud);
   border-radius: 20px 4px 20px 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+body:not(.dark-mode) .msg.user .bubble {
+  background: rgba(83, 0, 40, 0.84);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: 0 10px 26px rgba(80, 0, 39, 0.22);
 }
 
 /* Não esconder `.msg-meta` globalmente: o streaming também pode injetar esse elemento. */
@@ -279,8 +303,8 @@ body.dark-mode .sun-icon {
 /* TYPING */
 .typing-bubble {
   background: var(--surface);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   padding: 10px 16px;
   border-radius: 18px;
   display: flex;
@@ -377,8 +401,9 @@ body.dark-mode .sun-icon {
   padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(
     to top,
-    rgba(242, 242, 242, 0.96) 35%,
-    rgba(242, 242, 242, 0)
+    rgba(9, 3, 7, 0.88) 0%,
+    rgba(9, 3, 7, 0.70) 42%,
+    rgba(9, 3, 7, 0)
   );
 }
 body.dark-mode .input-area {
@@ -395,11 +420,11 @@ body.dark-mode .input-area {
   gap: 8px;
   padding: 10px 10px 10px 16px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.92);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(83, 0, 40, 0.14);
+  box-shadow: 0 10px 30px rgba(91, 0, 44, 0.18);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 body.dark-mode .input-card {
@@ -432,15 +457,18 @@ body.dark-mode .input-card:focus-within {
   padding: 4px 0;
   caret-color: var(--neon-pink);
 }
-.input-card textarea::placeholder {
-  color: var(--text-muted);
-  opacity: 0.6;
+body:not(.dark-mode) .input-card textarea {
+  color: #2a0617;
+}
+body:not(.dark-mode) .input-card textarea::placeholder {
+  color: rgba(42, 6, 23, 0.56);
+  opacity: 1;
 }
 body.dark-mode .input-card textarea {
   color: #d4d4d4;
 }
 body.dark-mode .input-card textarea::placeholder {
-  color: #555;
+  color: #8a8a8a;
   opacity: 1;
 }
 
@@ -620,7 +648,8 @@ body.dark-mode .theme-switch {
   font-weight: 400;
   letter-spacing: -0.1px;
   text-transform: none;
-  opacity: .55;
+  color: rgba(42, 6, 23, 0.7);
+  opacity: 1;
 }
 body.dark-mode .empty-title {
   color: var(--text-primary);

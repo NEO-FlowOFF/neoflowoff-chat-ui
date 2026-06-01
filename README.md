@@ -3,6 +3,8 @@
 
 ![NEO FlowOFF Banner](./public/banner.svg)
 
+[![Install Context7 MCP](https://img.shields.io/badge/Context7_MCP-Install_in_VS_Code_Insiders-24bfa5?style=for-the-badge&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%7B%22name%22%3A%22context7%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40upstash%2Fcontext7-mcp%40latest%22%5D%7D)
+
 ```text
 ========================================
        NEØ:One · CHAT INTERFACE

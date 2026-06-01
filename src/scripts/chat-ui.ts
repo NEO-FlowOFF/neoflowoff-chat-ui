@@ -399,11 +399,11 @@ flushQueue();
 
 // Theme toggle
 const savedTheme = localStorage.getItem('flow_theme');
-if (savedTheme === 'light') {
-  document.body.classList.remove('dark-mode');
-} else {
+if (savedTheme === 'dark') {
   document.body.classList.add('dark-mode');
-  if (!savedTheme) localStorage.setItem('flow_theme', 'dark');
+} else {
+  document.body.classList.remove('dark-mode');
+  if (!savedTheme) localStorage.setItem('flow_theme', 'light');
 }
 themeBtn.setAttribute('aria-pressed', document.body.classList.contains('dark-mode') ? 'true' : 'false');
 
@@ -412,5 +412,5 @@ themeBtn.addEventListener('click', () => {
   const isDark = document.body.classList.contains('dark-mode');
   localStorage.setItem('flow_theme', isDark ? 'dark' : 'light');
   themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-  showToast(isDark ? 'Clean Mode' : 'Night Mode');
+  showToast(isDark ? 'Night Mode' : 'Pink Mode');
 });
