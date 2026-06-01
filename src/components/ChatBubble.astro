@@ -60,6 +60,11 @@ const isUser = role === 'user';
   .user-side .label { color: var(--neon-pink); opacity: 0.7; text-align: right; }
   .agent-side .label { color: var(--neon-green); opacity: 0.7; text-align: left; }
 
+  body:not(.dark-mode) .label {
+    color: rgba(46, 0, 23, 0.74);
+    opacity: 1;
+  }
+
   .bubble {
     padding: 12px 16px;
     font-size: 15px;
@@ -78,8 +83,16 @@ const isUser = role === 'user';
     color: var(--text-hud);
     border: 1px solid var(--border-hud);
     border-radius: 2px 20px 20px 20px;
-    border-left: 2px solid rgba(255, 7, 124, 0.45);
+    border-left: 2px solid rgba(244, 244, 244, 0.45);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  }
+
+  body:not(.dark-mode) .agent-side .bubble {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.91), rgba(255, 235, 245, 0.86));
+    color: #2a0617;
+    border-color: rgba(255, 255, 255, 0.62);
+    border-left-color: rgba(255, 7, 124, 0.72);
+    box-shadow: 0 14px 34px rgba(104, 0, 47, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 
   /* BALÃO DO USUÁRIO */
@@ -92,6 +105,14 @@ const isUser = role === 'user';
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   }
 
+  body:not(.dark-mode) .user-side .bubble {
+    background: rgba(83, 0, 40, 0.84);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.38);
+    border-right-color: rgba(255, 255, 255, 0.74);
+    box-shadow: 0 10px 26px rgba(80, 0, 39, 0.22);
+  }
+
   .timestamp {
     font-family: var(--font-mono);
     font-size: 9px;
@@ -99,6 +120,11 @@ const isUser = role === 'user';
     color: var(--text-muted);
     opacity: 0.72;
     letter-spacing: 0.05em;
+  }
+
+  body:not(.dark-mode) .timestamp {
+    color: rgba(46, 0, 23, 0.68);
+    opacity: 1;
   }
 
   .user-side .timestamp { text-align: right; }

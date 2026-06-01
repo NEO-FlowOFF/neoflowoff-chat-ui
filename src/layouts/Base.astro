@@ -80,16 +80,16 @@ import { ClientRouter } from "astro:transitions";
 
   <style is:global>
     :root {
-      --bg:          #ff077c;
-      --bg-alt:      #c8005a;
-      --surface:     rgba(255, 255, 255, 0.16) !important;
-      --surface-dark:rgba(255, 255, 255, 0.10) !important;
-      --hud:         rgba(180, 0, 70, 0.55) !important;
-      --hud-soft:    rgba(155, 0, 55, 0.38) !important;
-      --border:      rgba(255, 255, 255, 0.22) !important;
-      --border-hud:  rgba(255, 255, 255, 0.28) !important;
-      --glass-blur:  blur(24px) saturate(1.4) !important;
-      --glass-shadow: 0 10px 26px rgba(140, 0, 55, 0.28), inset 0 1px 0.5px rgba(255, 255, 255, 0.3) !important;
+      --bg:          #f90a7a;
+      --bg-alt:      #b90052;
+      --surface:     rgba(255, 255, 255, 0.86) !important;
+      --surface-dark:rgba(255, 255, 255, 0.72) !important;
+      --hud:         rgba(146, 0, 67, 0.72) !important;
+      --hud-soft:    rgba(94, 0, 44, 0.76) !important;
+      --border:      rgba(73, 0, 36, 0.16) !important;
+      --border-hud:  rgba(255, 255, 255, 0.42) !important;
+      --glass-blur:  blur(18px) saturate(1.14) !important;
+      --glass-shadow: 0 12px 32px rgba(95, 0, 46, 0.22), inset 0 1px 0.5px rgba(255, 255, 255, 0.45) !important;
       
       --neon-pink:  #ff077c;
       --neon-pink-dim: rgba(255, 7, 124, 0.15);
@@ -105,10 +105,10 @@ import { ClientRouter } from "astro:transitions";
       --neon-pink-secondary:   #ff077c;
       --neon-pink-dim-secondary: rgba(255, 7, 124, 0.15);
       
-      --text-primary:#ffffff;
-      --text-muted:  rgba(255, 255, 255, 0.6);
-      --text-hud:    #ffffff;
-      --text-hud-dim:rgba(255, 255, 255, 0.55);
+      --text-primary:#2a0617;
+      --text-muted:  rgba(55, 4, 27, 0.64);
+      --text-hud:    #2a0617;
+      --text-hud-dim:rgba(55, 4, 27, 0.68);
       
       --radius-card: 24px;
       --radius-pill: 999px;
@@ -243,7 +243,7 @@ import { ClientRouter } from "astro:transitions";
 </head>
 <body>
     <script is:inline>
-      (function(){var t=localStorage.getItem('flow_theme');if(t!=='light')document.body.classList.add('dark-mode');})();
+      (function(){var t=localStorage.getItem('flow_theme');if(t==='dark')document.body.classList.add('dark-mode');})();
     </script>
     <ClientRouter />
     <main id="app-shell">
