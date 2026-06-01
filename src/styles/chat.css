@@ -460,7 +460,7 @@ body.dark-mode .input-card:focus-within {
 body:not(.dark-mode) .input-card textarea {
   color: #2a0617;
 }
-.input-card textarea::placeholder {
+body:not(.dark-mode) .input-card textarea::placeholder {
   color: rgba(42, 6, 23, 0.56);
   opacity: 1;
 }
@@ -468,7 +468,7 @@ body.dark-mode .input-card textarea {
   color: #d4d4d4;
 }
 body.dark-mode .input-card textarea::placeholder {
-  color: #555;
+  color: #8a8a8a;
   opacity: 1;
 }
 
