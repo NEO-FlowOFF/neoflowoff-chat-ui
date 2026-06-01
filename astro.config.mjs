@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
+import sitemap from '@astrojs/sitemap';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 
@@ -43,7 +44,7 @@ function viteClientFallback() {
 export default defineConfig({
   site: 'https://chat.neoflowoff.agency',
   output: 'server',
-  integrations: [viteClientFallback()],
+  integrations: [viteClientFallback(), sitemap()],
   adapter: node({
     mode: 'standalone'
   })
