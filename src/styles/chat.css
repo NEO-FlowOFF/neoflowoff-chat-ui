@@ -208,6 +208,8 @@ body:not(.dark-mode) .messages-wrap {
   line-height: 1.55;
   position: relative;
 }
+.bubble p { margin: 0 !important; }
+.bubble p + p { margin-top: 8px !important; }
 
 .msg.agent .bubble {
   background: var(--surface);

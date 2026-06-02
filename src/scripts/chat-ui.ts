@@ -63,7 +63,14 @@ function formatMarkdown(text: string) {
   const codeLines: string[] = [];
   let listType: 'ul' | 'ol' | null = null;
   let listItems: string[] = [];
+  let paraLines: string[] = [];
   let output = '';
+  const flushPara = () => {
+    if (!paraLines.length) return '';
+    const html = `<p>${paraLines.map(l => inlineMarkdown(l)).join(' ')}</p>`;
+    paraLines = [];
+    return html;
+  };
   const inlineMarkdown = (value: string) => {
     const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
     const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, (_, linkText, url) => {
@@ -91,15 +98,16 @@ function formatMarkdown(text: string) {
     const blockquoteMatch = line.match(/^\s{0,3}>\s?(.*)$/);
     const unorderedMatch = line.match(/^\s*[-*+]\s+(.+)$/);
     const orderedMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
-    if (headerMatch) { output += flushList(); output += `<h${headerMatch[1].length}>${inlineMarkdown(headerMatch[2].trim())}</h${headerMatch[1].length}>`; continue; }
-    if (blockquoteMatch) { output += flushList(); output += `<blockquote>${inlineMarkdown(blockquoteMatch[1].trim())}</blockquote>`; continue; }
-    if (unorderedMatch) { if (listType === 'ol') output += flushList(); listType = 'ul'; listItems.push(unorderedMatch[1]); continue; }
-    if (orderedMatch) { if (listType === 'ul') output += flushList(); listType = 'ol'; listItems.push(orderedMatch[2]); continue; }
+    if (headerMatch) { output += flushPara(); output += flushList(); output += `<h${headerMatch[1].length}>${inlineMarkdown(headerMatch[2].trim())}</h${headerMatch[1].length}>`; continue; }
+    if (blockquoteMatch) { output += flushPara(); output += flushList(); output += `<blockquote>${inlineMarkdown(blockquoteMatch[1].trim())}</blockquote>`; continue; }
+    if (unorderedMatch) { output += flushPara(); if (listType === 'ol') output += flushList(); listType = 'ul'; listItems.push(unorderedMatch[1]); continue; }
+    if (orderedMatch) { output += flushPara(); if (listType === 'ul') output += flushList(); listType = 'ol'; listItems.push(orderedMatch[2]); continue; }
     output += flushList();
-    output += line.trim() === '' ? '<br>' : inlineMarkdown(line) + '<br>';
+    if (line.trim() === '') { output += flushPara(); } else { paraLines.push(line); }
   }
+  output += flushPara();
   output += flushList();
-  return output.replace(/<br>$/, '');
+  return output;
 }
 
 function renderBubble(role: string, text: string, animate: boolean) {

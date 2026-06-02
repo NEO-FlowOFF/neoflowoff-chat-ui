@@ -128,6 +128,7 @@ import { ClientRouter } from "astro:transitions";
       
       --safe-top:    env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --radius-shell: 20px;
     }
 
     body.dark-mode {
@@ -177,13 +178,10 @@ import { ClientRouter } from "astro:transitions";
     body::before {
       content: '';
       position: fixed; inset: 0;
-      opacity: 0.12; pointer-events: none; z-index: 9999;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-repeat: repeat; background-size: 150px;
-      mix-blend-mode: overlay;
-    }
-    body.dark-mode::before {
-      opacity: 0.20;
+      opacity: 0.13; pointer-events: none; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.62'/%3E%3C/svg%3E");
+      background-repeat: repeat; background-size: 190px 190px;
+      mix-blend-mode: soft-light;
     }
     body::after {
       content: '';
@@ -204,26 +202,72 @@ import { ClientRouter } from "astro:transitions";
 
     #app-shell {
       width: 100%;
-      max-width: 480px;
-      height: 100dvh;
-      min-height: 100dvh;
+      height: 100%;
+      min-height: 100%;
       padding-top: var(--safe-top);
       padding-bottom: 0;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
-      background: radial-gradient(circle at center, var(--bg) 0%, var(--bg-alt) 100%);
-      /* Borda sutil nos lados em desktop */
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 20px 60px rgba(0,0,0,0.08);
     }
 
-    body.dark-mode #app-shell {
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 20px 80px rgba(0,0,0,0.5);
+    .neo-shell {
+      position: relative;
+      z-index: 2;
+      width: min(432px, calc(100vw - 32px));
+      height: min(884px, calc(100vh - 32px));
+      min-height: 720px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.006) 24%, rgba(0,0,0,0.14)),
+        rgba(3, 3, 4, 0.70);
+      border-radius: var(--radius-shell);
+      box-shadow:
+        0 48px 140px rgba(0, 0, 0, 0.72),
+        inset 0 0 0 1px rgba(255,255,255,0.045),
+        inset 0 0 96px rgba(212, 20, 118, 0.025);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Mobile: full-screen, sem margens nem radius */
+    @media (max-width: 520px) {
+      .neo-shell {
+        width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .neo-shell::before,
+      .neo-shell::after { display: none; }
+    }
+
+    /* Borda incompleta: artefato, não card */
+    .neo-shell::before,
+    .neo-shell::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .neo-shell::before {
+      top: 0; left: 0;
+      width: 72px; height: 1px;
+      background: linear-gradient(90deg, rgba(212, 20, 118, 0.7), transparent);
+      border-radius: var(--radius-shell) 0 0 0;
+    }
+
+    .neo-shell::after {
+      top: 0; left: 0;
+      width: 1px; height: 72px;
+      background: linear-gradient(180deg, rgba(212, 20, 118, 0.7), transparent);
+      border-radius: var(--radius-shell) 0 0 0;
     }
 
     /* Desktop background */
-    .page-bg {
+    .neo-chat-stage {
       position: relative;
       width: 100%;
       min-height: 100vh;
@@ -237,21 +281,21 @@ import { ClientRouter } from "astro:transitions";
         linear-gradient(180deg, #08090b 0%, #050507 52%, #030304 100%);
     }
 
-    .page-bg::before {
+    .neo-chat-stage::before {
       content: "";
       position: absolute;
       inset: 0;
       pointer-events: none;
       z-index: 0;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-      background-size: 40px 40px;
-      mask-image: linear-gradient(to bottom, black 0%, transparent 76%);
-      -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 76%);
+        linear-gradient(rgba(255, 255, 255, 0.020) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+      background-size: 44px 44px;
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 78%);
+      mask-image: linear-gradient(to bottom, black 0%, transparent 78%);
     }
 
-    .page-bg::after {
+    .neo-chat-stage::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -296,10 +340,12 @@ import { ClientRouter } from "astro:transitions";
       document.body.classList.add('dark-mode');
     </script>
     <ClientRouter />
-    <div class="page-bg">
-      <main id="app-shell" class="chat-shell">
-        <slot />
-      </main>
+    <div class="neo-chat-stage">
+      <div class="neo-shell">
+        <main id="app-shell" class="chat-shell">
+          <slot />
+        </main>
+      </div>
     </div>
     <script is:inline>
       if ("serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname)) {
