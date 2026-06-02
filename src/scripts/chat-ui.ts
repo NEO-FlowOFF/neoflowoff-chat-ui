@@ -30,6 +30,17 @@ function escapeHtml(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/**
+ * Converts a subset of markdown to safe HTML.
+ *
+ * Security: input is run through escapeHtml() before any processing, so raw
+ * user/LLM content is HTML-entity-encoded first. The only HTML emitted is from
+ * an explicit allowlist: <code>, <pre>, <strong>, <em>, <a>, <ul>, <ol>, <li>,
+ * <h1-h6>, <blockquote>, <br>. Link hrefs are validated against ^https?:// —
+ * any other scheme (javascript:, data:, etc.) is replaced with "#".
+ *
+ * Callers may assign the return value to .innerHTML without further sanitization.
+ */
 function formatMarkdown(text: string) {
   const escaped = escapeHtml(text);
   const lines = escaped.split('\n');
@@ -85,8 +96,7 @@ function renderBubble(role: string, text: string, animate: boolean) {
   const bubbleEl = clone.querySelector('.bubble');
   const timeEl = clone.querySelector('.timestamp');
   const visitorLabelEl = clone.querySelector('.visitor-label');
-  // safe: formatMarkdown runs escapeHtml first and only emits allowlisted tags (<code>,<strong>,<em>,<a>,<ul>,<ol>,<li>,<pre>); hrefs validated to ^https?://
-  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text); // nosec
+  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text); // safe — see formatMarkdown JSDoc
   if (timeEl) timeEl.textContent = formatTime();
   if (visitorLabelEl && sessionId) {
     const code = sessionId.replace(/-/g, '').slice(0, 6).toUpperCase();
@@ -211,6 +221,7 @@ const streamProxy = async (
   const { el: agentMsg, textEl } = renderStreamingBubble();
   scrollToBottom();
   let fullText = '';
+  let renderScheduled = false;
   if (!res.body) throw new Error('A resposta da API está vazia (res.body é null).');
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
@@ -224,18 +235,29 @@ const streamProxy = async (
       if (json === '[DONE]') break;
       try {
         const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
+        if (!delta) continue;
         fullText += delta;
-        textEl.innerHTML = formatMarkdown(fullText); // nosec — safe: see formatMarkdown allowlist
-        scrollToBottom();
-        if (delta.length > 0) await sleep(10 + Math.random() * 25);
+        // Debounce: schedule one render per animation frame to avoid layout thrashing
+        if (!renderScheduled) {
+          renderScheduled = true;
+          requestAnimationFrame(() => {
+            textEl.innerHTML = formatMarkdown(fullText); // safe — see formatMarkdown JSDoc
+            scrollToBottom();
+            renderScheduled = false;
+          });
+        }
+        await sleep(10 + Math.random() * 25);
       } catch {}
     }
   }
+  // Final render to ensure last chunk is displayed
+  textEl.innerHTML = formatMarkdown(fullText); // safe — see formatMarkdown JSDoc
+  scrollToBottom();
   agentMsg.querySelector('.stream-cursor')?.remove();
   const meta = document.createElement('div');
   meta.className = 'msg-meta';
   const timeSpan = document.createElement('span');
-  Object.assign(timeSpan.style, { fontSize: '8px', color: 'var(--text-muted)', opacity: '0.5', letterSpacing: '0.05em' });
+  timeSpan.className = 'msg-time';
   timeSpan.textContent = formatTime();
   meta.appendChild(timeSpan);
   agentMsg.querySelector('.bubble')?.after(meta);
