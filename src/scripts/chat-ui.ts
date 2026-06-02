@@ -27,17 +27,32 @@ function scrollToBottom() { requestAnimationFrame(() => { wrap.scrollTop = wrap.
 function formatTime() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
 
 function escapeHtml(s: string) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttribute(s: string) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 /**
  * Converts a subset of markdown to safe HTML.
  *
- * Security: input is run through escapeHtml() before any processing, so raw
- * user/LLM content is HTML-entity-encoded first. The only HTML emitted is from
- * an explicit allowlist: <code>, <pre>, <strong>, <em>, <a>, <ul>, <ol>, <li>,
- * <h1-h6>, <blockquote>, <br>. Link hrefs are validated against ^https?:// —
- * any other scheme (javascript:, data:, etc.) is replaced with "#".
+ * Security: input is run through escapeHtml() (encodes &, <, >, ", ') before
+ * any processing. The only HTML emitted is from an explicit allowlist: <code>,
+ * <pre>, <strong>, <em>, <a>, <ul>, <ol>, <li>, <h1-h6>, <blockquote>, <br>.
+ * Link hrefs are validated against ^https?:// — any other scheme (javascript:,
+ * data:, etc.) is replaced with "#" — then run through escapeAttribute() to
+ * encode quotes and prevent attribute injection.
  *
  * Callers may assign the return value to .innerHTML without further sanitization.
  */
@@ -52,7 +67,7 @@ function formatMarkdown(text: string) {
   const inlineMarkdown = (value: string) => {
     const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
     const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, (_, linkText, url) => {
-      const safe = /^https?:\/\//i.test(url) ? url : '#';
+      const safe = /^https?:\/\//i.test(url) ? escapeAttribute(url) : '#';
       return `<a href="${safe}" target="_blank" rel="noreferrer noopener">${linkText}</a>`;
     });
     const bold = links.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
