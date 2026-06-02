@@ -11,7 +11,6 @@ const wrap    = document.getElementById('messagesWrap') as HTMLDivElement;
 const input   = document.getElementById('msgInput') as HTMLTextAreaElement;
 const sendBtn = document.getElementById('sendBtn') as HTMLButtonElement;
 const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
-const themeBtn = document.getElementById('themeToggle') as HTMLButtonElement;
 const empty   = document.getElementById('emptyState');
 const toastEl = document.getElementById('toast') as HTMLDivElement;
 
@@ -397,20 +396,3 @@ if ('serviceWorker' in navigator) {
 }
 flushQueue();
 
-// Theme toggle
-const savedTheme = localStorage.getItem('flow_theme');
-if (savedTheme === 'dark') {
-  document.body.classList.add('dark-mode');
-} else {
-  document.body.classList.remove('dark-mode');
-  if (!savedTheme) localStorage.setItem('flow_theme', 'light');
-}
-themeBtn.setAttribute('aria-pressed', document.body.classList.contains('dark-mode') ? 'true' : 'false');
-
-themeBtn.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-  const isDark = document.body.classList.contains('dark-mode');
-  localStorage.setItem('flow_theme', isDark ? 'dark' : 'light');
-  themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-  showToast(isDark ? 'Night Mode' : 'Pink Mode');
-});

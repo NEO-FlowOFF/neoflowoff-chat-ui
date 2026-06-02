@@ -6,6 +6,7 @@ const CSP_DIRECTIVES = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://res.cloudinary.com",
+  "media-src 'self' https://res.cloudinary.com",
   "connect-src 'self' wss: https://cloudflareinsights.com",
   "worker-src 'self'",
   "frame-ancestors 'self'",

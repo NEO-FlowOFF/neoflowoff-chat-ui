@@ -137,65 +137,6 @@ button:active,
 }
 
 /* 3D THEME SWITCH */
-.theme-switch {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  min-height: 48px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: center;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-body:not(.dark-mode) .theme-switch {
-  color: rgba(42, 6, 23, 0.72);
-}
-.theme-ring {
-  display: none;
-}
-.theme-switch svg {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  transition: all 0.28s ease;
-}
-.sun-icon {
-  opacity: 1;
-  color: var(--neon-pink);
-  transform: scale(1) rotate(0deg);
-}
-.moon-icon {
-  opacity: 0;
-  color: var(--text-muted);
-  transform: scale(0.6) rotate(-35deg);
-}
-.theme-switch:hover {
-  transform: translateY(-1px);
-}
-
-body.dark-mode .theme-switch {
-  background: rgba(0, 0, 0, 0.45);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-}
-body.dark-mode .theme-ring {
-  transform: rotate(180deg) scale(1.06);
-  opacity: 0.9;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-body.dark-mode .moon-icon {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
-}
-body.dark-mode .sun-icon {
-  opacity: 0;
-  transform: scale(0.6) rotate(35deg);
-}
 
 /* MESSAGES */
 .messages-wrap {
@@ -270,32 +211,22 @@ body:not(.dark-mode) .messages-wrap {
 
 .msg.agent .bubble {
   background: var(--surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
   color: var(--text-hud);
   border-radius: 4px 20px 20px 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 body:not(.dark-mode) .msg.agent .bubble {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.91), rgba(255, 235, 245, 0.86));
+  background: rgba(255, 255, 255, 0.91);
   color: #2a0617;
-  border: 1px solid rgba(255, 255, 255, 0.62);
-  box-shadow: 0 14px 34px rgba(104, 0, 47, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .msg.user .bubble {
   background: var(--hud-soft);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
   color: var(--text-hud);
   border-radius: 20px 4px 20px 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 body:not(.dark-mode) .msg.user .bubble {
   background: rgba(83, 0, 40, 0.84);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  box-shadow: 0 10px 26px rgba(80, 0, 39, 0.22);
 }
 
 /* Não esconder `.msg-meta` globalmente: o streaming também pode injetar esse elemento. */
@@ -303,14 +234,11 @@ body:not(.dark-mode) .msg.user .bubble {
 /* TYPING */
 .typing-bubble {
   background: var(--surface);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
   padding: 10px 16px;
   border-radius: 18px;
   display: flex;
   gap: 5px;
   align-items: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 .typing-bubble span {
   width: 6px;

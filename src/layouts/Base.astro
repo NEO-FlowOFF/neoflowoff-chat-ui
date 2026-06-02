@@ -6,7 +6,7 @@ import { ClientRouter } from "astro:transitions";
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
-  <meta name="theme-color" content="#111111" />
+  <meta name="theme-color" content="#171717" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -20,8 +20,12 @@ import { ClientRouter } from "astro:transitions";
   <link rel="canonical" href="https://chat.neoflowoff.agency/chat" />
 
   <meta name="description" content="NEØ:one — Assistente de primeiro contato da NEO FlowOFF. Automação de marketing, infraestrutura digital e resultados escaláveis." />
-
   <meta name="keywords" content="transformação digital com IA, automação empresarial, agentes inteligentes para empresas, multiagent systems, AI workflow automation, process automation, CRM automation, sales automation, customer support automation, business intelligence with AI, lead qualification automation, enterprise AI implementation, AI integration services, custom AI solutions, digital ecosystem architecture, NEO FlowOFF" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="NEO FlowOFF" />
+  <meta name="language" content="pt-BR" />
+  <meta name="rating" content="general" />
+  <meta name="revisit-after" content="7 days" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
@@ -244,7 +248,7 @@ import { ClientRouter } from "astro:transitions";
 </head>
 <body>
     <script is:inline>
-      (function(){var t=localStorage.getItem('flow_theme');if(t==='dark')document.body.classList.add('dark-mode');})();
+      document.body.classList.add('dark-mode');
     </script>
     <ClientRouter />
     <main id="app-shell">
