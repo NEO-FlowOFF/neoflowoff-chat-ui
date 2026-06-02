@@ -231,7 +231,7 @@ body:not(.dark-mode) .msg.user .bubble {
 
 /* Não esconder `.msg-meta` globalmente: o streaming também pode injetar esse elemento. */
 .msg-time {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text-muted);
   opacity: 0.5;
   letter-spacing: 0.05em;
@@ -433,10 +433,10 @@ body.dark-mode .input-card textarea::placeholder {
   stroke-width: 2.2;
 }
 .send-btn:disabled {
-  background: var(--border);
-  color: var(--text-muted);
+  background: rgba(255, 7, 124, 0.15);
+  color: rgba(255, 7, 124, 0.4);
   box-shadow: none;
-  opacity: 0.5;
+  opacity: 1;
   cursor: default;
 }
 
