@@ -27,9 +27,35 @@ function scrollToBottom() { requestAnimationFrame(() => { wrap.scrollTop = wrap.
 function formatTime() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
 
 function escapeHtml(s: string) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
+function escapeAttribute(s: string) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Converts a subset of markdown to safe HTML.
+ *
+ * Security: input is run through escapeHtml() (encodes &, <, >, ", ') before
+ * any processing. The only HTML emitted is from an explicit allowlist: <code>,
+ * <pre>, <strong>, <em>, <a>, <ul>, <ol>, <li>, <h1-h6>, <blockquote>, <br>.
+ * Link hrefs are validated against ^https?:// — any other scheme (javascript:,
+ * data:, etc.) is replaced with "#" — then run through escapeAttribute() to
+ * encode quotes and prevent attribute injection.
+ *
+ * Callers may assign the return value to .innerHTML without further sanitization.
+ */
 function formatMarkdown(text: string) {
   const escaped = escapeHtml(text);
   const lines = escaped.split('\n');
@@ -41,7 +67,7 @@ function formatMarkdown(text: string) {
   const inlineMarkdown = (value: string) => {
     const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
     const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, (_, linkText, url) => {
-      const safe = /^https?:\/\//i.test(url) ? url : '#';
+      const safe = /^https?:\/\//i.test(url) ? escapeAttribute(url) : '#';
       return `<a href="${safe}" target="_blank" rel="noreferrer noopener">${linkText}</a>`;
     });
     const bold = links.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -85,7 +111,7 @@ function renderBubble(role: string, text: string, animate: boolean) {
   const bubbleEl = clone.querySelector('.bubble');
   const timeEl = clone.querySelector('.timestamp');
   const visitorLabelEl = clone.querySelector('.visitor-label');
-  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text);
+  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text); // safe — see formatMarkdown JSDoc // nosemgrep: javascript.browser.security.insecure-document-method,javascript.browser.security.insecure-innerhtml
   if (timeEl) timeEl.textContent = formatTime();
   if (visitorLabelEl && sessionId) {
     const code = sessionId.replace(/-/g, '').slice(0, 6).toUpperCase();
@@ -210,6 +236,7 @@ const streamProxy = async (
   const { el: agentMsg, textEl } = renderStreamingBubble();
   scrollToBottom();
   let fullText = '';
+  let renderScheduled = false;
   if (!res.body) throw new Error('A resposta da API está vazia (res.body é null).');
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
@@ -223,17 +250,31 @@ const streamProxy = async (
       if (json === '[DONE]') break;
       try {
         const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
+        if (!delta) continue;
         fullText += delta;
-        textEl.innerHTML = formatMarkdown(fullText);
-        scrollToBottom();
-        if (delta.length > 0) await sleep(10 + Math.random() * 25);
+        // Debounce: schedule one render per animation frame to avoid layout thrashing
+        if (!renderScheduled) {
+          renderScheduled = true;
+          requestAnimationFrame(() => {
+            textEl.innerHTML = formatMarkdown(fullText); // safe — see formatMarkdown JSDoc // nosemgrep: javascript.browser.security.insecure-document-method,javascript.browser.security.insecure-innerhtml
+            scrollToBottom();
+            renderScheduled = false;
+          });
+        }
+        await sleep(10 + Math.random() * 25);
       } catch {}
     }
   }
+  // Final render to ensure last chunk is displayed
+  textEl.innerHTML = formatMarkdown(fullText); // safe — see formatMarkdown JSDoc // nosemgrep: javascript.browser.security.insecure-document-method,javascript.browser.security.insecure-innerhtml
+  scrollToBottom();
   agentMsg.querySelector('.stream-cursor')?.remove();
   const meta = document.createElement('div');
   meta.className = 'msg-meta';
-  meta.innerHTML = `<span style="font-size:8px; color:var(--text-muted); opacity:0.5; letter-spacing:0.05em;">${formatTime()}</span>`;
+  const timeSpan = document.createElement('span');
+  timeSpan.className = 'msg-time';
+  timeSpan.textContent = formatTime();
+  meta.appendChild(timeSpan);
   agentMsg.querySelector('.bubble')?.after(meta);
   return fullText;
 };

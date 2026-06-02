@@ -230,6 +230,12 @@ body:not(.dark-mode) .msg.user .bubble {
 }
 
 /* Não esconder `.msg-meta` globalmente: o streaming também pode injetar esse elemento. */
+.msg-time {
+  font-size: 8px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
 
 /* TYPING */
 .typing-bubble {
