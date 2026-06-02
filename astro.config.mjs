@@ -8,6 +8,7 @@ const require = createRequire(import.meta.url);
 const astroPackagePath = require.resolve('astro/package.json');
 const astroRequire = createRequire(astroPackagePath);
 const viteClientPath = astroRequire.resolve('vite/dist/client/client.mjs');
+const viteEnvPath = astroRequire.resolve('vite/dist/client/env.mjs');
 
 function viteClientFallback() {
   return {
@@ -15,12 +16,25 @@ function viteClientFallback() {
     hooks: {
       'astro:server:setup': ({ server }) => {
         server.middlewares.use(async (req, res, next) => {
-          if (req.url !== '/@vite/client' || !['GET', 'HEAD'].includes(req.method ?? '')) {
+          if (!['GET', 'HEAD'].includes(req.method ?? '')) {
+            return next();
+          }
+
+          const url = req.url?.split('?')[0];
+          if (url !== '/@vite/client' && url !== '/@vite/env') {
             return next();
           }
 
           try {
-            const source = await readFile(viteClientPath, 'utf8');
+            const sourcePath = url === '/@vite/client' ? viteClientPath : viteEnvPath;
+            let source = await readFile(sourcePath, 'utf8');
+
+            if (url === '/@vite/client') {
+              source = source.replace('import "@vite/env";', 'import "/@vite/env";');
+            } else {
+              source = source.replace('__DEFINES__', '{}');
+            }
+
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/javascript');
             res.setHeader('Cache-Control', 'no-cache');

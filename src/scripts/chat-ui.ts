@@ -72,13 +72,34 @@ function formatMarkdown(text: string) {
     return html;
   };
   const inlineMarkdown = (value: string) => {
-    const code = value.replace(/`([^`]+)`/g, '<code>$1</code>');
-    const links = code.replace(/\[([^\]]+)]\(([^)]+)\)/g, (_, linkText, url) => {
-      const safe = /^https?:\/\//i.test(url) ? escapeAttribute(url) : '#';
-      return `<a href="${safe}" target="_blank" rel="noreferrer noopener">${linkText}</a>`;
+    const tokens: string[] = [];
+
+    const preserve = (html: string) => {
+      const index = tokens.push(html) - 1;
+      return `\u0000${index}\u0000`;
+    };
+
+    let parsed = value;
+
+    parsed = parsed.replace(/`([^`]+)`/g, (_, codeText) => {
+      return preserve(`<code>${codeText}</code>`);
     });
-    const bold = links.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    return bold.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    parsed = parsed.replace(/\[([^\]]+)]\(([^)\s]+)\)/g, (_, linkText, url) => {
+      const safe = /^https?:\/\//i.test(url) ? escapeAttribute(url) : '#';
+      return preserve(
+        `<a href="${safe}" target="_blank" rel="noreferrer noopener">${linkText}</a>`
+      );
+    });
+
+    parsed = parsed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    parsed = parsed.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+
+    parsed = parsed.replace(/\u0000(\d+)\u0000/g, (_, index) => {
+      return tokens[Number(index)] ?? '';
+    });
+
+    return parsed;
   };
   const flushList = () => {
     if (!listType) return '';

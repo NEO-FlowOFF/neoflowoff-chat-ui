@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+import { type Message } from "../types/chat";
 
 const redisUrl = import.meta.env.REDIS_URL || process.env.REDIS_URL;
 
@@ -8,12 +9,45 @@ if (!redisUrl) {
   );
 }
 
-import { type Message } from "../types/chat";
+function describeRedisTarget(url: string) {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.protocol}//${parsed.hostname}${parsed.port ? `:${parsed.port}` : ""}`;
+  } catch {
+    return "invalid-url";
+  }
+}
 
-export const redis = redisUrl ? new Redis(redisUrl) : null;
-if (redis) {
+let redisErrorLogged = false;
+
+export const redis = redisUrl
+  ? new Redis(redisUrl, {
+      connectTimeout: 5000,
+      commandTimeout: 5000,
+      maxRetriesPerRequest: 1,
+      retryStrategy(times) {
+        if (times > 3) return null;
+        return Math.min(times * 250, 1000);
+      },
+    })
+  : null;
+
+if (redis && redisUrl) {
+  console.info(`[REDIS] Connecting to ${describeRedisTarget(redisUrl)}`);
+
+  redis.on("ready", () => {
+    redisErrorLogged = false;
+    console.info("[REDIS] Connection ready");
+  });
+
   redis.on("error", (err) => {
+    if (redisErrorLogged) return;
+    redisErrorLogged = true;
     console.error("[REDIS] Connection error:", err instanceof Error ? err.message : err);
+  });
+
+  redis.on("end", () => {
+    console.warn("[REDIS] Connection ended. Server-side memory degraded.");
   });
 }
 
