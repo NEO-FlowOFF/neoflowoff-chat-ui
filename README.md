@@ -36,6 +36,7 @@ conversão para empresários e visionários.
 └─ Memória de contexto para conversas fluidas.
 └─ Captura automática de dados qualificados (CRM).
 └─ Interface mobile-first ultra-rápida (PWA).
+└─ Tema dark-only com linguagem visual monolítica.
 └─ Foco total em ROI e escala de negócios.
 
 ────────────────────────────────────────

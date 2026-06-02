@@ -75,6 +75,18 @@ pnpm test
 
 ---
 
+## Operação neoflowoff-chat-ui
+
+- Em 2026-06-02, a memória server-side do chat foi validada com Redis Cloud
+  externo via `REDIS_URL`; logs esperados no app:
+  `[REDIS] Connection ready`.
+- O serviço Redis Railway antigo pode permanecer como fallback temporário, mas
+  não é a fonte ativa enquanto `REDIS_URL` aponta para Redis Cloud.
+- A UI do chat é dark-only; não manter ramificações de modo claro ou theme
+  toggle na superfície ativa.
+
+---
+
 ## Operação PostgreSQL Railway
 
 - Em 2026-05-27, o Railway CLI local estava linkado em:

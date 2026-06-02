@@ -28,12 +28,6 @@ const isUser = role === 'user';
     display: flex;
     width: 100%;
     margin-bottom: 16px;
-    animation: bubbleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  @keyframes bubbleIn {
-    from { opacity: 0; transform: translateY(10px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   .user-side { justify-content: flex-end; }
@@ -60,57 +54,80 @@ const isUser = role === 'user';
   .user-side .label { color: var(--neon-pink); opacity: 0.7; text-align: right; }
   .agent-side .label { color: var(--neon-green); opacity: 0.7; text-align: left; }
 
-  body:not(.dark-mode) .label {
-    color: rgba(46, 0, 23, 0.74);
-    opacity: 1;
-  }
-
   .bubble {
-    padding: 12px 16px;
+    padding: 14px 17px;
     font-size: 15px;
     line-height: 1.6;
     white-space: pre-wrap;
     position: relative;
-    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 42px rgba(255, 255, 255, 0.014),
+      0 22px 52px rgba(0, 0, 0, 0.18);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
     transition: background 0.3s ease;
   }
 
-  /* BALÃO DO AGENTE */
-  .agent-side .bubble {
-    background: var(--surface);
-    color: var(--text-hud);
-    border: 1px solid var(--border-hud);
-    border-radius: 2px 20px 20px 20px;
-    border-left: 2px solid rgba(244, 244, 244, 0.45);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  .bubble::before,
+  .bubble::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    pointer-events: none;
   }
 
-  body:not(.dark-mode) .agent-side .bubble {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.91), rgba(255, 235, 245, 0.86));
-    color: #2a0617;
-    border-color: rgba(255, 255, 255, 0.62);
-    border-left-color: rgba(255, 7, 124, 0.72);
-    box-shadow: 0 14px 34px rgba(104, 0, 47, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  /* BALÃO DO AGENTE */
+  .agent-side .bubble {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.032), rgba(255, 255, 255, 0.012)),
+      var(--surface);
+    color: var(--text-hud);
+    border: 1px solid rgba(255, 255, 255, 0.082);
+    border-radius: 3px 16px 16px 16px;
+  }
+
+  .agent-side .bubble::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid rgba(255, 7, 124, 0.50);
+    border-left: 1px solid rgba(255, 7, 124, 0.50);
+    box-shadow: -10px -10px 36px rgba(255, 7, 124, 0.08);
+  }
+
+  .agent-side .bubble::after {
+    right: -1px;
+    bottom: -1px;
+    border-right: 1px solid rgba(255, 255, 255, 0.10);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   }
 
   /* BALÃO DO USUÁRIO */
   .user-side .bubble {
-    background: var(--hud-soft);
+    background: rgba(255, 255, 255, 0.026);
     color: var(--text-hud);
-    border: 1px solid var(--border-hud);
-    border-radius: 20px 2px 20px 20px;
-    border-right: 2px solid rgba(93, 92, 92, 0.959);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 13px 3px 13px 13px;
+    text-align: right;
+    box-shadow:
+      inset 0 0 36px rgba(255, 255, 255, 0.012),
+      0 16px 42px rgba(0, 0, 0, 0.16);
   }
 
-  body:not(.dark-mode) .user-side .bubble {
-    background: rgba(83, 0, 40, 0.84);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.38);
-    border-right-color: rgba(255, 255, 255, 0.74);
-    box-shadow: 0 10px 26px rgba(80, 0, 39, 0.22);
+  .user-side .bubble::before {
+    top: -1px;
+    right: -1px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    border-right: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .user-side .bubble::after {
+    left: -1px;
+    bottom: -1px;
+    border-left: 1px solid rgba(255, 7, 124, 0.28);
+    border-bottom: 1px solid rgba(255, 7, 124, 0.28);
+    box-shadow: -8px 8px 28px rgba(255, 7, 124, 0.06);
   }
 
   .timestamp {
@@ -120,11 +137,6 @@ const isUser = role === 'user';
     color: var(--text-muted);
     opacity: 0.72;
     letter-spacing: 0.05em;
-  }
-
-  body:not(.dark-mode) .timestamp {
-    color: rgba(46, 0, 23, 0.68);
-    opacity: 1;
   }
 
   .user-side .timestamp { text-align: right; }

@@ -76,25 +76,27 @@ import { ClientRouter } from "astro:transitions";
     ]
   </script>
 
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-<link rel="preload" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" />
-<noscript>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" />
-</noscript>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600;700&display=swap"
+/>
 
   <style is:global>
     :root {
-      --bg:          #f90a7a;
-      --bg-alt:      #b90052;
-      --surface:     rgba(255, 255, 255, 0.86) !important;
-      --surface-dark:rgba(255, 255, 255, 0.72) !important;
-      --hud:         rgba(146, 0, 67, 0.72) !important;
-      --hud-soft:    rgba(94, 0, 44, 0.76) !important;
-      --border:      rgba(73, 0, 36, 0.16) !important;
-      --border-hud:  rgba(255, 255, 255, 0.42) !important;
-      --glass-blur:  blur(18px) saturate(1.14) !important;
-      --glass-shadow: 0 12px 32px rgba(95, 0, 46, 0.22), inset 0 1px 0.5px rgba(255, 255, 255, 0.45) !important;
+      --bg:          #171717;
+      --bg-alt:      #101010;
+      --surface:     rgba(14, 14, 14, 0.74);
+      --surface-dark:rgba(10, 10, 10, 0.86);
+      --hud:         rgba(12, 12, 12, 0.78);
+      --hud-soft:    rgba(24, 24, 24, 0.52);
+      --border:      rgba(255, 255, 255, 0.09);
+      --border-hud:  rgba(255, 255, 255, 0.08);
+      --glass-blur:  blur(30px) saturate(1.18) brightness(0.92);
+      --glass-shadow: 0 16px 42px rgba(6, 10, 16, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.03);
       
       --neon-pink:  #ff077c;
       --neon-pink-dim: rgba(255, 7, 124, 0.15);
@@ -110,17 +112,17 @@ import { ClientRouter } from "astro:transitions";
       --neon-pink-secondary:   #ff077c;
       --neon-pink-dim-secondary: rgba(255, 7, 124, 0.15);
       
-      --text-primary:#2a0617;
-      --text-muted:  rgba(55, 4, 27, 0.64);
-      --text-hud:    #2a0617;
-      --text-hud-dim:rgba(55, 4, 27, 0.68);
+      --text-primary:#f0f0f0;
+      --text-muted:  #9a9a9a;
+      --text-hud:    #e6e6e6;
+      --text-hud-dim:#ababab;
       
       --radius-card: 24px;
       --radius-pill: 999px;
       
-      --shadow-card: 0 10px 28px rgba(18, 18, 18, 0.08);
+      --shadow-card: var(--glass-shadow);
       --shadow-hud:  0 12px 34px rgba(18, 18, 18, 0.10);
-      --shadow-inner: inset 0 1px 3px rgba(18,18,18,0.04);
+      --shadow-inner: inset 0 2px 8px rgba(0, 0, 0, 0.35);
       --glow-soft: 0 0 20px rgba(255, 7, 124, 0.1);
       
       --font-display:'Inter Tight', sans-serif;
@@ -129,25 +131,6 @@ import { ClientRouter } from "astro:transitions";
       --safe-top:    env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --radius-shell: 20px;
-    }
-
-    body.dark-mode {
-      --bg: #171717;
-      --bg-alt: #101010;
-      --surface: rgba(14, 14, 14, 0.74);
-      --surface-dark: rgba(10, 10, 10, 0.86);
-      --hud: rgba(12, 12, 12, 0.78);
-      --hud-soft: rgba(24, 24, 24, 0.52);
-      --text-primary: #f0f0f0;
-      --text-muted: #9a9a9a;
-      --text-hud: #e6e6e6;
-      --text-hud-dim: #ababab;
-      --border: rgba(255, 255, 255, 0.09);
-      --border-hud: rgba(255, 255, 255, 0.08);
-      --glass-blur: blur(30px) saturate(1.18) brightness(0.92);
-      --glass-shadow: 0 16px 42px rgba(6, 10, 16, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-      --shadow-card: var(--glass-shadow);
-      --shadow-inner: inset 0 2px 8px rgba(0, 0, 0, 0.35);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -336,9 +319,6 @@ import { ClientRouter } from "astro:transitions";
   <script is:inline defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "abc85a5fe49144d391a3c0e6bc7608d7"}'></script>
 </head>
 <body>
-    <script is:inline>
-      document.body.classList.add('dark-mode');
-    </script>
     <ClientRouter />
     <div class="neo-chat-stage">
       <div class="neo-shell">
@@ -393,7 +373,6 @@ import { ClientRouter } from "astro:transitions";
           fontSize: "12px",
           color: "#f0f0f0",
           whiteSpace: "nowrap",
-          animation: "sw-banner-in 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
         });
         const btn = banner.querySelector("#sw-update-btn");
         Object.assign(btn.style, {
@@ -407,12 +386,6 @@ import { ClientRouter } from "astro:transitions";
           fontWeight: "600",
           cursor: "pointer",
         });
-        if (!document.getElementById("sw-banner-style")) {
-          const s = document.createElement("style");
-          s.id = "sw-banner-style";
-          s.textContent = "@keyframes sw-banner-in{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}";
-          document.head.appendChild(s);
-        }
         document.body.appendChild(banner);
         btn.addEventListener("click", () => {
           reg.waiting.postMessage({ type: "SKIP_WAITING" });

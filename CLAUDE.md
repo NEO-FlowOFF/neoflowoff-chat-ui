@@ -70,7 +70,7 @@ After **10 messages** in a session (`MAX_SESSION_MESSAGES`), `chat-ui.ts` dynami
 |---              |---        |---                                                  |
 | `ASI1_API_KEY`  | Yes       | LLM API key for asi1.ai                             |
 | `ASI1_MODEL`    | No        | Model name (default: `"asi1"`)                      |
-| `REDIS_URL`     | No        |Redis connection; session memory disabled if absent  |
+| `REDIS_URL`     | No        | Redis Cloud connection; session memory disabled if absent |
 | `DATABASE_URL`  | No        | PostgreSQL; Regis lead capture disabled if absent   |
 ```
 
@@ -78,7 +78,7 @@ See `.env.example` for format. Both Redis and PostgreSQL are optional for local 
 
 ## Key files
 
-- `src/scripts/chat-ui.ts` — entire client-side runtime: rendering, streaming, offline queue, theme toggle. All UI logic lives here.
+- `src/scripts/chat-ui.ts` — entire client-side runtime: rendering, streaming, and offline queue. All UI logic lives here.
 - `src/pages/api/chat.ts` — the only backend endpoint that matters; proxies LLM + triggers Regis
 - `src/middleware.ts` — security headers (HSTS, CSP, X-Frame-Options, etc.) + charset fix. CSP directives centralized in `CSP_DIRECTIVES`.
 - `src/lib/system-prompt.md` — agent identity and guardrails (loaded server-side only)

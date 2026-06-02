@@ -53,7 +53,7 @@ Environment: Node.js >=22.12.0
 └─ Framework: Astro 6.x (SSR · Node Adapter)
 └─ Runtime:   Node.js >=22.12.0
 └─ LLM:       ASI1 AI (api.asi1.ai)
-└─ Memory:    Redis (Railway)
+└─ Memory:    Redis Cloud externo via REDIS_URL
 └─ Leads:     PostgreSQL (Railway)
 └─ Notificações: Resend API
 └─ Deploy:    Railway
@@ -90,11 +90,19 @@ pnpm build
 ```text
 ASI1_API_KEY=    # Chave ASI1 AI
 ASI1_MODEL=asi1  # Modelo (padrão: asi1)
-REDIS_URL=       # Redis Railway (interno ou externo)
+REDIS_URL=       # Redis Cloud externo (redis://default:***@host:port)
 DATABASE_URL=    # PostgreSQL Railway
 SITE_URL=        # Domínio oficial (https://chat.neoflowoff.agency)
 RESEND_API_KEY=  # Chave da API do Resend (para disparos de Handoff)
 ```
+
+Notas:
+- `REDIS_URL` é a fonte ativa da memória server-side.
+- Em 2026-06-02, produção validada com Redis Cloud externo.
+- O serviço Redis Railway pode permanecer como fallback temporário, mas não
+  deve ser tratado como fonte ativa enquanto `REDIS_URL` aponta para o Redis
+  Cloud.
+- Hosts `*.railway.internal` só resolvem dentro da rede Railway.
 
 ────────────────────────────────────────
 
