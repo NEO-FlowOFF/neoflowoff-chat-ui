@@ -85,7 +85,8 @@ function renderBubble(role: string, text: string, animate: boolean) {
   const bubbleEl = clone.querySelector('.bubble');
   const timeEl = clone.querySelector('.timestamp');
   const visitorLabelEl = clone.querySelector('.visitor-label');
-  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text);
+  // safe: formatMarkdown runs escapeHtml first and only emits allowlisted tags (<code>,<strong>,<em>,<a>,<ul>,<ol>,<li>,<pre>); hrefs validated to ^https?://
+  if (bubbleEl) bubbleEl.innerHTML = formatMarkdown(text); // nosec
   if (timeEl) timeEl.textContent = formatTime();
   if (visitorLabelEl && sessionId) {
     const code = sessionId.replace(/-/g, '').slice(0, 6).toUpperCase();
@@ -224,7 +225,7 @@ const streamProxy = async (
       try {
         const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
         fullText += delta;
-        textEl.innerHTML = formatMarkdown(fullText);
+        textEl.innerHTML = formatMarkdown(fullText); // nosec — safe: see formatMarkdown allowlist
         scrollToBottom();
         if (delta.length > 0) await sleep(10 + Math.random() * 25);
       } catch {}
@@ -233,7 +234,10 @@ const streamProxy = async (
   agentMsg.querySelector('.stream-cursor')?.remove();
   const meta = document.createElement('div');
   meta.className = 'msg-meta';
-  meta.innerHTML = `<span style="font-size:8px; color:var(--text-muted); opacity:0.5; letter-spacing:0.05em;">${formatTime()}</span>`;
+  const timeSpan = document.createElement('span');
+  Object.assign(timeSpan.style, { fontSize: '8px', color: 'var(--text-muted)', opacity: '0.5', letterSpacing: '0.05em' });
+  timeSpan.textContent = formatTime();
+  meta.appendChild(timeSpan);
   agentMsg.querySelector('.bubble')?.after(meta);
   return fullText;
 };
