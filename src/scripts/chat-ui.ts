@@ -444,4 +444,3 @@ if ('serviceWorker' in navigator) {
   });
 }
 flushQueue();
-
