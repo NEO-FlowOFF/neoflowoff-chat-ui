@@ -127,12 +127,15 @@ Todos os headers são aplicados em `src/middleware.ts`:
 
 O CSP usa `'unsafe-inline'` em `script-src` e `style-src` porque o Astro injeta scripts inline (View Transitions, tema, SW). Migração para nonces depende de suporte nativo do Astro — manter no backlog.
 
+**Analytics no CSP:** o CSP libera `https://www.googletagmanager.com` (script + img) e `https://*.google-analytics.com` / `https://*.analytics.google.com` (connect + img) para o GA4 (`gtag.js`). Ao adicionar qualquer analytics/pixel novo, atualizar `CSP_DIRECTIVES` no `middleware.ts` ou o recurso é bloqueado.
+
 ## SEO
 
 - Canonical: `https://chat.neoflowoff.agency/chat`
-- Sitemap: `https://chat.neoflowoff.agency/sitemap.xml` (gerado pelo `@astrojs/sitemap`)
+- Sitemap: `https://chat.neoflowoff.agency/sitemap-index.xml` (gerado pelo `@astrojs/sitemap`; `robots.txt` aponta para ele). `/sitemap.xml` NÃO existe — não referenciar.
 - JSON-LD: `WebApplication` + `Organization` em `src/layouts/Base.astro`
 - Conteúdo estático indexável em `EmptyState.astro` (visually hidden via CSS clip, legível por crawlers)
+- GA4 (`gtag.js`, ID `G-5VD6EVN3C4`) no `<head>` do `Base.astro` via `is:inline`, ao lado do Cloudflare Web Analytics.
 
 ## Known issues
 

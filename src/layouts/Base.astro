@@ -317,6 +317,14 @@ import { ClientRouter } from "astro:transitions";
   </svg>
   <!-- Cloudflare Web Analytics -->
   <script is:inline defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "abc85a5fe49144d391a3c0e6bc7608d7"}'></script>
+  <!-- Google tag (gtag.js) -->
+  <script async is:inline src="https://www.googletagmanager.com/gtag/js?id=G-5VD6EVN3C4"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-5VD6EVN3C4');
+  </script>
 </head>
 <body>
     <ClientRouter />

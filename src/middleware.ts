@@ -2,12 +2,12 @@ import { defineMiddleware } from "astro:middleware";
 
 const CSP_DIRECTIVES = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
+  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://res.cloudinary.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://www.googletagmanager.com https://*.google-analytics.com",
   "media-src 'self' https://res.cloudinary.com",
-  "connect-src 'self' wss: https://cloudflareinsights.com",
+  "connect-src 'self' wss: https://cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
   "worker-src 'self'",
   "frame-ancestors 'self'",
   "base-uri 'self'",
