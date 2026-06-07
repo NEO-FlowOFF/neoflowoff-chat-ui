@@ -90,11 +90,16 @@ After **10 messages** in a session (`MAX_SESSION_MESSAGES`), `chat-ui.ts` dynami
 |---              |---        |---                                                  |
 | `ASI1_API_KEY`  | Yes       | LLM API key for asi1.ai                             |
 | `ASI1_MODEL`    | No        | Model name (default: `"asi1"`)                      |
-| `REDIS_URL`     | No        | Redis Cloud connection; session memory disabled if absent |
+| `REDIS_URL`     | No        | Redis Cloud connection; session memory disabled if absent. Password is embedded in the URL (`redis://default:<pwd>@host:port`) — there is NO separate `REDIS_PASSWORD` var. Use `rediss://` if the provider requires TLS. |
 | `DATABASE_URL`  | No        | PostgreSQL; Regis lead capture disabled if absent   |
+| `RESEND_API_KEY`| No        | Resend API key; email handoff/summary disabled if absent |
+| `RESEND_FROM`   | No        | Sender (default `neo@neoflowoff.agency`); domain must be verified in Resend |
+| `RESEND_TO`     | No        | Handoff/summary recipient + `reply_to` to lead (default `neo@neoflowoff.agency`) |
 ```
 
-See `.env.example` for format. Both Redis and PostgreSQL are optional for local development — the app degrades gracefully when they are absent.
+See `.env.example` for format. Redis, PostgreSQL and Resend are all optional for local development — the app degrades gracefully when they are absent.
+
+**Resend is called directly** over HTTPS (`https://api.resend.com/emails`, see `src/lib/emails.ts`) using only `RESEND_API_KEY`. It does NOT require a separate Railway service — a standalone "Resend Starter" service is redundant and was removed (2026-06-07).
 
 ## Key files
 
@@ -136,3 +141,5 @@ O CSP usa `'unsafe-inline'` em `script-src` e `style-src` porque o Astro injeta 
 ## Security — resolved
 
 `formatMarkdown` em `chat-ui.ts:45` valida scheme do href com `/^https?:\/\//i` antes de injetar via `innerHTML`. URIs `javascript:` são substituídas por `#`. **Vulnerabilidade resolvida.**
+
+**Validação de Origin no `POST /api/chat` (2026-06-07):** a checagem antiga usava `origin.includes(host)` + `origin.includes("neoflowoff.agency")` e permitia requests **sem** Origin — três bypasses (no-Origin via curl/bots consumindo o ASI1 pago; sufixo forjado `...agency.evil.com`; substring `neoflowoff.agency.attacker.com`). Substituída por `isAllowedOrigin()` em `src/pages/api/chat.ts`: parse via `URL`, match **exato** de hostname contra `ALLOWED_HOSTS`, sufixo real `.neoflowoff.agency`, e bloqueio de no-Origin. **Resolvida.** Nota: `GET /api/history` não tem Origin-gate (navegador não envia Origin confiável em GET); o `sessionId` UUID é o guard.

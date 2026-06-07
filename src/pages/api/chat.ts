@@ -8,19 +8,42 @@ import { type Message } from "../../types/chat";
 // Garante o schema no primeiro request (idempotente)
 ensureLeadsTable().catch((e) => console.error("[DB INIT]", e));
 
+// Hostnames autorizados a chamar a API (match EXATO de hostname, não substring).
+const ALLOWED_HOSTS = new Set([
+  "chat.neoflowoff.agency",
+  "neoflowoff.agency",
+  "www.neoflowoff.agency",
+  "localhost",
+  "127.0.0.1",
+]);
+
+// Valida o header Origin de forma estrita:
+// - rejeita requisições sem Origin (curl/bots/server-to-server)
+// - faz parse via URL e compara o hostname exato (evita bypass por substring,
+//   ex.: "neoflowoff.agency.attacker.com" ou "...agency.evil.com")
+// - permite subdomínios reais de neoflowoff.agency e o próprio host do request
+function isAllowedOrigin(origin: string | null, host: string | null): boolean {
+  if (!origin) return false;
+  let hostname: string;
+  try {
+    hostname = new URL(origin).hostname;
+  } catch {
+    return false;
+  }
+  if (ALLOWED_HOSTS.has(hostname)) return true;
+  if (hostname === "neoflowoff.agency" || hostname.endsWith(".neoflowoff.agency"))
+    return true;
+  if (host && hostname === host.split(":")[0]) return true;
+  return false;
+}
+
 export const POST: APIRoute = async ({ request }: APIContext) => {
   try {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
 
-    // Proteção de Origin (Permite localhost e o próprio host oficial)
-    const isAllowedOrigin =
-      !origin ||
-      origin.includes(host || "") ||
-      origin.includes("neoflowoff.agency");
-
-    if (!isAllowedOrigin) {
-      console.warn(`[SECURITY] Acesso bloqueado: ${origin}`);
+    if (!isAllowedOrigin(origin, host)) {
+      console.warn(`[SECURITY] Acesso bloqueado — origin: ${origin ?? "(ausente)"}`);
       return new Response(JSON.stringify({ error: "Unauthorized Origin" }), {
         status: 403,
       });

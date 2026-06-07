@@ -27,4 +27,4 @@ Disallow: /
 User-agent: meta-externalagent
 Disallow: /
 
-Sitemap: https://chat.neoflowoff.agency/sitemap.xml
+Sitemap: https://chat.neoflowoff.agency/sitemap-index.xml
