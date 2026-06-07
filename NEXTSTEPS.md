@@ -46,6 +46,7 @@ da interface soberana NEØ:One.
 
 ▓▓▓ BACKLOG FUTURO
 ────────────────────────────────────────
+- [ ] **Plano-mestre de medição em [`TRACKING_PLAN.md`](./TRACKING_PLAN.md)** — GA4 (feito), Meta Pixel + Conversions API, app/PWA, atribuição UTM→CRM, dedup por `event_id`, privacidade/LGPD e faseamento. Os itens abaixo são consolidados lá.
 - [x] Baseline sanitizado da tabela `leads` registrado em `LEADS_TABLE_REGISTROS.md` com snapshot de 2026-05-27.
 - [x] Campos base de follow-up adicionados em `leads` para não perder oportunidade antes da automação.
 - [ ] OpenAI Ads Measurement Pixel: instalar no `Base.astro` somente com `PUBLIC_OPENAI_ADS_PIXEL_ID` configurado e sem expor dados pessoais.
