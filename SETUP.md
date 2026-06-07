@@ -60,6 +60,52 @@ Environment: Node.js >=22.12.0
 
 ────────────────────────────────────────
 
+```
+graph TD
+    subgraph Frontend
+        U[Visitor]
+        ChatUI[Chat UI]
+    end
+
+    subgraph Backend
+        Agent[NΞØ:One Agent Service]
+        Router[Conversation Router]
+        Summary[Summary Generator]
+        Handoff[Handoff Builder]
+    end
+
+    subgraph DataStores
+        R[(Redis - Conversation State)]
+        P[(PostgreSQL - Conversations & Metadata)]
+    end
+
+    subgraph Email
+        Resend[Resend Email Service]
+    end
+
+    U -->|Chat messages| ChatUI
+    ChatUI -->|Send/receive messages| Agent
+
+    Agent -->|Load/update session, context| R
+    Agent -->|Persist conversation, routing, metadata| P
+
+    Agent --> Router
+    Router -->|Classification & routing results| Agent
+
+    Agent --> Summary
+    Summary -->|Conversation summary| Agent
+
+    Agent -->|Trigger human handoff| Handoff
+    Handoff -->|Build WhatsApp URL & context| Agent
+
+    Agent -->|Send contact / notification emails| Resend
+
+    R -.->|Cache support for routing & summaries| Router
+    P -.->|Historical data for routing & reporting| Router
+    P -.->|Historical data for summaries & context| Summary
+
+```
+
 ## ◬ Operação
 
 ▓▓▓ COMANDOS (pnpm)
