@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⛔ REGRA CRÍTICA — Corepack / pnpm no build (Railway) — INTOCÁVEL sem autorização
+
+**NUNCA usar `corepack@latest` com `corepack prepare --activate` (sem versão pinada) no build/deploy.**
+
+`corepack prepare --activate` sem versão explícita resolve o pnpm para uma versão que **não existe no
+registry** (ex.: `pnpm@13.0.0` → HTTP 404 em `registry.npmjs.org/pnpm/-/pnpm-13.0.0.tgz`), e o build do
+Railway falha com:
+
+```text
+Internal Error: Server answered with HTTP 404 ... pnpm-13.0.0.tgz
+Build Failed: ... "npm i -g corepack@latest && corepack enable && corepack prepare --activate" did not complete successfully: exit code: 1
+```
+
+Causa: `corepack@latest` traz um default de pnpm hardcoded mais novo que o publicado; `--activate` sem
+versão usa esse default em vez do campo `packageManager`.
+
+**Sempre pinar a versão exata do pnpm** que bate com `packageManager` da raiz do monorepo
+(`/Users/nettomello/neomello/NEO-FlowOFF/package.json` → `pnpm@10.33.0`). Não confiar em resolução
+automática de "latest". Este projeto é um package do monorepo `NEO-FlowOFF`; `install`/overrides são na raiz.
+
 ## Commands
 
 ```bash
