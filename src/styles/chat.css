@@ -108,7 +108,6 @@ button:active,
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
   padding: 14px 16px 10px;
   display: flex;
   flex-direction: column;
