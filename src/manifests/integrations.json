@@ -1,0 +1,486 @@
+{
+  "schemaVersion": "2026-03-22",
+  "organization": "NEO-FlowOFF",
+  "workspaceRoot": "/Users/nettomello/neomello/NEO-FlowOFF",
+  "integrations": [
+    {
+      "id": "token-base-canonical-to-miniapp",
+      "type": "onchain-contract-reference",
+      "status": "observed",
+      "producer": {
+        "repo": "workspace-root",
+        "surface": "manifests/tokens/base-neoflow.json"
+      },
+      "consumer": {
+        "repo": "ceo-escalavel-miniapp",
+        "surface": "wallet connect, mint context e scan link"
+      },
+      "contract": {
+        "summary": "Miniapp aponta para o token canonico em Base Mainnet publicado no workspace root.",
+        "network": "Base Mainnet",
+        "chainId": 8453,
+        "tokenContract": "0x41F4ff3d45DED9C1332e4908F637B75fe83F5d6B"
+      },
+      "dependencies": {
+        "internal": [
+          "neoflw-token-page"
+        ],
+        "external": [
+          "BaseScan",
+          "Reown AppKit"
+        ]
+      },
+      "evidence": [
+        "./ceo-escalavel-miniapp/README.md",
+        "./ceo-escalavel-miniapp/constants.ts",
+        "./manifests/tokens/base-neoflow.json",
+        "/Users/nettomello/neomello/neo-smart-factory/smart-core/deployments/NEOFLW_BASE_MAINNET.md"
+      ]
+    },
+    {
+      "id": "token-canonical-path-to-pwa",
+      "type": "onchain-contract-reference",
+      "status": "partially-aligned",
+      "producer": {
+        "repo": "workspace-root",
+        "surface": "manifests/tokens/base-neoflow.json"
+      },
+      "consumer": {
+        "repo": "neo-flowoff-pwa",
+        "surface": "frontend publico, global config e token client"
+      },
+      "contract": {
+        "summary": "A superficie publica da PWA e o token client ja convergem para o token canonico em Base, mas ainda existem configuracoes e documentacao legadas com Polygon no repo.",
+        "producerCanonical": {
+          "network": "Base Mainnet",
+          "chainId": 8453,
+          "tokenContract": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b"
+        },
+        "consumerObserved": {
+          "publicFrontendBase": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b",
+          "globalConfigBase": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b",
+          "tokenClientBase": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b",
+          "legacyPolygonConfig": "0x59aa4EaE743d608FBDd4205ebA59b38DCA755Dd2"
+        }
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "Base RPC",
+          "Polygon RPC"
+        ]
+      },
+      "evidence": [
+        "./neo-flowoff-pwa/config/neo-protocol.config.js",
+        "./neo-flowoff-pwa/src/modules/neoflw-token/src/token-client.js",
+        "./manifests/tokens/base-neoflow.json"
+      ]
+    },
+    {
+      "id": "flow-links-routing-to-owned-surfaces",
+      "type": "cross-property-routing",
+      "status": "observed",
+      "producer": {
+        "repo": "flow-links-bio",
+        "surface": "public link hub"
+      },
+      "consumer": {
+        "repos": [
+          "neo-flw-landing",
+          "neoflw-token-page"
+        ],
+        "surface": "landing principal e token microsite"
+      },
+      "contract": {
+        "summary": "Hub distribui trafego para ativos estrategicos do ecossistema.",
+        "outboundLinks": [
+          "https://lp.neoflowoff.agency/",
+          "https://neoflw.xyz/",
+          "https://flowpay.cash/"
+        ]
+      },
+      "dependencies": {
+        "internal": [
+          "neo-flw-landing",
+          "neoflw-token-page"
+        ],
+        "external": [
+          "Cloudflare Pages"
+        ]
+      },
+      "evidence": [
+        "./flow-links-bio/src/data/links.ts",
+        "./flow-links-bio/src/pages/index.astro",
+        "./flow-links-bio/src/pages/hub.astro"
+      ]
+    },
+    {
+      "id": "landing-flowpay-charge-proxy",
+      "type": "server-to-server-http",
+      "status": "observed",
+      "producer": {
+        "repo": "neo-flw-landing",
+        "surface": "/api/charge/:chargeId and /api/create-charge-landing"
+      },
+      "consumer": {
+        "system": "FlowPay",
+        "surface": "/api/charge/:id and /api/create-charge"
+      },
+      "contract": {
+        "summary": "Landing cria e consulta cobrancas PIX via FlowPay, com fallback de chaves internas e legadas.",
+        "transport": "HTTPS + x-api-key",
+        "env": [
+          "FLOWPAY_API_URL",
+          "FLOWPAY_INTERNAL_API_KEY",
+          "FLOWPAY_API_KEY"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "FlowPay"
+        ]
+      },
+      "evidence": [
+        "./neo-flw-landing/.env.example",
+        "./neo-flw-landing/api/charge.js",
+        "./neo-flw-landing/api/create-charge-landing.js"
+      ]
+    },
+    {
+      "id": "landing-payment-webhook-confirmation",
+      "type": "webhook",
+      "status": "observed",
+      "producer": {
+        "system": "FlowPay or Woovi",
+        "surface": "payment status notification"
+      },
+      "consumer": {
+        "repo": "neo-flw-landing",
+        "surface": "/api/payment-webhook and /api/webhook"
+      },
+      "contract": {
+        "summary": "Landing valida assinatura do webhook, resolve dados da ordem e dispara confirmacao por email.",
+        "headers": [
+          "x-webhook-secret",
+          "x-flowpay-signature",
+          "x-woovi-signature"
+        ],
+        "env": [
+          "FLOWPAY_SIGNATURE_SECRET",
+          "WOOVI_WEBHOOK_SECRET",
+          "RESEND_API_KEY",
+          "RESEND_FROM_EMAIL",
+          "RESEND_TEMPLATE_ID"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "FlowPay",
+          "Woovi",
+          "Resend"
+        ]
+      },
+      "evidence": [
+        "./neo-flw-landing/api/payment-webhook.js",
+        "./neo-flw-landing/api/_lib/payment-confirmation.js",
+        "./neo-flw-landing/.env.example"
+      ]
+    },
+    {
+      "id": "landing-meta-tracking-stack",
+      "type": "analytics",
+      "status": "observed",
+      "producer": {
+        "repo": "neo-flw-landing",
+        "surface": "public pages and /api/capi"
+      },
+      "consumer": {
+        "system": "Meta Ads stack",
+        "surface": "Pixel and Conversions API"
+      },
+      "contract": {
+        "summary": "Landing opera tracking client-side e server-side para conversao.",
+        "surfaces": [
+          "Meta Pixel",
+          "/api/capi",
+          "/api/pixel-config"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "Meta Pixel",
+          "Meta CAPI",
+          "GA4"
+        ]
+      },
+      "evidence": [
+        "./neo-flw-landing/legal/index.html",
+        "./neo-flw-landing/excluir-dados/index.html",
+        "./neo-flw-landing/api/capi.js",
+        "./neo-flw-landing/api/pixel-config.js",
+        "./neo-flw-landing/target_integration.md"
+      ]
+    },
+    {
+      "id": "proia-payment-webhook-and-lead-upsert",
+      "type": "webhook",
+      "status": "observed",
+      "producer": {
+        "system": "FlowPay or Woovi",
+        "surface": "payment webhook payload"
+      },
+      "consumer": {
+        "repo": "pro-ia",
+        "surface": "/api/webhook"
+      },
+      "contract": {
+        "summary": "PRO.IA valida HMAC, normaliza status e atualiza pagamento e lead no banco.",
+        "headers": [
+          "x-flowpay-signature",
+          "x-woovi-signature"
+        ],
+        "env": [
+          "FLOWPAY_SIGNATURE_SECRET",
+          "WOOVI_WEBHOOK_SECRET",
+          "FLOWPAY_API_URL",
+          "POSTGRES_URL"
+        ],
+        "sideEffects": [
+          "updatePaymentStatus",
+          "upsertLead"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "FlowPay",
+          "Woovi",
+          "Vercel Postgres"
+        ]
+      },
+      "evidence": [
+        "./pro-ia/app/api/webhook/route.ts",
+        "./pro-ia/.env.example",
+        "./pro-ia/lib/db.ts"
+      ]
+    },
+    {
+      "id": "miniapp-telegram-bot-and-stars",
+      "type": "bot-webhook-and-checkout",
+      "status": "observed",
+      "producer": {
+        "repo": "ceo-escalavel-miniapp",
+        "surface": "/api/webhook and /api/create-invoice"
+      },
+      "consumer": {
+        "system": "Telegram Bot API",
+        "surface": "bot webhook, createInvoiceLink and pre-checkout"
+      },
+      "contract": {
+        "summary": "Miniapp recebe comandos e pagamentos Telegram, responde ao bot e gera invoice link em Stars.",
+        "headers": [
+          "x-telegram-bot-api-secret-token",
+          "x-telegram-init-data"
+        ],
+        "env": [
+          "TELEGRAM_BOT_TOKEN",
+          "TELEGRAM_WEBHOOK_SECRET",
+          "TELEGRAM_INITDATA_ENFORCE",
+          "WEB_APP_URL",
+          "APP_ORIGIN_ALLOWLIST"
+        ]
+      },
+      "dependencies": {
+        "internal": [
+          "neoflw-token-page"
+        ],
+        "external": [
+          "Telegram Bot API"
+        ]
+      },
+      "evidence": [
+        "./ceo-escalavel-miniapp/api/webhook.js",
+        "./ceo-escalavel-miniapp/api/create-invoice.js",
+        "./ceo-escalavel-miniapp/README.md"
+      ]
+    },
+    {
+      "id": "pwa-whatsapp-bot-webhook",
+      "type": "webhook",
+      "status": "observed",
+      "producer": {
+        "system": "Meta WhatsApp Cloud API",
+        "surface": "GET and POST /webhook"
+      },
+      "consumer": {
+        "repo": "neo-flowoff-pwa",
+        "surface": "FlowCloser WhatsApp standalone server"
+      },
+      "contract": {
+        "summary": "Bot standalone valida webhook da Meta e encaminha contexto para o stack FlowCloser/IQAI.",
+        "transport": "Express webhook on port 3000 by default",
+        "env": [
+          "WHATSAPP_ACCESS_TOKEN",
+          "WHATSAPP_PHONE_NUMBER_ID",
+          "WHATSAPP_BUSINESS_ACCOUNT_ID",
+          "WEBHOOK_VERIFY_TOKEN",
+          "IQAI_API_KEY",
+          "IQAI_API_URL"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "Meta WhatsApp API",
+          "IQAI"
+        ]
+      },
+      "evidence": [
+        "./neo-flowoff-pwa/src/modules/flowcloser/whatsapp/server.js",
+        "./neo-flowoff-pwa/src/modules/flowcloser/whatsapp/whatsapp-bot.js",
+        "./neo-flowoff-pwa/src/modules/flowcloser/whatsapp/README.md"
+      ]
+    },
+    {
+      "id": "pwa-flowpay-client",
+      "type": "client-api",
+      "status": "observed-mock",
+      "producer": {
+        "repo": "neo-flowoff-pwa",
+        "surface": "FlowPay client module"
+      },
+      "consumer": {
+        "system": "FlowPay",
+        "surface": "checkout and payment status APIs"
+      },
+      "contract": {
+        "summary": "Cliente aponta para FlowPay, mas fluxo de checkout e status ainda esta simulado no codigo.",
+        "env": [
+          "FLOWPAY_API_URL"
+        ],
+        "defaultApi": "https://flowpaycash.netlify.app/api"
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "FlowPay"
+        ]
+      },
+      "evidence": [
+        "./neo-flowoff-pwa/src/modules/flowpay/flowpay-client.js",
+        "./neo-flowoff-pwa/config/neo-protocol.config.js",
+        "./roadmaps/neo-flowoff-unified-roadmap-2026.md"
+      ]
+    },
+    {
+      "id": "content-machine-distribution-channels",
+      "type": "content-distribution",
+      "status": "observed",
+      "producer": {
+        "repo": "neoflow-content-machine",
+        "surface": "distribution router and upload adapters"
+      },
+      "consumer": {
+        "systems": [
+          "Instagram",
+          "LinkedIn",
+          "Farcaster",
+          "IPFS"
+        ],
+        "surface": "channel APIs and gateways"
+      },
+      "contract": {
+        "summary": "Engine gera, aprova e distribui conteudo para canais sociais e gateways descentralizados.",
+        "env": [
+          "META_ACCESS_TOKEN",
+          "LINKEDIN_ACCESS_TOKEN",
+          "FARCASTER_FID",
+          "FARCASTER_MNEMONIC",
+          "IPFS_PROVIDER",
+          "PORT"
+        ],
+        "localPort": 3001
+      },
+      "dependencies": {
+        "internal": [
+          "neo-flw-landing"
+        ],
+        "external": [
+          "Meta Graph",
+          "LinkedIn API",
+          "Farcaster Hub",
+          "Pinata",
+          "Web3.Storage",
+          "Lighthouse"
+        ]
+      },
+      "evidence": [
+        "./neoflow-content-machine/.env.example",
+        "./neoflow-content-machine/src/distributor/router.js",
+        "./neoflow-content-machine/src/distributor/instagram.js",
+        "./neoflow-content-machine/src/distributor/linkedin.js",
+        "./neoflow-content-machine/src/distributor/farcaster.js",
+        "./neoflow-content-machine/src/server.js"
+      ]
+    },
+    {
+      "id": "content-launch-assets-to-landing",
+      "type": "cross-repo-content-handoff",
+      "status": "roadmap-mapped",
+      "producer": {
+        "repo": "neoflow-content-machine",
+        "surface": "launch assets and content pipeline"
+      },
+      "consumer": {
+        "repo": "neo-flw-landing",
+        "surface": "pages and campaign surfaces"
+      },
+      "contract": {
+        "summary": "Roadmap define transferencia de ativos aprovados de lancamento para a landing principal."
+      },
+      "dependencies": {
+        "internal": [
+          "neoflow-content-machine",
+          "neo-flw-landing"
+        ],
+        "external": []
+      },
+      "evidence": [
+        "./roadmaps/neo-flowoff-unified-roadmap-2026.md"
+      ]
+    },
+    {
+      "id": "landing-open-lead-capture",
+      "type": "form-backend",
+      "status": "observed",
+      "producer": {
+        "repo": "neo-landing-open",
+        "surface": "lead capture forms"
+      },
+      "consumer": {
+        "system": "Web3Forms",
+        "surface": "hosted form processing"
+      },
+      "contract": {
+        "summary": "Landing aberta terceiriza processamento de formularios para Web3Forms.",
+        "env": [
+          "WEB3FORMS_ACCESS_KEY"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "Web3Forms"
+        ]
+      },
+      "evidence": [
+        "./neo-landing-open/.env.example",
+        "./neo-landing-open/src/components/CTA.astro",
+        "./neo-landing-open/src/components/AnalysisForm.astro"
+      ]
+    }
+  ]
+}

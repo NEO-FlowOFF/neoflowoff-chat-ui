@@ -1,6 +1,6 @@
-import workspace from "../../../manifests/workspace.json";
-import repos from "../../../manifests/repos.json";
-import integrations from "../../../manifests/integrations.json";
+import workspace from "../manifests/workspace.json";
+import repos from "../manifests/repos.json";
+import integrations from "../manifests/integrations.json";
 
 /**
  * Utilitário para carregar o contexto do ecossistema (RAG Lite)

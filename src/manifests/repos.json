@@ -1,0 +1,530 @@
+{
+  "schemaVersion": "2026-03-22",
+  "organization": "NEO-FlowOFF",
+  "workspaceRoot": "/Users/nettomello/neomello/NEO-FlowOFF",
+  "repositories": [
+    {
+      "name": "ceo-escalavel-miniapp",
+      "localPath": "./ceo-escalavel-miniapp",
+      "remote": "https://github.com/NEO-FlowOFF/ceo-escalavel-miniapp.git",
+      "role": "miniapp de aquisicao, referral, wallet utility e monetizacao Telegram",
+      "runtime": {
+        "category": "miniapp-web",
+        "framework": "React 19 + Vite",
+        "node": "18+"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [
+          {
+            "purpose": "playwright-preview",
+            "value": 4173,
+            "source": "playwright.config.ts"
+          }
+        ],
+        "notes": [
+          "Vite dev port nao esta fixado em vite.config.ts.",
+          "Playwright sobe preview em 127.0.0.1:4173."
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "vercel",
+        "configFiles": [
+          "./ceo-escalavel-miniapp/vercel.json"
+        ]
+      },
+      "publicSurface": {
+        "domains": [
+          "https://agente.neoflowoff.agency/"
+        ],
+        "apiEndpoints": [
+          "/api/create-invoice"
+        ],
+        "webhookEndpoints": [
+          "/api/webhook"
+        ],
+        "blockchain": {
+          "network": "Base Mainnet",
+          "chainId": 8453,
+          "tokenContract": "0x41F4ff3d45DED9C1332e4908F637B75fe83F5d6B"
+        }
+      },
+      "dependencies": {
+        "internal": [
+          "neoflw-token-page"
+        ],
+        "external": [
+          "Telegram Bot API",
+          "Reown AppKit",
+          "BaseScan",
+          "Vercel KV"
+        ]
+      },
+      "evidence": [
+        "./ceo-escalavel-miniapp/README.md",
+        "./ceo-escalavel-miniapp/vite.config.ts",
+        "./ceo-escalavel-miniapp/api/webhook.js",
+        "./ceo-escalavel-miniapp/api/create-invoice.js",
+        "./ceo-escalavel-miniapp/vercel.json",
+        "./manifests/tokens/base-neoflow.json"
+      ]
+    },
+    {
+      "name": "flow-links-bio",
+      "localPath": "./flow-links-bio",
+      "remote": "https://github.com/NEO-FlowOFF/flow-links-bio.git",
+      "role": "hub publico de distribuicao e roteamento para propriedades do ecossistema",
+      "runtime": {
+        "category": "static-site",
+        "framework": "Astro",
+        "node": "workspace-managed"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [],
+        "notes": [
+          "Porta local segue o padrao default do Astro."
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "cloudflare-pages-inferred",
+        "configFiles": []
+      },
+      "publicSurface": {
+        "domains": [
+          "https://flow-links-bio.pages.dev",
+          "https://flow-links-bio.pages.dev/hub"
+        ],
+        "outboundLinks": [
+          "https://neoflw.xyz/",
+          "https://lp.neoflowoff.agency/",
+          "https://flowpay.cash/",
+          "https://neomello.eth.limo/",
+          "https://tiktokshop.up.railway.app/",
+          "https://neo-convert.site/",
+          "https://neoprotocol.space/"
+        ]
+      },
+      "dependencies": {
+        "internal": [
+          "neo-flw-landing",
+          "neoflw-token-page"
+        ],
+        "external": [
+          "Cloudflare Pages"
+        ]
+      },
+      "evidence": [
+        "./flow-links-bio/package.json",
+        "./flow-links-bio/src/layouts/Base.astro",
+        "./flow-links-bio/src/pages/hub.astro",
+        "./flow-links-bio/src/data/links.ts"
+      ]
+    },
+    {
+      "name": "neo-flowoff-pwa",
+      "localPath": "./neo-flowoff-pwa",
+      "remote": "https://github.com/NEO-FlowOFF/neo-flowoff-pwa.git",
+      "role": "pwa principal com wallet, mcp-router, identidade e modulos de operacao",
+      "runtime": {
+        "category": "hybrid-app",
+        "framework": "Node + Vite PWA + modulos Express standalone",
+        "node": ">=18.0.0"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [
+          {
+            "purpose": "frontend-vite",
+            "value": 3000,
+            "source": "frontend/vite.config.js"
+          },
+          {
+            "purpose": "whatsapp-standalone",
+            "value": 3000,
+            "source": "src/modules/flowcloser/whatsapp/server.js"
+          }
+        ],
+        "notes": [
+          "Frontend Vite e bot WhatsApp usam a mesma porta 3000 por padrao.",
+          "A superficie publica do frontend foi canonicalizada para Base Mainnet.",
+          "Ainda existem docs e configs legadas com referencias a Polygon no repo."
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "unpublished-static-pwa",
+        "secondaryPlatforms": [
+          "netlify-config-present",
+          "vercel-reference-in-sitemap"
+        ],
+        "configFiles": [
+          "./neo-flowoff-pwa/frontend/vite.config.js",
+          "./neo-flowoff-pwa/netlify.toml"
+        ]
+      },
+      "publicSurface": {
+        "domains": [],
+        "notes": [
+          "Nenhum hosting ou dominio canonico foi aprovado para a PWA ate 2026-06-01."
+        ],
+        "webhookEndpoints": [
+          "/webhook",
+          "/api/webhook/instagram"
+        ],
+        "serviceApis": [
+          "FLOWPAY_API_URL",
+          "IQAI_API_URL"
+        ],
+        "blockchain": {
+          "observedNetworks": [
+            {
+              "name": "Base Mainnet",
+              "chainId": 8453,
+              "contractAddress": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b",
+              "status": "canonical-in-public-frontend-and-token-client"
+            },
+            {
+              "name": "Polygon Mainnet",
+              "chainId": 137,
+              "contractAddress": "0x59aa4EaE743d608FBDd4205ebA59b38DCA755Dd2",
+              "status": "legacy-config-and-docs-still-present"
+            }
+          ]
+        }
+      },
+      "dependencies": {
+        "internal": [
+          "neoflw-token-page"
+        ],
+        "external": [
+          "FlowPay",
+          "Meta WhatsApp API",
+          "IQAI",
+          "Pinata",
+          "Ceramic",
+          "Kwil",
+          "GUN"
+        ]
+      },
+      "evidence": [
+        "./neo-flowoff-pwa/package.json",
+        "./neo-flowoff-pwa/frontend/vite.config.js",
+        "./neo-flowoff-pwa/config/neo-protocol.config.js",
+        "./neo-flowoff-pwa/src/modules/flowpay/flowpay-client.js",
+        "./neo-flowoff-pwa/src/modules/flowcloser/whatsapp/server.js",
+        "./neo-flowoff-pwa/src/modules/neoflw-token/src/token-client.js",
+        "./manifests/tokens/base-neoflow.json"
+      ]
+    },
+    {
+      "name": "neo-flw-landing",
+      "localPath": "./neo-flw-landing",
+      "remote": "https://github.com/NEO-FlowOFF/neo-flw-landing.git",
+      "role": "landing principal com proxy de pagamento, webhooks e tracking server-side",
+      "runtime": {
+        "category": "static-site-plus-serverless",
+        "framework": "Static HTML/CSS + Vercel Functions",
+        "node": "vercel-managed"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [],
+        "notes": [
+          "browser-sync sobe em porta default do framework local.",
+          "APIs executam como Vercel Functions."
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "vercel",
+        "configFiles": [
+          "./neo-flw-landing/vercel.json"
+        ],
+        "regions": [
+          "vercel-default"
+        ]
+      },
+      "publicSurface": {
+        "domains": [
+          "https://neoflowoff.agency",
+          "https://www.neoflowoff.agency",
+          "https://lp.neoflowoff.agency"
+        ],
+        "apiEndpoints": [
+          "/api/charge/:chargeId",
+          "/api/create-charge-landing",
+          "/api/health",
+          "/api/payment-confirmation",
+          "/api/payment-webhook",
+          "/api/pixel-config",
+          "/api/capi",
+          "/api/webhook"
+        ],
+        "webhookEndpoints": [
+          "/api/payment-webhook",
+          "/api/webhook"
+        ],
+        "healthcheckEndpoints": [
+          "/api/health"
+        ]
+      },
+      "dependencies": {
+        "internal": [
+          "neoflow-content-machine"
+        ],
+        "external": [
+          "FlowPay",
+          "Woovi",
+          "Telegram",
+          "Resend",
+          "Meta Pixel",
+          "Meta CAPI",
+          "GA4",
+          "Pinata",
+          "Anthropic",
+          "ASI1AI"
+        ]
+      },
+      "evidence": [
+        "./neo-flw-landing/vercel.json",
+        "./neo-flw-landing/.env.example",
+        "./neo-flw-landing/api/charge.js",
+        "./neo-flw-landing/api/payment-webhook.js",
+        "./neo-flw-landing/api/health.js",
+        "./neo-flw-landing/api/_lib/payment-confirmation.js",
+        "./neo-flw-landing/sitemap.xml"
+      ]
+    },
+    {
+      "name": "neo-landing-open",
+      "localPath": "./neo-landing-open",
+      "remote": "https://github.com/NEO-FlowOFF/neo-landing-open.git",
+      "role": "landing publica aberta com captura de leads e prova de stack",
+      "runtime": {
+        "category": "static-site",
+        "framework": "Astro",
+        "node": "workspace-managed"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [],
+        "notes": [
+          "Porta local segue o padrao default do Astro."
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "vercel-inferred",
+        "configFiles": []
+      },
+      "publicSurface": {
+        "domains": [
+          "https://neo-landing-open.vercel.app"
+        ],
+        "leadCapture": [
+          "WEB3FORMS_ACCESS_KEY"
+        ],
+        "tracking": [
+          "Meta Pixel"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "Web3Forms",
+          "Meta Pixel"
+        ]
+      },
+      "evidence": [
+        "./neo-landing-open/README.md",
+        "./neo-landing-open/.env.example",
+        "./neo-landing-open/src/pages/sitemap.xml.ts",
+        "./neo-landing-open/src/layouts/BaseLayout.astro"
+      ]
+    },
+    {
+      "name": "neoflow-content-machine",
+      "localPath": "./neoflow-content-machine",
+      "remote": "https://github.com/NEO-FlowOFF/neoflow-content-machine.git",
+      "role": "engine de criacao, aprovacao, assets e distribuicao multicanal",
+      "runtime": {
+        "category": "content-engine",
+        "framework": "Node + Express",
+        "node": "workspace-managed"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [
+          {
+            "purpose": "api-server",
+            "value": 3001,
+            "source": "src/server.js"
+          }
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "fly-io",
+        "configFiles": [
+          "./neoflow-content-machine/fly.toml"
+        ]
+      },
+      "publicSurface": {
+        "serviceApis": [
+          "PORT",
+          "BLOG_API_URL"
+        ],
+        "distributionChannels": [
+          "Instagram",
+          "LinkedIn",
+          "Farcaster",
+          "Blog"
+        ]
+      },
+      "dependencies": {
+        "internal": [
+          "neo-flw-landing"
+        ],
+        "external": [
+          "Meta Graph",
+          "LinkedIn API",
+          "Farcaster Hub",
+          "IPFS",
+          "OpenAI",
+          "Gemini",
+          "Anthropic",
+          "ASI1AI"
+        ]
+      },
+      "evidence": [
+        "./neoflow-content-machine/package.json",
+        "./neoflow-content-machine/.env.example",
+        "./neoflow-content-machine/src/server.js",
+        "./neoflow-content-machine/src/distributor/router.js",
+        "./neoflow-content-machine/fly.toml"
+      ]
+    },
+    {
+      "name": "neoflw-token-page",
+      "localPath": "./neoflw-token-page",
+      "remote": "https://github.com/NEO-FlowOFF/neoflw-token-page.git",
+      "role": "microsite soberano do token com presenca ENS e links on-chain",
+      "runtime": {
+        "category": "static-site",
+        "framework": "HTML/CSS/JS estatico",
+        "node": "optional"
+      },
+      "localDevelopment": {
+        "primaryCommand": "static-serve-manual",
+        "ports": [],
+        "notes": [
+          "Nao ha pipeline de build estruturado no package.json."
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "vercel",
+        "secondaryPlatforms": [
+          "ens-gateway"
+        ],
+        "configFiles": [
+          "./neoflw-token-page/vercel.json"
+        ]
+      },
+      "publicSurface": {
+        "domains": [
+          "https://neoflowoff.eth.limo",
+          "https://neoflowoff.vercel.app",
+          "https://token.flowoff.xyz"
+        ],
+        "blockchain": {
+          "network": "Base Mainnet",
+          "chainId": 8453,
+          "tokenContract": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b"
+        }
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "Vercel",
+          "ENS",
+          "Eth.limo",
+          "BaseScan",
+          "Uniswap",
+          "DexScreener"
+        ]
+      },
+      "evidence": [
+        "./neoflw-token-page/README.md",
+        "./neoflw-token-page/DEPLOYMENT.md",
+        "./neoflw-token-page/index.html",
+        "./manifests/tokens/base-neoflow.json"
+      ]
+    },
+    {
+      "name": "pro-ia",
+      "localPath": "./pro-ia",
+      "remote": "https://github.com/NEO-FlowOFF/pro-ia.git",
+      "role": "produto de monetizacao com checkout PIX, leads e area protegida",
+      "runtime": {
+        "category": "webapp-fullstack",
+        "framework": "Next.js App Router",
+        "node": "22.x"
+      },
+      "localDevelopment": {
+        "primaryCommand": "pnpm dev",
+        "ports": [
+          {
+            "purpose": "next-dev",
+            "value": 3001,
+            "source": "package.json"
+          },
+          {
+            "purpose": "playwright-base-url",
+            "value": 3001,
+            "source": "playwright.config.ts"
+          }
+        ]
+      },
+      "deployment": {
+        "primaryPlatform": "vercel",
+        "legacyPlatform": "netlify-docs-still-present",
+        "configFiles": [
+          "./pro-ia/vercel.json",
+          "./pro-ia/next.config.js"
+        ],
+        "regions": [
+          "gru1"
+        ]
+      },
+      "publicSurface": {
+        "domains": [
+          "https://pro.neoflowoff.agency",
+          "https://proia.netlify.app/",
+          "https://pro-ia.netlify.app/"
+        ],
+        "apiEndpoints": [
+          "/api/auth/login",
+          "/api/resources",
+          "/api/missions"
+        ],
+        "webhookEndpoints": [
+          "/api/webhook"
+        ]
+      },
+      "dependencies": {
+        "internal": [],
+        "external": [
+          "FlowPay",
+          "Woovi",
+          "Vercel Postgres",
+          "WhatsApp"
+        ]
+      },
+      "evidence": [
+        "./pro-ia/package.json",
+        "./pro-ia/vercel.json",
+        "./pro-ia/.env.example",
+        "./pro-ia/app/api/webhook/route.ts",
+        "./pro-ia/README.md",
+        "./pro-ia/docs/links-disponiveis.md"
+      ]
+    }
+  ]
+}

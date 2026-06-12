@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "2026-03-22",
+  "workspaceName": "neo-flowoff-workspace",
+  "organization": "NEO-FlowOFF",
+  "localRootPath": "/Users/nettomello/neomello/NEO-FlowOFF",
+  "operationalMode": "control-plane",
+  "localPackageManager": "pnpm",
+  "canonicalMarkdownGuide": "./MARKDOWN_STYLE_GUIDE.md",
+  "diagnosticScript": "./scripts/workspace-doctor",
+  "tracks": [
+    "manifests de repositorios soberanos",
+    "manifests de integracoes cross-repo",
+    "manifests de tokens canonicos",
+    "documentacao transversal",
+    "padroes operacionais",
+    "scripts de bootstrap e diagnostico",
+    "roadmaps e artefatos de coordenacao"
+  ],
+  "topologyMaps": [
+    "repositorios e remotos",
+    "superficies publicas e dominios",
+    "plataformas de deploy",
+    "tokens canonicos",
+    "portas locais de desenvolvimento",
+    "endpoints de healthcheck",
+    "webhooks",
+    "dependencias externas criticas",
+    "drifts arquiteturais detectados"
+  ],
+  "coordinationDirectories": [
+    "./docs",
+    "./manifests",
+    "./roadmaps",
+    "./scripts"
+  ],
+  "observedNonRepoDirectories": [
+    {
+      "path": "./neoflowoff",
+      "status": "untracked-local-scratch"
+    }
+  ],
+  "doesNotTrack": [
+    "source code dos repositorios filhos",
+    "runtime dos servicos filhos",
+    "dependencias de produto dos filhos",
+    "testes dos filhos",
+    "historico de entrega de produto"
+  ],
+  "operationalRules": [
+    "Mudancas de produto ocorrem no repositorio filho correto.",
+    "Mudancas de topologia, padrao e automacao cross-repo ocorrem no workspace root.",
+    "O root nao deve absorver codigo dos filhos.",
+    "Documentacao estrutural deve traduzir execucao real."
+  ],
+  "commandConvention": [
+    "Neste mac, invocar scripts locais do workspace root com python3.",
+    "Evitar npm em docs, handoffs e automacoes do workspace root."
+  ]
+}
