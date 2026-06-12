@@ -23,9 +23,9 @@ da interface soberana NEØ:One.
 ────────────────────────────────────────
 - [x] Limite de Sessão Beta (10 msgs).
 - [x] Background Sync (IndexedDB → retry offline).
-- [ ] Web Push Notifications (iOS 16.4+).
+<!-- - [ ] Web Push Notifications (iOS 16.4+) - Inútil para chat síncrono -->
 - [x] Custom Install Trigger (Banner manual para iOS).
-- [ ] Badging API para notificações pendentes.
+<!-- - [ ] Badging API para notificações pendentes - Inútil sem push -->
 
 ────────────────────────────────────────
 
@@ -36,9 +36,9 @@ da interface soberana NEØ:One.
 - [x] RAG Logic: Injeção de manifestos organizacionais.
 - [x] Regis Extraction: Estruturação de dados para CRM.
 - [x] Type Safety: Eliminação total de 'any' (Strategic Typing). ✓ zero `any` em produção.
-- [ ] Testing: Suíte robusta para rotas de API e Redis.
-- [ ] SDK para identificação do user (Wallet Abstraction, Redis e PostgreSQL).
-- [ ] Sentiment Analysis: Análise de tom emocional para mudanças dinâmicas na UI.
+- [x] Testing: Suíte robusta para rotas de API e Redis. (Vitest/Mocks)
+<!-- - [ ] SDK para identificação do user (Wallet/Redis/Postgres) -->
+- [x] Sentiment Analysis: Tom emocional com mudanças dinâmicas na UI.
 
 ────────────────────────────────────────
 
