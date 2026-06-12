@@ -4,6 +4,7 @@ import * as path from "node:path";
 import { saveChatHistory } from "../../lib/redis";
 import { ensureLeadsTable } from "../../lib/db";
 import { type Message } from "../../types/chat";
+import { getEcosystemContext } from "../../lib/rag";
 
 // Garante o schema no primeiro request (idempotente)
 ensureLeadsTable().catch((e) => console.error("[DB INIT]", e));
@@ -52,6 +53,17 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     const body = (await request.json()) as {
       messages: Message[];
       sessionId?: string;
+      attribution?: {
+        utm_source?: string | null;
+        utm_medium?: string | null;
+        utm_campaign?: string | null;
+        utm_term?: string | null;
+        utm_content?: string | null;
+        gclid?: string | null;
+        fbclid?: string | null;
+        landing_path?: string | null;
+        referrer?: string | null;
+      } | null;
     };
     const { messages, sessionId } = body;
 
@@ -64,7 +76,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       fs.readFile(contextPath, "utf-8"),
     ]);
 
-    const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---`;
+    const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---\n${getEcosystemContext()}`;
 
     // Constrói a lista final de mensagens com o prompt de sistema no topo
     const finalMessages = [
@@ -152,8 +164,21 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
           // Tenta extrair dados para o CRM (Regis)
           try {
             const { updateRegisLead } = await import("../../lib/regis");
-            // Passa o histórico completo — regis extrai nome/email/tel/empresa/obs
-            await updateRegisLead(sessionId, updatedHistory);
+            
+            const attribution = body.attribution ? {
+              utmSource: body.attribution.utm_source ?? null,
+              utmMedium: body.attribution.utm_medium ?? null,
+              utmCampaign: body.attribution.utm_campaign ?? null,
+              utmTerm: body.attribution.utm_term ?? null,
+              utmContent: body.attribution.utm_content ?? null,
+              gclid: body.attribution.gclid ?? null,
+              fbclid: body.attribution.fbclid ?? null,
+              landingPath: body.attribution.landing_path ?? null,
+              referrer: body.attribution.referrer ?? null,
+            } : null;
+
+            // Passa o histórico completo e a atribuição
+            await updateRegisLead(sessionId, updatedHistory, attribution);
           } catch (err) {
             console.error("[REGIS ERROR]", err);
           }

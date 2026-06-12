@@ -20,9 +20,22 @@ const VALID_INTENTS = new Set([
   "outro",
 ]);
 
+export interface AttributionData {
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  utmTerm?: string | null;
+  utmContent?: string | null;
+  gclid?: string | null;
+  fbclid?: string | null;
+  landingPath?: string | null;
+  referrer?: string | null;
+}
+
 export async function updateRegisLead(
   sessionId: string,
   messages: Message[],
+  attribution?: AttributionData | null,
 ): Promise<void> {
   const apiKey = import.meta.env.ASI1_API_KEY || process.env.ASI1_API_KEY;
   const model = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
@@ -160,6 +173,15 @@ JSON:`;
       empresa: sanitizeStr(extracted.empresa),
       observacoes: sanitizeStr(extracted.observacoes),
       visitorIntent,
+      utmSource: attribution?.utmSource ?? null,
+      utmMedium: attribution?.utmMedium ?? null,
+      utmCampaign: attribution?.utmCampaign ?? null,
+      utmTerm: attribution?.utmTerm ?? null,
+      utmContent: attribution?.utmContent ?? null,
+      gclid: attribution?.gclid ?? null,
+      fbclid: attribution?.fbclid ?? null,
+      landingPath: attribution?.landingPath ?? null,
+      referrer: attribution?.referrer ?? null,
     };
 
     console.log("[REGIS] Extracted lead data:", {

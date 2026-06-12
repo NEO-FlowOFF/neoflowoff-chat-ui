@@ -107,7 +107,7 @@ da interface soberana NEØ:One.
 - [x] JSON-LD atualizado para Organization com areaServed: BR.
 - [x] Geo tags removidas (agência nacional, sem restrição geográfica).
 - [x] Keywords definidas (B2B, foco em IA e automação empresarial).
-- [x] `@astrojs/sitemap` instalado — `/sitemap.xml` gerado no build.
+- [x] `@astrojs/sitemap` instalado — `/sitemap-index.xml` gerado no build.
 - [x] `<link rel="canonical">` apontando para `/chat`.
 - [x] OG URL e Twitter URL corrigidos para `/chat`.
 - [x] `<title>` descritivo com palavras-chave.
@@ -117,7 +117,8 @@ da interface soberana NEØ:One.
 ▓▓▓ BACKLOG
 ────────────────────────────────────────
 - [ ] Desativar Cloudflare Managed robots.txt no dashboard para que `public/robots.txt` seja a única fonte.
-- [ ] Submeter `https://chat.neoflowoff.agency/sitemap.xml` no Google Search Console.
+- [ ] Submeter `https://chat.neoflowoff.agency/sitemap-index.xml` no
+  Google Search Console.
 - [ ] Criar backlinks: `neoflowoff.agency` linkando para `chat.neoflowoff.agency/chat`.
 
 ```text

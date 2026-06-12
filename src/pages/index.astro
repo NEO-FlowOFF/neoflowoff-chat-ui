@@ -3,6 +3,21 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base>
+  <!-- Schema de Vídeo para Google Indexing -->
+  <script type="application/ld+json" is:inline>
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": "NEØ:one Intro Scan",
+      "description": "Vídeo de introdução em formato de varredura da NEO FlowOFF.",
+      "thumbnailUrl": [
+        "https://chat.neoflowoff.agency/og-image.png"
+      ],
+      "uploadDate": "2026-05-27T00:00:00Z",
+      "contentUrl": "https://chat.neoflowoff.agency/splash_chat.mp4"
+    }
+  </script>
+
   <main class="splash" aria-label="Carregando">
 
     <!-- Fallback CSS — sempre renderiza, vídeo sobrepõe se carregar -->

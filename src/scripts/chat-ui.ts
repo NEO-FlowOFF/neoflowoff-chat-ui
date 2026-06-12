@@ -18,7 +18,47 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const STORAGE_KEY = 'flow_history_v1';
 const SESSION_KEY = 'flow_session_id';
+const ATTRIBUTION_KEY = 'neo_attribution_v1';
 const MAX_HISTORY = 40;
+
+function getAttribution() {
+  try {
+    const cached = localStorage.getItem(ATTRIBUTION_KEY);
+    if (cached) return JSON.parse(cached);
+
+    const params = new URLSearchParams(window.location.search);
+    const utm_source = params.get('utm_source');
+    const utm_medium = params.get('utm_medium');
+    const utm_campaign = params.get('utm_campaign');
+    const utm_term = params.get('utm_term');
+    const utm_content = params.get('utm_content');
+    const gclid = params.get('gclid');
+    const fbclid = params.get('fbclid');
+
+    const hasParams = utm_source || utm_medium || utm_campaign || utm_term || utm_content || gclid || fbclid;
+    const referrer = document.referrer || null;
+    const landing_path = window.location.pathname;
+
+    if (hasParams || referrer) {
+      const attr = {
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
+        gclid,
+        fbclid,
+        landing_path,
+        referrer
+      };
+      localStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attr));
+      return attr;
+    }
+  } catch (e) {
+    console.error('[ATTRIBUTION] Error:', e);
+  }
+  return null;
+}
 
 function loadHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
 function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY))); } catch {} }
@@ -224,6 +264,8 @@ if (!sessionId) {
   localStorage.setItem(SESSION_KEY, sessionId);
 }
 
+const attributionData = getAttribution();
+
 let chatHistory = loadHistory();
 let isStreaming = false;
 let toastTimer: ReturnType<typeof setTimeout>;
@@ -258,7 +300,14 @@ const streamProxy = async (
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, sessionId, stream: true, max_tokens: 1024, temperature: 0.7 }),
+    body: JSON.stringify({
+      messages,
+      sessionId,
+      stream: true,
+      max_tokens: 1024,
+      temperature: 0.7,
+      attribution: attributionData
+    }),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   typingEl.remove();

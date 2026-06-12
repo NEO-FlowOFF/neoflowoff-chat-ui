@@ -1,28 +1,17 @@
-import * as fs from "node:fs/promises";
-import * as path from "node:path";
+import workspace from "../../../manifests/workspace.json";
+import repos from "../../../manifests/repos.json";
+import integrations from "../../../manifests/integrations.json";
 
 /**
  * Utilitário para carregar o contexto do ecossistema (RAG Lite)
- * Lê os manifestos da raiz do projeto NEO-FlowOFF
+ * Retorna os manifestos estáticos embutidos no build
  */
-export async function getEcosystemContext() {
+export function getEcosystemContext(): string {
   try {
-    // Caminho para a pasta de manifests (subindo um nível do app para a raiz do monorepo)
-    const manifestsPath = path.join(process.cwd(), "..", "manifests");
-
-    const files = ["workspace.json", "repos.json", "integrations.json"];
     let context = "\n--- ECOSYSTEM KNOWLEDGE BASE ---\n";
-
-    for (const file of files) {
-      try {
-        const filePath = path.join(manifestsPath, file);
-        const content = await fs.readFile(filePath, "utf-8");
-        context += `\nFILE: ${file}\n${content}\n`;
-      } catch (e) {
-        console.warn(`[RAG] Não foi possível ler ${file}`);
-      }
-    }
-
+    context += `\nFILE: workspace.json\n${JSON.stringify(workspace, null, 2)}\n`;
+    context += `\nFILE: repos.json\n${JSON.stringify(repos, null, 2)}\n`;
+    context += `\nFILE: integrations.json\n${JSON.stringify(integrations, null, 2)}\n`;
     context += "\n--- END OF KNOWLEDGE BASE ---\n";
     return context;
   } catch (error) {

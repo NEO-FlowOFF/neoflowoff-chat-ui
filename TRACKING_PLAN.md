@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD003 MD007 MD013 MD022 MD023 MD025 MD029 MD032 MD033 MD034 -->
+
 # PLANO DE TRACKING & MEDIÇÃO · NEØ:one
 
 ```text
@@ -27,21 +28,21 @@ iOS, falhas de rede). O servidor (`/api/chat`) já é o ponto soberano onde o le
 materializa — é o lugar certo para a verdade da conversão.
 
 ```text
-                ┌─────────────────────────────────────────┐
+                ┌───────────────────────────────────────────┐
                 │              BROWSER (cliente)            │
                 │  GA4 gtag  ·  Meta Pixel  ·  UTM capture  │
                 └───────────────┬───────────────────────────┘
                                 │ event_id (uuid) + utm_* no payload
-                ┌───────────────▼───────────────────────────┐
+                ┌───────────────▼────────────────────────────┐
                 │           /api/chat (servidor)             │
                 │  - persiste utm no Redis + leads (PG)      │
                 │  - dispara Conversions API (Meta) server   │
                 │  - dispara GA4 Measurement Protocol server │
                 │  - reusa o MESMO event_id → dedup          │
-                └───────────────┬───────────────────────────┘
+                └───────────────┬────────────────────────────┘
                                 │
-                ┌───────────────▼───────────────────────────┐
-                │  GA4  ·  Meta Events Manager  ·  Dashboard │
+                ┌───────────────▼─────────────────────────────┐
+                │  GA4  ·  Meta Events Manager  ·  Dashboard  │
                 └─────────────────────────────────────────────┘
 ```
 
@@ -56,16 +57,49 @@ Um único "event layer" no cliente (`src/scripts/tracking.ts`, a criar) que rece
 um evento canônico e faz fan-out para GA4, Meta e o backend. Nunca chamar `gtag()`
 ou `fbq()` espalhado pelo código.
 
-| Evento canônico        | Quando dispara                              | GA4 (`en`)              | Meta (event)        |
-|---                     |---                                          |---                      |---                  |
-| `page_view`            | carga da página                             | `page_view` (auto)      | `PageView`          |
-| `chat_started`         | 1ª mensagem do usuário enviada              | `chat_started`          | `Lead` (custom)     |
-| `lead_created`         | Regis grava lead com qualquer dado          | `generate_lead`         | `Lead`              |
-| `qualified_lead`       | lead vira `qualificado = true`              | `qualified_lead`        | `CompleteRegistration` |
-| `handoff_clicked`      | clique no link WhatsApp (após 10 msgs)      | `handoff_clicked`       | `Contact`           |
-| `quote_requested`      | intenção de orçamento detectada (Regis)     | `quote_requested`       | `InitiateCheckout`  |
-| `appointment_scheduled`| reunião marcada                             | `appointment_scheduled` | `Schedule`          |
-| `pwa_installed`        | `appinstalled` do PWA                       | `pwa_installed`         | — (custom opcional) |
+```text
+▓▓▓ TAXONOMIA DE EVENTOS
+────────────────────────────────────────
+└─ page_view
+   ├─ Dispara:   carga da página
+   ├─ GA4 (en):  `page_view` (auto)
+   └─ Meta:      `PageView`
+
+└─ chat_started
+   ├─ Dispara:   1ª mensagem
+   ├─ GA4 (en):  `chat_started`
+   └─ Meta:      `Lead` (custom)
+
+└─ lead_created
+   ├─ Dispara:   Regis grava lead
+   ├─ GA4 (en):  `generate_lead`
+   └─ Meta:      `Lead`
+
+└─ qualified_lead
+   ├─ Dispara:   lead vira `qualificado = true`
+   ├─ GA4 (en):  `qualified_lead`
+   └─ Meta:      `CompleteRegistration`
+
+└─ handoff_clicked
+   ├─ Dispara:   clique no link WhatsApp (após 10 msgs)
+   ├─ GA4 (en):  `handoff_clicked`
+   └─ Meta:      `Contact`
+
+└─ quote_requested
+   ├─ Dispara:   intenção de orçamento detectada (Regis)
+   ├─ GA4 (en):  `quote_requested`
+   └─ Meta:      `InitiateCheckout`
+
+└─ appointment_scheduled
+   ├─ Dispara:   reunião marcada
+   ├─ GA4 (en):  `appointment_scheduled`
+   └─ Meta:      `Schedule`
+
+└─ pwa_installed
+   ├─ Dispara:   `appinstalled` do PWA
+   ├─ GA4 (en):  `pwa_installed`
+   └─ Meta:      — (custom opcional)
+```
 
 > Os nomes da coluna "evento canônico" batem com o backlog do `NEXTSTEPS.md`
 > ("page_viewed, chat_started, lead_created, appointment_scheduled, qualified_lead,
@@ -92,6 +126,7 @@ ou `fbq()` espalhado pelo código.
   - `custom_data` com `utm_*` e valor estimado, se houver.
 
 ### 3.3 Variáveis de ambiente (novas)
+
 ```text
 PUBLIC_META_PIXEL_ID=   # ID do Pixel (público, vai pro browser)
 META_CAPI_TOKEN=        # Conversions API token (SECRET, server-only)
@@ -100,11 +135,13 @@ META_TEST_EVENT_CODE=   # opcional, p/ validar no Events Manager (Test Events)
 
 ### 3.4 CSP (obrigatório, senão o Pixel é bloqueado)
 Adicionar em `CSP_DIRECTIVES` (`src/middleware.ts`):
+
 ```text
 script-src   ... https://connect.facebook.net
 img-src      ... https://www.facebook.com https://*.facebook.com
 connect-src  ... https://www.facebook.com https://graph.facebook.com
 ```
+
 (A CAPI server-side não precisa de CSP — sai do Node, não do browser.)
 
 ---
@@ -138,6 +175,7 @@ Este é o elo que falta para "campanha → chat → Regis → dashboard".
 - Gravar no Redis junto da sessão e em **novas colunas** da tabela `leads`.
 
 ### 5.3 Schema (PostgreSQL) — `ALTER` aditivo e idempotente em `db.ts`
+
 ```sql
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_source   TEXT;
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_medium   TEXT;
@@ -149,6 +187,7 @@ ALTER TABLE leads ADD COLUMN IF NOT EXISTS fbclid       TEXT;
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS landing_path TEXT;
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS referrer     TEXT;
 ```
+
 - No `INSERT ... ON CONFLICT`, usar `COALESCE` igual aos campos atuais, mas
   **first-touch** para UTM (não sobrescrever uma atribuição já gravada).
 - Atualizar a interface `Lead` em `leads.ts` com os campos novos.
@@ -176,10 +215,18 @@ ALTER TABLE leads ADD COLUMN IF NOT EXISTS referrer     TEXT;
 
 ## ◬ 7. Deduplicação (resumo prático)
 
-| Plataforma | Browser | Servidor | Chave de dedup |
-|---         |---      |---       |---             |
-| Meta       | Pixel `track` | CAPI `events` | `event_id` (mesmo nos dois) + `event_name` |
-| GA4        | `gtag` | Measurement Protocol | `client_id` + `session_id` + nome do evento |
+```text
+▓▓▓ DEDUPLICAÇÃO DE CONVERSÕES
+────────────────────────────────────────
+└─ Meta
+   ├─ Browser:  Pixel `track`
+   ├─ Servidor: CAPI `events`
+   └─ Dedup:    `event_id` + `event_name`
+└─ GA4
+   ├─ Browser:  `gtag`
+   ├─ Servidor: M. Protocol
+   └─ Dedup:    `client_id` + `session_id` + name
+```
 
 Gerar `event_id = crypto.randomUUID()` no cliente, mandar no payload do `/api/chat`,
 e reusar no disparo server-side. Validar no **Meta Test Events** e no **GA4 DebugView**.
@@ -220,17 +267,28 @@ FASE 5 — Dashboard de aquisição
 
 ## ⚙ 9. Checklist de arquivos a tocar (quando for implementar)
 
-| Arquivo | Mudança |
-|---      |---      |
-| `src/scripts/tracking.ts` | **novo** — camada de eventos / fan-out |
-| `src/scripts/chat-ui.ts`  | captura UTM, anexa attribution + event_id no POST |
-| `src/pages/api/chat.ts`   | recebe attribution/event_id, repassa a leads + CAPI |
-| `src/lib/leads.ts`        | interface `Lead` + colunas utm no upsert (first-touch) |
-| `src/lib/db.ts`           | `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` utm_* |
-| `src/lib/meta-capi.ts`    | **novo** — Conversions API server-side |
-| `src/layouts/Base.astro`  | Meta Pixel `is:inline` atrás de `PUBLIC_META_PIXEL_ID` |
-| `src/middleware.ts`       | CSP: liberar facebook.net / facebook.com / graph.facebook.com |
-| `.env.example`            | documentar novas envs |
+```text
+▓▓▓ ARQUIVOS A ALTERAR
+────────────────────────────────────────
+└─ src/scripts/tracking.ts
+   └─ novo — camada de eventos / fan-out
+└─ src/scripts/chat-ui.ts
+   └─ captura UTM, anexa attribution + event_id no POST
+└─ src/pages/api/chat.ts
+   └─ recebe attribution/event_id, repassa a leads + CAPI
+└─ src/lib/leads.ts
+   └─ interface Lead + colunas utm no upsert (first-touch)
+└─ src/lib/db.ts
+   └─ ALTER TABLE ... ADD COLUMN IF NOT EXISTS utm_*
+└─ src/lib/meta-capi.ts
+   └─ novo — Conversions API server-side
+└─ src/layouts/Base.astro
+   └─ Meta Pixel is:inline atrás de PUBLIC_META_PIXEL_ID
+└─ src/middleware.ts
+   └─ CSP: liberar facebook / facebook.net / graph.facebook
+└─ .env.example
+   └─ documentar novas envs
+```
 
 ---
 
@@ -242,7 +300,7 @@ FASE 5 — Dashboard de aquisição
 - **Secrets**: `META_CAPI_TOKEN` e afins são server-only; apenas `PUBLIC_*` vai
   ao browser. Nunca commitar valores.
 - **PII**: nada de dados pessoais em eventos de ads sem hash (Meta) ou nunca (GA4).
-- **`packageManager`**: manter `pnpm@10.33.0` pinado (regra crítica do build).
+- **`packageManager`**: manter `pnpm@11.5.3` pinado (regra crítica do build).
 
 ```text
 ────────────────────────────────────────

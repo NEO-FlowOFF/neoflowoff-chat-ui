@@ -88,7 +88,7 @@ graph TD
 ▓▓▓ INDEXAÇÃO
 ────────────────────────────────────────
 └─ Canonical      https://chat.neoflowoff.agency/chat
-└─ Sitemap        https://chat.neoflowoff.agency/sitemap.xml
+└─ Sitemap        https://chat.neoflowoff.agency/sitemap-index.xml
 └─ Open Graph     og:title, og:description, og:image (1200×630)
 └─ Twitter Card   summary_large_image
 └─ JSON-LD        WebApplication + Organization (schema.org)

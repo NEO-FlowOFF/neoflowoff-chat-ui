@@ -10,6 +10,15 @@ export interface Lead {
   observacoes?: string | null;
   visitorIntent?: string | null;
   qualificado?: boolean;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  utmTerm?: string | null;
+  utmContent?: string | null;
+  gclid?: string | null;
+  fbclid?: string | null;
+  landingPath?: string | null;
+  referrer?: string | null;
 }
 
 /**
@@ -19,9 +28,23 @@ export interface Lead {
 export async function upsertLead(lead: Lead): Promise<void> {
   if (!pool) return;
 
-  // Só salva se houver pelo menos um campo além do sessionId
+  // Só salva se houver pelo menos um campo ou parâmetros de tracking além do sessionId
   const hasData =
-    lead.nome || lead.email || lead.telefone || lead.empresa || lead.observacoes || lead.visitorIntent;
+    lead.nome ||
+    lead.email ||
+    lead.telefone ||
+    lead.empresa ||
+    lead.observacoes ||
+    lead.visitorIntent ||
+    lead.utmSource ||
+    lead.utmMedium ||
+    lead.utmCampaign ||
+    lead.utmTerm ||
+    lead.utmContent ||
+    lead.gclid ||
+    lead.fbclid ||
+    lead.landingPath ||
+    lead.referrer;
   if (!hasData) return;
 
   // 1. Verifica se o lead já existia e se já estava qualificado
@@ -78,22 +101,34 @@ export async function upsertLead(lead: Lead): Promise<void> {
   // 3. Insere ou atualiza no banco com a classificação correta
   await pool.query(
     `
-    INSERT INTO leads (session_id, nome, email, telefone, empresa, observacoes, visitor_intent, qualificado, handoff_sent, followup_status)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    INSERT INTO leads (
+      session_id, nome, email, telefone, empresa, observacoes, visitor_intent, qualificado, handoff_sent, followup_status,
+      utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, landing_path, referrer
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
     ON CONFLICT (session_id) DO UPDATE SET
-      nome           = COALESCE(EXCLUDED.nome,           leads.nome),
-      email          = COALESCE(EXCLUDED.email,          leads.email),
-      telefone       = COALESCE(EXCLUDED.telefone,       leads.telefone),
-      empresa        = COALESCE(EXCLUDED.empresa,        leads.empresa),
-      observacoes    = COALESCE(EXCLUDED.observacoes,    leads.observacoes),
-      visitor_intent = COALESCE(EXCLUDED.visitor_intent, leads.visitor_intent),
-      qualificado    = EXCLUDED.qualificado,
+      nome            = COALESCE(EXCLUDED.nome,           leads.nome),
+      email           = COALESCE(EXCLUDED.email,          leads.email),
+      telefone        = COALESCE(EXCLUDED.telefone,       leads.telefone),
+      empresa         = COALESCE(EXCLUDED.empresa,        leads.empresa),
+      observacoes     = COALESCE(EXCLUDED.observacoes,    leads.observacoes),
+      visitor_intent  = COALESCE(EXCLUDED.visitor_intent, leads.visitor_intent),
+      qualificado     = EXCLUDED.qualificado,
       followup_status = CASE
         WHEN leads.followup_status = 'pending' AND EXCLUDED.qualificado = TRUE
           THEN 'ready'
         ELSE leads.followup_status
       END,
-      updated_at     = NOW()
+      utm_source      = COALESCE(leads.utm_source,   EXCLUDED.utm_source),
+      utm_medium      = COALESCE(leads.utm_medium,   EXCLUDED.utm_medium),
+      utm_campaign    = COALESCE(leads.utm_campaign, EXCLUDED.utm_campaign),
+      utm_term        = COALESCE(leads.utm_term,     EXCLUDED.utm_term),
+      utm_content     = COALESCE(leads.utm_content,  EXCLUDED.utm_content),
+      gclid           = COALESCE(leads.gclid,        EXCLUDED.gclid),
+      fbclid          = COALESCE(leads.fbclid,       EXCLUDED.fbclid),
+      landing_path    = COALESCE(leads.landing_path, EXCLUDED.landing_path),
+      referrer        = COALESCE(leads.referrer,     EXCLUDED.referrer),
+      updated_at      = NOW()
     `,
     [
       lead.sessionId,
@@ -106,6 +141,15 @@ export async function upsertLead(lead: Lead): Promise<void> {
       isQualified,
       existingHandoffSent, // Mantém o status anterior na inserção/update
       followupStatus,
+      lead.utmSource ?? null,
+      lead.utmMedium ?? null,
+      lead.utmCampaign ?? null,
+      lead.utmTerm ?? null,
+      lead.utmContent ?? null,
+      lead.gclid ?? null,
+      lead.fbclid ?? null,
+      lead.landingPath ?? null,
+      lead.referrer ?? null,
     ],
   );
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "neoflow-v4";
+const CACHE_NAME = "neoflow-v6";
 
 // Apenas shell estático sem hashes — assets Astro são servidos network-first
 const SHELL_URLS = [
@@ -8,7 +8,7 @@ const SHELL_URLS = [
   "/favicon.ico",
   "/splash_chat.mp4",
   "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600;700&display=swap",
-  "https://res.cloudinary.com/dgyocpguk/image/upload/v1769091295/flowoff/public/icon-512.webp",
+  "/icon-512x512.webp",
 ];
 
 self.addEventListener("install", (event) => {

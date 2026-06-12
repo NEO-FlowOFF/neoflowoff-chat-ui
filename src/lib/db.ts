@@ -59,6 +59,17 @@ export async function ensureLeadsTable(): Promise<void> {
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS last_followup_at TIMESTAMPTZ;
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS followup_notes TEXT;
 
+    -- Atribuição e Tracking (UTM -> CRM)
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_source   TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_medium   TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_campaign TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_term     TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS utm_content  TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS gclid        TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS fbclid       TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS landing_path TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS referrer     TEXT;
+
     UPDATE leads
     SET followup_status = 'ready'
     WHERE qualificado = TRUE

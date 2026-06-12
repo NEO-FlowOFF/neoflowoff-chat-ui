@@ -19,7 +19,7 @@ Causa: `corepack@latest` traz um default de pnpm hardcoded mais novo que o publi
 versão usa esse default em vez do campo `packageManager`.
 
 **Sempre pinar a versão exata do pnpm** que bate com `packageManager` da raiz do monorepo
-(`/Users/nettomello/neomello/NEO-FlowOFF/package.json` → `pnpm@10.33.0`). Não confiar em resolução
+(`/Users/nettomello/neomello/NEO-FlowOFF/package.json` → `pnpm@11.5.3`). Não confiar em resolução
 automática de "latest". Este projeto é um package do monorepo `NEO-FlowOFF`; `install`/overrides são na raiz.
 
 ## Commands
@@ -110,7 +110,8 @@ See `.env.example` for format. Redis, PostgreSQL and Resend are all optional for
 - `src/lib/CONTEXT.json` — structured ground-truth data: contact info, handoff rules, pricing, guardrails
 - `public/sw.js` — service worker; uses `skipWaiting` + `clients.claim()` for immediate activation
 - `public/robots.txt` — permite Googlebot; bloqueia `/api/` e bots de treino de IA (GPTBot, ClaudeBot, CCBot, etc.)
-- `astro.config.mjs` — inclui `@astrojs/sitemap`; gera `/sitemap.xml` no build
+- `astro.config.mjs` — inclui `@astrojs/sitemap`; gera `/sitemap-index.xml` no build
+
 
 ## Security headers
 
@@ -137,9 +138,6 @@ O CSP usa `'unsafe-inline'` em `script-src` e `style-src` porque o Astro injeta 
 - Conteúdo estático indexável em `EmptyState.astro` (visually hidden via CSS clip, legível por crawlers)
 - GA4 (`gtag.js`, ID `G-5VD6EVN3C4`) no `<head>` do `Base.astro` via `is:inline`, ao lado do Cloudflare Web Analytics.
 
-## Known issues
-
-`chat-ui.ts` contains duplicate function definitions (`loadHistory`, `saveHistory`, `streamProxy`, `renderTyping`, `scrollToBottom`, etc.) because `handleSend` redeclares helpers that already exist in outer scope. This is a bug, not intentional — the inner declarations shadow the outer ones during `handleSend` execution.
 
 ## Security — resolved
 
