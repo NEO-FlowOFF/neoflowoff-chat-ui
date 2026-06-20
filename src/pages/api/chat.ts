@@ -72,13 +72,8 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
     if (lastUserMsg?.content) {
       try {
-        const { detectSuspicious, logSuspiciousEvent } = await import("../../lib/sentinel");
-        const category = detectSuspicious(lastUserMsg.content);
-        if (category) {
-          logSuspiciousEvent(sessionId, category, lastUserMsg.content).catch(() => {});
-          const { sendSuspiciousAlert } = await import("../../lib/emails");
-          sendSuspiciousAlert(sessionId, category, lastUserMsg.content).catch(() => {});
-        }
+        const { handleSuspiciousActivity } = await import("../../lib/sentinel");
+        handleSuspiciousActivity(sessionId, lastUserMsg.content).catch(() => {});
       } catch (err) {
         console.error("[SENTINEL ERROR]", err);
       }

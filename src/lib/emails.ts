@@ -1,4 +1,5 @@
 import type { Lead } from "./leads";
+import type { SuspiciousCategory } from "./sentinel";
 
 const RESEND_API = "https://api.resend.com/emails";
 
@@ -160,7 +161,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
  */
 export async function sendSuspiciousAlert(
   sessionId: string | undefined,
-  category: string,
+  category: SuspiciousCategory,
   message: string
 ): Promise<void> {
   const { apiKey, from, toNeo } = config();
@@ -199,7 +200,7 @@ export async function sendSuspiciousAlert(
         </tr>
         <tr>
           <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;vertical-align:top;">Mensagem:</td>
-          <td style="padding:10px 0;font-size:13px;color:#333;font-family:monospace;line-height:1.5;word-break:break-all;">${message.replace(/</g,"&lt;").replace(/>/g,"&gt;").slice(0, 800)}</td>
+          <td style="padding:10px 0;font-size:13px;color:#333;font-family:monospace;line-height:1.5;word-break:break-all;">${message.slice(0, 800).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
         </tr>
       </table>
     </div>

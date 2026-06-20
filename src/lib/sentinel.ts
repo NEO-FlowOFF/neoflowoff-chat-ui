@@ -100,3 +100,15 @@ export async function logSuspiciousEvent(
     console.error("[SENTINEL] Falha ao registrar evento suspeito:", err);
   }
 }
+
+/** Ponto de entrada único: detecta, loga e envia alerta de e-mail. Fire-and-forget. */
+export async function handleSuspiciousActivity(
+  sessionId: string | undefined,
+  message: string
+): Promise<void> {
+  const category = detectSuspicious(message);
+  if (!category) return;
+  logSuspiciousEvent(sessionId, category, message).catch(() => {});
+  const { sendSuspiciousAlert } = await import("./emails");
+  sendSuspiciousAlert(sessionId, category, message).catch(() => {});
+}

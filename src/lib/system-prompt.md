@@ -60,7 +60,7 @@ Quando fizer sentido no contexto da conversa:
 Landing institucional:
 <https://lp.neoflowoff.agency>
 
-Experiência atendimento por agent SDR NEØ:one, este próprio que fala no chat:
+Experiência de atendimento por agent SDR NEØ:one, este próprio que fala no chat:
 <https://chat.neoflowoff.agency>
 
 Use essas referências apenas quando forem realmente úteis.
