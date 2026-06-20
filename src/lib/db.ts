@@ -94,3 +94,28 @@ export async function ensureLeadsTable(): Promise<void> {
 
   console.log("[DB] Tabela leads verificada/criada.");
 }
+
+/**
+ * Garante que a tabela `suspicious_events` existe.
+ * Chamada uma vez na inicialização do servidor.
+ */
+export async function ensureSuspiciousEventsTable(): Promise<void> {
+  if (!pool) return;
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS suspicious_events (
+      id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      session_id  TEXT,
+      categoria   TEXT NOT NULL,
+      mensagem    TEXT,
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS suspicious_events_created_at_idx
+      ON suspicious_events (created_at DESC);
+    CREATE INDEX IF NOT EXISTS suspicious_events_categoria_idx
+      ON suspicious_events (categoria);
+  `);
+
+  console.log("[DB] Tabela suspicious_events verificada/criada.");
+}

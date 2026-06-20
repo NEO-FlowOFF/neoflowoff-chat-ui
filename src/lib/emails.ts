@@ -155,7 +155,64 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
 }
 
 /**
- * Template 3 — Resumo da conversa (para visitante + Neo)
+ * Template 3 — Alerta de segurança (para Neo)
+ * Disparo: atividade suspeita detectada no input do visitante.
+ */
+export async function sendSuspiciousAlert(
+  sessionId: string | undefined,
+  category: string,
+  message: string
+): Promise<void> {
+  const { apiKey, from, toNeo } = config();
+  if (!apiKey) { console.warn("[RESEND] API key ausente — alerta de segurança não enviado."); return; }
+
+  const categoryLabel: Record<string, string> = {
+    prompt_injection:    "Injeção de Prompt",
+    system_access:       "Acesso ao Sistema",
+    infrastructure_probe: "Sondagem de Infraestrutura",
+    social_engineering:  "Engenharia Social",
+    code_execution:      "Tentativa de Execução de Código",
+    security_test:       "Teste de Segurança",
+  };
+
+  const label = categoryLabel[category] ?? category;
+  const subject = `[ALERTA SEGURANÇA] ${label}`;
+  const ts = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+
+  const html = `
+  <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eaeaea;border-radius:8px;background:#fff;">
+    <h2 style="color:#c00;font-size:20px;font-weight:700;letter-spacing:-0.5px;margin:0 0 6px;">⚠ Atividade Suspeita Detectada</h2>
+    <p style="font-size:13px;color:#888;margin:0 0 24px;">NΞØ:One — Sistema de Monitoramento</p>
+    <div style="background:#fff5f5;padding:20px;border-radius:6px;border:1px solid #ffd0d0;margin-bottom:24px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #f0d0d0;">
+          <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;width:130px;">Categoria:</td>
+          <td style="padding:10px 0;font-size:14px;color:#c00;font-weight:700;">${label}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f0d0d0;">
+          <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;">Sessão:</td>
+          <td style="padding:10px 0;font-size:13px;color:#333;font-family:monospace;">${sessionId ?? "anônima"}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #f0d0d0;">
+          <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;">Horário:</td>
+          <td style="padding:10px 0;font-size:14px;color:#333;">${ts}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;vertical-align:top;">Mensagem:</td>
+          <td style="padding:10px 0;font-size:13px;color:#333;font-family:monospace;line-height:1.5;word-break:break-all;">${message.replace(/</g,"&lt;").replace(/>/g,"&gt;").slice(0, 800)}</td>
+        </tr>
+      </table>
+    </div>
+    ${footer()}
+  </div>`;
+
+  console.log("[RESEND] Enviando alerta de segurança...");
+  await dispatch(apiKey, { from: `NΞØ:One <${from}>`, to: toNeo, subject, html });
+  console.log("[RESEND] Alerta de segurança enviado.");
+}
+
+/**
+ * Template 4 — Resumo da conversa (para visitante + Neo)
  * Disparo: após handoff completo, quando visitante tem e-mail.
  */
 export async function sendConversationSummary(lead: Lead): Promise<void> {

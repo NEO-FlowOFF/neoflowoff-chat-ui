@@ -2,12 +2,13 @@ import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { saveChatHistory } from "../../lib/redis";
-import { ensureLeadsTable } from "../../lib/db";
+import { ensureLeadsTable, ensureSuspiciousEventsTable } from "../../lib/db";
 import { type Message } from "../../types/chat";
 import { getEcosystemContext } from "../../lib/rag";
 
-// Garante o schema no primeiro request (idempotente)
+// Garante os schemas no primeiro request (idempotente)
 ensureLeadsTable().catch((e) => console.error("[DB INIT]", e));
+ensureSuspiciousEventsTable().catch((e) => console.error("[DB INIT SENTINEL]", e));
 
 // Hostnames autorizados a chamar a API (match EXATO de hostname, não substring).
 const ALLOWED_HOSTS = new Set([
@@ -66,6 +67,22 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       } | null;
     };
     const { messages, sessionId } = body;
+
+    // Sentinel — detecta atividade suspeita no input antes de chamar o LLM
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
+    if (lastUserMsg?.content) {
+      try {
+        const { detectSuspicious, logSuspiciousEvent } = await import("../../lib/sentinel");
+        const category = detectSuspicious(lastUserMsg.content);
+        if (category) {
+          logSuspiciousEvent(sessionId, category, lastUserMsg.content).catch(() => {});
+          const { sendSuspiciousAlert } = await import("../../lib/emails");
+          sendSuspiciousAlert(sessionId, category, lastUserMsg.content).catch(() => {});
+        }
+      } catch (err) {
+        console.error("[SENTINEL ERROR]", err);
+      }
+    }
 
     // Carrega o System Prompt e Contexto no Server-Side para evitar exposição
     const promptPath = path.join(process.cwd(), "src/lib/system-prompt.md");
