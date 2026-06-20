@@ -144,3 +144,20 @@ O CSP usa `'unsafe-inline'` em `script-src` e `style-src` porque o Astro injeta 
 `formatMarkdown` em `chat-ui.ts:45` valida scheme do href com `/^https?:\/\//i` antes de injetar via `innerHTML`. URIs `javascript:` são substituídas por `#`. **Vulnerabilidade resolvida.**
 
 **Validação de Origin no `POST /api/chat` (2026-06-07):** a checagem antiga usava `origin.includes(host)` + `origin.includes("neoflowoff.agency")` e permitia requests **sem** Origin — três bypasses (no-Origin via curl/bots consumindo o ASI1 pago; sufixo forjado `...agency.evil.com`; substring `neoflowoff.agency.attacker.com`). Substituída por `isAllowedOrigin()` em `src/pages/api/chat.ts`: parse via `URL`, match **exato** de hostname contra `ALLOWED_HOSTS`, sufixo real `.neoflowoff.agency`, e bloqueio de no-Origin. **Resolvida.** Nota: `GET /api/history` não tem Origin-gate (navegador não envia Origin confiável em GET); o `sessionId` UUID é o guard.
+
+## teaBASE — Autenticação e Dotfiles
+
+O **teaBASE** é uma macOS Preference Pane instalada em `/Library/PreferencePanes/teaBASE.prefPane/` que atua como camada de autenticação e sincronização de configuração no nível do SO. É o gerenciador canônico de identidade neste ambiente.
+
+**O que ele controla:**
+
+- **SSH keys e GPG** — todos os commits são assinados e autenticados via teaBASE. `git push` via SSH funciona sem configuração adicional.
+- **`~/.gitconfig`** — não alterar sem instrução explícita do operador. Sempre usar remotes SSH (`git@github.com:...`), nunca HTTPS.
+- **`~/.zshrc`** — sincronizado a cada ~10 minutos para o repo privado `neomello/dotfiles`. Nunca editar diretamente; propor mudanças e o operador aplica.
+- **npm auth para `@neo-protocol`** — o `.npmrc` do workspace delega auth ao teaBASE (`@neo-protocol:registry=https://npm.pkg.github.com`); não há token explícito no arquivo porque a autenticação é gerenciada no nível do SO.
+
+**Por que `gh pr create` falha com HTTP 401:**
+
+O `gh` CLI usa token OAuth próprio armazenado no keyring do macOS — independente do teaBASE. Esse token pode expirar ou pertencer à conta errada. Como o teaBASE não gerencia o token do `gh`, PRs devem ser criados manualmente no GitHub após o `git push` (que funciona via SSH gerenciado pelo teaBASE).
+
+**Regra operacional:** `git push` → sempre funciona. `gh pr create` → falha com 401; criar PR pela UI do GitHub usando a URL impressa no output do push.
