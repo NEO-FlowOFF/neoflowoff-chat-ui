@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "allowJs": true,
     "paths": {
-      "/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src", ".astro/types.d.ts"]

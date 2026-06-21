@@ -1,15 +1,19 @@
+import { logger } from "@neo-flowoff/shared/logger";
 import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { saveChatHistory } from "../../lib/redis";
 import { ensureLeadsTable, ensureSuspiciousEventsTable } from "../../lib/db";
-import { logger } from "../../lib/logger";
-import { type Message } from "../../types/chat";
 import { getEcosystemContext } from "../../lib/rag";
+import { saveChatHistory } from "../../lib/redis";
+import { type Message } from "../../types/chat";
 
 // Garante os schemas no primeiro request (idempotente)
-ensureLeadsTable().catch((e) => logger.error("DB", "Failed to ensure leads table", e));
-ensureSuspiciousEventsTable().catch((e) => logger.error("DB", "Failed to ensure suspicious_events table", e));
+ensureLeadsTable().catch((e) =>
+  logger.error("DB", "Failed to ensure leads table", e),
+);
+ensureSuspiciousEventsTable().catch((e) =>
+  logger.error("DB", "Failed to ensure suspicious_events table", e),
+);
 
 // Hostnames autorizados a chamar a API (match EXATO de hostname, não substring).
 const ALLOWED_HOSTS = new Set([
@@ -34,7 +38,10 @@ function isAllowedOrigin(origin: string | null, host: string | null): boolean {
     return false;
   }
   if (ALLOWED_HOSTS.has(hostname)) return true;
-  if (hostname === "neoflowoff.agency" || hostname.endsWith(".neoflowoff.agency"))
+  if (
+    hostname === "neoflowoff.agency" ||
+    hostname.endsWith(".neoflowoff.agency")
+  )
     return true;
   if (host && hostname === host.split(":")[0]) return true;
   return false;
@@ -46,7 +53,9 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     const host = request.headers.get("host");
 
     if (!isAllowedOrigin(origin, host)) {
-      logger.warn("SECURITY", "Acesso bloqueado", { origin: origin ?? "(ausente)" });
+      logger.warn("SECURITY", "Acesso bloqueado", {
+        origin: origin ?? "(ausente)",
+      });
       return new Response(JSON.stringify({ error: "Unauthorized Origin" }), {
         status: 403,
       });
@@ -74,7 +83,9 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     if (lastUserMsg?.content) {
       try {
         const { handleSuspiciousActivity } = await import("../../lib/sentinel");
-        handleSuspiciousActivity(sessionId, lastUserMsg.content).catch(() => {});
+        handleSuspiciousActivity(sessionId, lastUserMsg.content).catch(
+          () => {},
+        );
       } catch (err) {
         logger.error("SENTINEL", "Error handling suspicious activity", err);
       }
@@ -97,10 +108,13 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       ...messages,
     ];
 
-    logger.info("API", "Gerando resposta para o usuário", { sessionId: sessionId || "anon" });
+    logger.info("API", "Gerando resposta para o usuário", {
+      sessionId: sessionId || "anon",
+    });
 
     const llmApiKey = import.meta.env.ASI1_API_KEY || process.env.ASI1_API_KEY;
-    const llmModel = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
+    const llmModel =
+      import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
 
     if (!llmApiKey) {
       return new Response(
@@ -175,18 +189,20 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
           // Tenta extrair dados para o CRM (Regis)
           try {
             const { updateRegisLead } = await import("../../lib/regis");
-            
-            const attribution = body.attribution ? {
-              utmSource: body.attribution.utm_source ?? null,
-              utmMedium: body.attribution.utm_medium ?? null,
-              utmCampaign: body.attribution.utm_campaign ?? null,
-              utmTerm: body.attribution.utm_term ?? null,
-              utmContent: body.attribution.utm_content ?? null,
-              gclid: body.attribution.gclid ?? null,
-              fbclid: body.attribution.fbclid ?? null,
-              landingPath: body.attribution.landing_path ?? null,
-              referrer: body.attribution.referrer ?? null,
-            } : null;
+
+            const attribution = body.attribution
+              ? {
+                  utmSource: body.attribution.utm_source ?? null,
+                  utmMedium: body.attribution.utm_medium ?? null,
+                  utmCampaign: body.attribution.utm_campaign ?? null,
+                  utmTerm: body.attribution.utm_term ?? null,
+                  utmContent: body.attribution.utm_content ?? null,
+                  gclid: body.attribution.gclid ?? null,
+                  fbclid: body.attribution.fbclid ?? null,
+                  landingPath: body.attribution.landing_path ?? null,
+                  referrer: body.attribution.referrer ?? null,
+                }
+              : null;
 
             // Passa o histórico completo e a atribuição
             await updateRegisLead(sessionId, updatedHistory, attribution);
@@ -215,4 +231,3 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     });
   }
 };
-
