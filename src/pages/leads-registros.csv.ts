@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getLeadSnapshotCsv, leadSnapshotDate } from "../lib/leads-snapshot";
+import { getLeadSnapshotCsv, leadSnapshotDate } from "@/lib/leads-snapshot";
 
 export const GET: APIRoute = () =>
   new Response(getLeadSnapshotCsv(), {

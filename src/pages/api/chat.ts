@@ -2,10 +2,10 @@ import { logger } from "@neo-flowoff/shared/logger";
 import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { ensureLeadsTable, ensureSuspiciousEventsTable } from "../../lib/db";
-import { getEcosystemContext } from "../../lib/rag";
-import { saveChatHistory } from "../../lib/redis";
-import { type Message } from "../../types/chat";
+import { ensureLeadsTable, ensureSuspiciousEventsTable } from "@/lib/db";
+import { getEcosystemContext } from "@/lib/rag";
+import { saveChatHistory } from "@/lib/redis";
+import { type Message } from "@/types/chat";
 
 // Garante os schemas no primeiro request (idempotente)
 ensureLeadsTable().catch((e) =>

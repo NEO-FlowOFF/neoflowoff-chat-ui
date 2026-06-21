@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { analyzeSentiment } from "../sentiment";
+import { analyzeSentiment } from "@/scripts/sentiment";
 
 describe("Sentiment Analyzer", () => {
   it("should classify empty or whitespace text as neutral", () => {
