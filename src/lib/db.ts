@@ -1,15 +1,17 @@
 import pg from "pg";
+import { logger } from "./logger";
 
 const { Pool } = pg;
 
 const databaseUrl = process.env.DATABASE_URL;
 
-console.log("[DB] Inicializando módulo db.ts...");
-console.log("[DB] DATABASE_URL definida?", !!databaseUrl);
+logger.debug("DB", "Inicializando módulo db.ts...");
+logger.debug("DB", "DATABASE_URL definida?", { defined: !!databaseUrl });
 
 if (!databaseUrl) {
-  console.warn(
-    "[DB] DATABASE_URL não encontrada. Captura de leads desativada.",
+  logger.warn(
+    "DB",
+    "DATABASE_URL não encontrada. Captura de leads desativada.",
   );
 }
 
@@ -27,21 +29,21 @@ export const pool = databaseUrl
     })
   : null;
 
-console.log("[DB] Pool criado?", !!pool);
+logger.debug("DB", "Pool criado?", { created: !!pool });
 
 /**
  * Garante que a tabela `leads` existe.
  * Chamada uma vez na inicialização do servidor.
  */
 export async function ensureLeadsTable(): Promise<void> {
-  console.log("[DB INIT] ensureLeadsTable() chamada");
+  logger.debug("DB", "ensureLeadsTable() chamada");
   if (!pool) {
-    console.log("[DB INIT] Pool é null, retornando");
+    logger.debug("DB", "Pool é null, retornando");
     return;
   }
 
   try {
-    console.log("[DB INIT] Executando CREATE TABLE leads...");
+    logger.debug("DB", "Executando CREATE TABLE leads...");
     await pool.query(`
     CREATE TABLE IF NOT EXISTS leads (
       id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -102,9 +104,9 @@ export async function ensureLeadsTable(): Promise<void> {
       BEFORE UPDATE ON leads
       FOR EACH ROW EXECUTE FUNCTION update_updated_at();
   `);
-    console.log("[DB] Tabela leads verificada/criada.");
+    logger.info("DB", "Tabela leads verificada/criada.");
   } catch (error) {
-    console.error("[DB INIT ERROR]", error);
+    logger.error("DB", "Erro ao criar tabela leads", error);
     throw error;
   }
 }
@@ -114,14 +116,14 @@ export async function ensureLeadsTable(): Promise<void> {
  * Chamada uma vez na inicialização do servidor.
  */
 export async function ensureSuspiciousEventsTable(): Promise<void> {
-  console.log("[DB INIT SENTINEL] ensureSuspiciousEventsTable() chamada");
+  logger.debug("DB", "ensureSuspiciousEventsTable() chamada");
   if (!pool) {
-    console.log("[DB INIT SENTINEL] Pool é null, retornando");
+    logger.debug("DB", "Pool é null, retornando");
     return;
   }
 
   try {
-    console.log("[DB INIT SENTINEL] Executando CREATE TABLE suspicious_events...");
+    logger.debug("DB", "Executando CREATE TABLE suspicious_events...");
     await pool.query(`
     CREATE TABLE IF NOT EXISTS suspicious_events (
       id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -136,9 +138,9 @@ export async function ensureSuspiciousEventsTable(): Promise<void> {
     CREATE INDEX IF NOT EXISTS suspicious_events_categoria_idx
       ON suspicious_events (categoria);
   `);
-    console.log("[DB] Tabela suspicious_events verificada/criada.");
+    logger.info("DB", "Tabela suspicious_events verificada/criada.");
   } catch (error) {
-    console.error("[DB INIT SENTINEL ERROR]", error);
+    logger.error("DB", "Erro ao criar tabela suspicious_events", error);
     throw error;
   }
 }

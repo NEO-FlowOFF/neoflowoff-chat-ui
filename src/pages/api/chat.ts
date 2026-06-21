@@ -3,12 +3,13 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { saveChatHistory } from "../../lib/redis";
 import { ensureLeadsTable, ensureSuspiciousEventsTable } from "../../lib/db";
+import { logger } from "../../lib/logger";
 import { type Message } from "../../types/chat";
 import { getEcosystemContext } from "../../lib/rag";
 
 // Garante os schemas no primeiro request (idempotente)
-ensureLeadsTable().catch((e) => console.error("[DB INIT]", e));
-ensureSuspiciousEventsTable().catch((e) => console.error("[DB INIT SENTINEL]", e));
+ensureLeadsTable().catch((e) => logger.error("DB", "Failed to ensure leads table", e));
+ensureSuspiciousEventsTable().catch((e) => logger.error("DB", "Failed to ensure suspicious_events table", e));
 
 // Hostnames autorizados a chamar a API (match EXATO de hostname, não substring).
 const ALLOWED_HOSTS = new Set([
@@ -45,7 +46,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     const host = request.headers.get("host");
 
     if (!isAllowedOrigin(origin, host)) {
-      console.warn(`[SECURITY] Acesso bloqueado — origin: ${origin ?? "(ausente)"}`);
+      logger.warn("SECURITY", "Acesso bloqueado", { origin: origin ?? "(ausente)" });
       return new Response(JSON.stringify({ error: "Unauthorized Origin" }), {
         status: 403,
       });
@@ -75,7 +76,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         const { handleSuspiciousActivity } = await import("../../lib/sentinel");
         handleSuspiciousActivity(sessionId, lastUserMsg.content).catch(() => {});
       } catch (err) {
-        console.error("[SENTINEL ERROR]", err);
+        logger.error("SENTINEL", "Error handling suspicious activity", err);
       }
     }
 
@@ -96,9 +97,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       ...messages,
     ];
 
-    console.log(
-      `[NEOONE API] Gerando resposta para o usuário... Session: ${sessionId || "anon"}`,
-    );
+    logger.info("API", "Gerando resposta para o usuário", { sessionId: sessionId || "anon" });
 
     const llmApiKey = import.meta.env.ASI1_API_KEY || process.env.ASI1_API_KEY;
     const llmModel = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
@@ -192,7 +191,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
             // Passa o histórico completo e a atribuição
             await updateRegisLead(sessionId, updatedHistory, attribution);
           } catch (err) {
-            console.error("[REGIS ERROR]", err);
+            logger.error("REGIS", "Error updating lead", err);
           }
         }
 
@@ -210,9 +209,10 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[API ERROR]", error);
+    logger.error("API", "Error processing request", error);
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
     });
   }
 };
+
