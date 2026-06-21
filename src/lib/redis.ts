@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { type Message } from "../types/chat";
 
-const redisUrl = import.meta.env.REDIS_URL || process.env.REDIS_URL;
+const redisUrl = process.env.REDIS_URL;
 
 if (!redisUrl) {
   console.warn(
