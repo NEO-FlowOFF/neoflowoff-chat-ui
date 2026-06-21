@@ -1,12 +1,17 @@
 import pg from "pg";
+import { logger } from "./logger";
 
 const { Pool } = pg;
 
 const databaseUrl = process.env.DATABASE_URL;
 
+logger.debug("DB", "Inicializando módulo db.ts...");
+logger.debug("DB", "DATABASE_URL definida?", { defined: !!databaseUrl });
+
 if (!databaseUrl) {
-  console.warn(
-    "[DB] DATABASE_URL não encontrada. Captura de leads desativada.",
+  logger.warn(
+    "DB",
+    "DATABASE_URL não encontrada. Captura de leads desativada.",
   );
 }
 
@@ -24,14 +29,22 @@ export const pool = databaseUrl
     })
   : null;
 
+logger.debug("DB", "Pool criado?", { created: !!pool });
+
 /**
  * Garante que a tabela `leads` existe.
  * Chamada uma vez na inicialização do servidor.
  */
 export async function ensureLeadsTable(): Promise<void> {
-  if (!pool) return;
+  logger.debug("DB", "ensureLeadsTable() chamada");
+  if (!pool) {
+    logger.debug("DB", "Pool é null, retornando");
+    return;
+  }
 
-  await pool.query(`
+  try {
+    logger.debug("DB", "Executando CREATE TABLE leads...");
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS leads (
       id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       session_id   TEXT NOT NULL UNIQUE,
@@ -91,8 +104,11 @@ export async function ensureLeadsTable(): Promise<void> {
       BEFORE UPDATE ON leads
       FOR EACH ROW EXECUTE FUNCTION update_updated_at();
   `);
-
-  console.log("[DB] Tabela leads verificada/criada.");
+    logger.info("DB", "Tabela leads verificada/criada.");
+  } catch (error) {
+    logger.error("DB", "Erro ao criar tabela leads", error);
+    throw error;
+  }
 }
 
 /**
@@ -100,9 +116,15 @@ export async function ensureLeadsTable(): Promise<void> {
  * Chamada uma vez na inicialização do servidor.
  */
 export async function ensureSuspiciousEventsTable(): Promise<void> {
-  if (!pool) return;
+  logger.debug("DB", "ensureSuspiciousEventsTable() chamada");
+  if (!pool) {
+    logger.debug("DB", "Pool é null, retornando");
+    return;
+  }
 
-  await pool.query(`
+  try {
+    logger.debug("DB", "Executando CREATE TABLE suspicious_events...");
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS suspicious_events (
       id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       session_id  TEXT,
@@ -116,7 +138,10 @@ export async function ensureSuspiciousEventsTable(): Promise<void> {
     CREATE INDEX IF NOT EXISTS suspicious_events_categoria_idx
       ON suspicious_events (categoria);
   `);
-
-  console.log("[DB] Tabela suspicious_events verificada/criada.");
+    logger.info("DB", "Tabela suspicious_events verificada/criada.");
+  } catch (error) {
+    logger.error("DB", "Erro ao criar tabela suspicious_events", error);
+    throw error;
+  }
 }
 

@@ -33,6 +33,10 @@ async function dispatch(apiKey: string, payload: object): Promise<void> {
   if (!res.ok) throw new Error(`Resend HTTP ${res.status}: ${await res.text()}`);
 }
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function footer(year = new Date().getFullYear()) {
   return `<div style="font-size:11px;color:#aaa;text-align:center;margin-top:40px;border-top:1px solid #eee;padding-top:15px;">
     Enviado automaticamente pela inteligência NΞØ:One via Resend API.<br/>
@@ -167,14 +171,14 @@ export async function sendSuspiciousAlert(
   const { apiKey, from, toNeo } = config();
   if (!apiKey) { console.warn("[RESEND] API key ausente — alerta de segurança não enviado."); return; }
 
-  const categoryLabel: Record<string, string> = {
-    prompt_injection:    "Injeção de Prompt",
-    system_access:       "Acesso ao Sistema",
+  const categoryLabel = {
+    prompt_injection:     "Injeção de Prompt",
+    system_access:        "Acesso ao Sistema",
     infrastructure_probe: "Sondagem de Infraestrutura",
-    social_engineering:  "Engenharia Social",
-    code_execution:      "Tentativa de Execução de Código",
-    security_test:       "Teste de Segurança",
-  };
+    social_engineering:   "Engenharia Social",
+    code_execution:       "Tentativa de Execução de Código",
+    security_test:        "Teste de Segurança",
+  } satisfies Record<SuspiciousCategory, string>;
 
   const label = categoryLabel[category] ?? category;
   const subject = `[ALERTA SEGURANÇA] ${label}`;
@@ -200,7 +204,7 @@ export async function sendSuspiciousAlert(
         </tr>
         <tr>
           <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;vertical-align:top;">Mensagem:</td>
-          <td style="padding:10px 0;font-size:13px;color:#333;font-family:monospace;line-height:1.5;word-break:break-all;">${message.slice(0, 800).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
+          <td style="padding:10px 0;font-size:13px;color:#333;font-family:monospace;line-height:1.5;word-break:break-all;">${escapeHtml(message.slice(0, 800))}</td>
         </tr>
       </table>
     </div>
