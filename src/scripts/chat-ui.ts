@@ -1,4 +1,4 @@
-import { enqueue, getPending, dequeue } from '../lib/idb-queue';
+import { enqueue, getPending, dequeue } from '@/lib/idb-queue';
 import { analyzeSentiment } from './sentiment';
 
 try {
