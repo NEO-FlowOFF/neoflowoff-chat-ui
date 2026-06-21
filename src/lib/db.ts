@@ -2,7 +2,7 @@ import pg from "pg";
 
 const { Pool } = pg;
 
-const databaseUrl = import.meta.env.DATABASE_URL || process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   console.warn(
@@ -119,3 +119,4 @@ export async function ensureSuspiciousEventsTable(): Promise<void> {
 
   console.log("[DB] Tabela suspicious_events verificada/criada.");
 }
+
