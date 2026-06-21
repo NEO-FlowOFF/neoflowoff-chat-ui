@@ -1,5 +1,5 @@
+import { logger } from "@neo-flowoff/shared/logger";
 import pg from "pg";
-import { logger } from "./logger";
 
 const { Pool } = pg;
 
@@ -144,4 +144,3 @@ export async function ensureSuspiciousEventsTable(): Promise<void> {
     throw error;
   }
 }
-

@@ -27,8 +27,8 @@ vi.mock("../../../lib/db", () => {
   };
 });
 
-import { POST } from "../chat";
-import type { Message } from "../../../types/chat";
+import { POST } from "@/pages/api/chat";
+import type { Message } from "@/types/chat";
 
 // Mock global fetch
 const mockReader = {

@@ -20,8 +20,8 @@ vi.mock("ioredis", () => {
   };
 });
 
-import { getChatHistory, saveChatHistory } from "../redis";
-import { type Message } from "../../types/chat";
+import { getChatHistory, saveChatHistory } from "@/lib/redis";
+import { type Message } from "@/types/chat";
 
 describe("Redis Helper", () => {
   beforeEach(() => {

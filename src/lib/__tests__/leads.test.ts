@@ -23,7 +23,7 @@ vi.mock("../emails", () => {
   };
 });
 
-import { upsertLead, type Lead } from "../leads";
+import { upsertLead, type Lead } from "@/lib/leads";
 
 describe("Leads Helper", () => {
   beforeEach(() => {

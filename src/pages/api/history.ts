@@ -1,5 +1,5 @@
 import type { APIContext, APIRoute } from "astro";
-import { getChatHistory } from "../../lib/redis";
+import { getChatHistory } from "@/lib/redis";
 
 export const GET: APIRoute = async ({ request }: APIContext) => {
   try {
