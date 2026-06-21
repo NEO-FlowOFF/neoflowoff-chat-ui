@@ -113,7 +113,7 @@ export async function sendHandoffNotification(lead: Lead): Promise<void> {
   </div>`;
 
   console.log(`[RESEND] Enviando handoff para ${toNeo}...`);
-  await dispatch(apiKey, { from: `NΞØ:One <${from}>`, to: toNeo, subject, html });
+  await dispatch(apiKey, { from: `NEO One <${from}>`, to: toNeo, subject, html });
   console.log("[RESEND] Handoff enviado.");
 }
 
@@ -147,7 +147,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
 
   console.log(`[RESEND] Enviando confirmação para ${lead.email}...`);
   await dispatch(apiKey, {
-    from: `NΞØ:One <${from}>`,
+    from: `NEO One <${from}>`,
     to: lead.email,
     reply_to: toNeo,
     subject,
@@ -156,7 +156,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
 
   // Cópia interna para Neo
   await dispatch(apiKey, {
-    from: `NΞØ:One <${from}>`,
+    from: `NEO One <${from}>`,
     to: toNeo,
     subject: `[CÓPIA] Confirmação enviada para ${lead.email}`,
     html,
@@ -218,7 +218,7 @@ export async function sendSuspiciousAlert(
   </div>`;
 
   console.log("[RESEND] Enviando alerta de segurança...");
-  await dispatch(apiKey, { from: `NΞØ:One <${from}>`, to: toNeo, subject, html });
+  await dispatch(apiKey, { from: `NEO One <${from}>`, to: toNeo, subject, html });
   console.log("[RESEND] Alerta de segurança enviado.");
 }
 
@@ -255,8 +255,8 @@ export async function sendConversationSummary(lead: Lead): Promise<void> {
 
   console.log(`[RESEND] Enviando resumo para ${lead.email} e ${toNeo}...`);
   await Promise.all([
-    dispatch(apiKey, { from: `NΞØ:One <${from}>`, to: lead.email, reply_to: toNeo, subject, html }),
-    dispatch(apiKey, { from: `NΞØ:One <${from}>`, to: toNeo, subject: `[RESUMO] Conversa com ${lead.nome || lead.email}`, html }),
+    dispatch(apiKey, { from: `NEO One <${from}>`, to: lead.email, reply_to: toNeo, subject, html }),
+    dispatch(apiKey, { from: `NEO One <${from}>`, to: toNeo, subject: `[RESUMO] Conversa com ${lead.nome || lead.email}`, html }),
   ]);
   console.log("[RESEND] Resumo enviado.");
 }
