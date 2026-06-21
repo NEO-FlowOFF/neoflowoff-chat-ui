@@ -2,14 +2,9 @@ import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { saveChatHistory } from "../../lib/redis";
-import { ensureLeadsTable, ensureSuspiciousEventsTable } from "../../lib/db";
 import { logger } from "../../lib/logger";
 import { type Message } from "../../types/chat";
 import { getEcosystemContext } from "../../lib/rag";
-
-// Garante os schemas no primeiro request (idempotente)
-ensureLeadsTable().catch((e) => logger.error("DB", "Failed to ensure leads table", e));
-ensureSuspiciousEventsTable().catch((e) => logger.error("DB", "Failed to ensure suspicious_events table", e));
 
 // Hostnames autorizados a chamar a API (match EXATO de hostname, não substring).
 const ALLOWED_HOSTS = new Set([

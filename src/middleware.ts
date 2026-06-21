@@ -1,39 +1,26 @@
 import { defineMiddleware } from "astro:middleware";
+import { ensureLeadsTable, ensureSuspiciousEventsTable } from "./lib/db";
+import { logger } from "./lib/logger";
 
-const CSP_DIRECTIVES = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://www.googletagmanager.com",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://res.cloudinary.com https://www.googletagmanager.com https://*.google-analytics.com",
-  "media-src 'self' https://res.cloudinary.com",
-  "connect-src 'self' wss: https://cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
-  "worker-src 'self'",
-  "frame-ancestors 'self'",
-  "base-uri 'self'",
-  "form-action 'self'",
-];
+// Flag para garantir que a inicialização só roda uma vez
+let initialized = false;
 
-export const onRequest = defineMiddleware(async (_ctx, next) => {
-  const response = await next();
-
-  const ct = response.headers.get("content-type") ?? "";
-  if (ct.startsWith("text/html") && !ct.includes("charset")) {
-    response.headers.set("content-type", "text/html; charset=utf-8");
+export const onRequest = defineMiddleware(async (context, next) => {
+  // Inicializa as tables na primeira requisição
+  if (!initialized) {
+    initialized = true;
+    logger.info("INIT", "Inicializando banco de dados...");
+    
+    try {
+      await ensureLeadsTable();
+      await ensureSuspiciousEventsTable();
+      logger.info("INIT", "Banco de dados inicializado com sucesso!");
+    } catch (error) {
+      logger.error("INIT", "Erro ao inicializar banco de dados", error);
+      // Continua mesmo com erro, para não bloquear o servidor
+    }
   }
 
-  response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
-  );
-
-  if (ct.startsWith("text/html")) {
-    response.headers.set("Content-Security-Policy", CSP_DIRECTIVES.join("; "));
-  }
-
-  return response;
+  return next();
 });
+
