@@ -20,4 +20,3 @@ docs
 # pnpm files to ignore
 pnpm-lock.yaml
 .pnpm-store
-.npmrc
