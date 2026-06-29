@@ -1,5 +1,4 @@
 import { enqueue, getPending, dequeue } from '@/lib/idb-queue';
-import { analyzeSentiment } from './sentiment';
 
 try {
   const introSeen = sessionStorage.getItem("flow_intro_seen");
@@ -65,28 +64,6 @@ function loadHistory() { try { return JSON.parse(localStorage.getItem(STORAGE_KE
 function saveHistory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY))); } catch {} }
 function pushHistory(role: string, content: string) { chatHistory.push({ role, content, ts: Date.now() }); }
 
-function updateUITheme() {
-  const body = document.body;
-  if (!body) return;
-
-  if (chatHistory.length === 0) {
-    body.classList.remove('theme-positive', 'theme-negative');
-    return;
-  }
-
-  const lastMsg = chatHistory[chatHistory.length - 1];
-  const sentiment = analyzeSentiment(lastMsg.content);
-
-  if (sentiment === 'positive') {
-    body.classList.add('theme-positive');
-    body.classList.remove('theme-negative');
-  } else if (sentiment === 'negative') {
-    body.classList.add('theme-negative');
-    body.classList.remove('theme-positive');
-  } else {
-    body.classList.remove('theme-positive', 'theme-negative');
-  }
-}
 function scrollToBottom() { requestAnimationFrame(() => { wrap.scrollTop = wrap.scrollHeight; }); }
 function formatTime() { return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
 
@@ -306,7 +283,6 @@ async function syncHistoryWithRedis() {
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_HISTORY)));
       renderAllMessages();
-      updateUITheme();
       showToast("Memória sincronizada");
     }
   } catch {}
@@ -397,7 +373,6 @@ async function handleSend(queuedText?: string) {
   document.querySelector('.header')?.classList.add('chat-active');
   pushHistory('user', text);
   saveHistory();
-  updateUITheme();
   const userBubble = renderBubble('user', text, true);
   const typingEl = renderTyping();
   scrollToBottom();
@@ -410,7 +385,6 @@ async function handleSend(queuedText?: string) {
     const reply = await streamProxy(text, typingEl);
     pushHistory('agent', reply);
     saveHistory();
-    updateUITheme();
   } catch (err: unknown) {
     typingEl.remove();
     const isNetworkError = err instanceof TypeError;
@@ -418,7 +392,6 @@ async function handleSend(queuedText?: string) {
     if (isNetworkError && !queuedText) {
       chatHistory.pop();
       saveHistory();
-      updateUITheme();
       userBubble?.remove();
       await enqueue({
         sessionId: sessionId!,
@@ -492,7 +465,6 @@ const showConfirm = (msg: string) =>
 
 // Initialization
 renderAllMessages();
-updateUITheme();
 syncHistoryWithRedis();
 
 // Input / send event listeners
@@ -522,7 +494,6 @@ clearBtn.addEventListener('click', async () => {
 
   chatHistory = [];
   saveHistory();
-  updateUITheme();
 
   showEmptyState();
   renderAllMessages();
