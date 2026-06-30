@@ -33,7 +33,7 @@ Foca em resultados e infraestrutura soberana.
 
 ▓▓▓ INFRAESTRUTURA
 ────────────────────────────────────────
-└─ Frontend: Astro 6.x (Node Adapter)
+└─ Frontend: Astro 7.x (Node Adapter)
 └─ Hosting: Railway (Sovereign Infrastructure)
 └─ LLM: ASI1 AI (Streaming SSE)
 └─ Memory: Redis (Server) + LocalStorage (Client)

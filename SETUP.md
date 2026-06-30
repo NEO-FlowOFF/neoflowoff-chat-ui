@@ -50,7 +50,7 @@ Environment: Node.js >=22.12.0
 
 ▓▓▓ INFRAESTRUTURA
 ────────────────────────────────────────
-└─ Framework: Astro 6.x (SSR · Node Adapter)
+└─ Framework: Astro 7.x (SSR · Node Adapter)
 └─ Runtime:   Node.js >=22.12.0
 └─ LLM:       ASI1 AI (api.asi1.ai)
 └─ Memory:    Redis Cloud externo via REDIS_URL
