@@ -60,7 +60,7 @@ Environment: Node.js >=22.12.0
 
 ────────────────────────────────────────
 
-```
+```mermaid
 graph TD
     subgraph Frontend
         U[Visitor]
@@ -137,18 +137,16 @@ pnpm build
 ASI1_API_KEY=    # Chave ASI1 AI
 ASI1_MODEL=asi1  # Modelo (padrão: asi1)
 REDIS_URL=       # Redis Cloud externo (redis://default:***@host:port)
-DATABASE_URL=    # PostgreSQL Railway
+DATABASE_URL=    # PostgreSQL HA no Railway (${{ Postgres HA.DATABASE_URL }})
 SITE_URL=        # Domínio oficial (https://chat.neoflowoff.agency)
 RESEND_API_KEY=  # Chave da API do Resend (para disparos de Handoff)
 ```
 
 Notas:
 - `REDIS_URL` é a fonte ativa da memória server-side.
-- Em 2026-06-02, produção validada com Redis Cloud externo.
-- O serviço Redis Railway pode permanecer como fallback temporário, mas não
-  deve ser tratado como fonte ativa enquanto `REDIS_URL` aponta para o Redis
-  Cloud.
-- Hosts `*.railway.internal` só resolvem dentro da rede Railway.
+- Em 2026-06-02, produção validada com Redis Cloud externo (ex: Upstash ou Redis Cloud).
+- O módulo nativo de Redis não está mais disponível por padrão no Railway, então manter o Redis hospedado externamente é a arquitetura correta e recomendada.
+- `DATABASE_URL` utiliza o **Postgres HA** dentro do Railway para maior estabilidade e performance de banco relacional.
 
 ────────────────────────────────────────
 
