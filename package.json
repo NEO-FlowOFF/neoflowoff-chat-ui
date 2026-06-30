@@ -32,7 +32,7 @@
     "yaml": "^2.8.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
+    "allowedScripts": [
       "esbuild",
       "sharp"
     ]
