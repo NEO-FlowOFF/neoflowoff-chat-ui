@@ -30,5 +30,11 @@
     "typescript": "^5.0.0",
     "vitest": "^4.1.9",
     "yaml": "^2.8.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
