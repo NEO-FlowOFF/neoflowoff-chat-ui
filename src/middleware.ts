@@ -1,6 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { ensureLeadsTable, ensureSuspiciousEventsTable } from "./lib/db";
-import { logger } from "@neo-flowoff/shared/logger";
+import { logger } from "@/lib/logger";
 
 // Flag para garantir que a inicialização só roda uma vez
 let initialized = false;

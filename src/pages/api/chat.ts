@@ -1,4 +1,4 @@
-import { logger } from "@neo-flowoff/shared/logger";
+import { logger } from "@/lib/logger";
 import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";

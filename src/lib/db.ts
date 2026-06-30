@@ -1,4 +1,4 @@
-import { logger } from "@neo-flowoff/shared/logger";
+import { logger } from "@/lib/logger";
 import pg from "pg";
 
 const { Pool } = pg;
