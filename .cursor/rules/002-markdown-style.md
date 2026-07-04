@@ -45,7 +45,7 @@ Consulte sempre para detalhes de estilo:
 ▓▓▓ NΞØ MELLØ
 ────────────────────────────────────────
 Fundador · NEO FlowOFF
-neo@neoflowoff.agency · (62) 98323-1110
+neo@neoflowoff.agency · (62) 98234-4801
 
 "Automação de marketing e infraestrutura
 digital autônoma."

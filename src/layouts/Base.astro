@@ -68,7 +68,7 @@ import { ClientRouter } from "astro:transitions";
         "name": "NEO FlowOFF",
         "description": "Agência de automação de marketing e infraestrutura digital autônoma. Atendemos empresários e visionários em todo o Brasil.",
         "url": "https://neoflowoff.agency/",
-        "telephone": "+55-62-98323-1110",
+        "telephone": "+55-62-98234-4801",
         "email": "neo@neoflowoff.agency",
         "areaServed": "BR",
         "image": "https://chat.neoflowoff.agency/icon-512x512.webp"
@@ -333,6 +333,29 @@ import { ClientRouter } from "astro:transitions";
     gtag('js', new Date());
     gtag('config', 'G-5VD6EVN3C4');
   </script>
+  <!-- Meta Pixel — só carrega se PUBLIC_META_PIXEL_ID estiver configurado -->
+  {import.meta.env.PUBLIC_META_PIXEL_ID && (
+    <>
+      <script is:inline define:vars={{ pixelId: import.meta.env.PUBLIC_META_PIXEL_ID }}>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', pixelId);
+        fbq('track', 'PageView');
+      </script>
+      <noscript>
+        <img height="1" width="1" style="display:none"
+          src={`https://www.facebook.com/tr?id=${import.meta.env.PUBLIC_META_PIXEL_ID}&ev=PageView&noscript=1`}
+        />
+      </noscript>
+    </>
+  )}
+
 </head>
 <body>
     <ClientRouter />

@@ -47,5 +47,5 @@ não o LLM de atendimento.
 ## ⧉ Contato Real da Agência
 
 - **Email**: neo@neoflowoff.agency (CC: flowoff.mkt@gmail.com)
-- **WhatsApp**: (62) 98323-1110
+- **WhatsApp**: (62) 98234-4801
 - **Nunca usar**: Calendly, neoprotocol.space, agentverse.ai
