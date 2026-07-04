@@ -6,6 +6,7 @@ import { ensureLeadsTable, ensureSuspiciousEventsTable } from "@/lib/db";
 import { getEcosystemContext } from "@/lib/rag";
 import { saveChatHistory } from "@/lib/redis";
 import { type Message } from "@/types/chat";
+import { sendCapiEvent } from "@/lib/meta-capi";
 
 // Garante os schemas no primeiro request (idempotente)
 ensureLeadsTable().catch((e) =>
@@ -64,6 +65,8 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     const body = (await request.json()) as {
       messages: Message[];
       sessionId?: string;
+      /** UUID gerado pelo browser Pixel — repassado ao CAPI para deduplicação */
+      eventId?: string | null;
       attribution?: {
         utm_source?: string | null;
         utm_medium?: string | null;
@@ -76,7 +79,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         referrer?: string | null;
       } | null;
     };
-    const { messages, sessionId } = body;
+    const { messages, sessionId, eventId } = body;
 
     // Sentinel — detecta atividade suspeita no input antes de chamar o LLM
     const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
@@ -206,6 +209,28 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
 
             // Passa o histórico completo e a atribuição
             await updateRegisLead(sessionId, updatedHistory, attribution);
+
+            // Dispara CAPI: lead_created (fire-and-forget — não bloqueia SSE)
+            const clientIp =
+              request.headers.get("cf-connecting-ip") ??
+              request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+              null;
+            const clientUserAgent = request.headers.get("user-agent");
+
+            sendCapiEvent({
+              event_name: "Lead",
+              event_time: Math.floor(Date.now() / 1000),
+              action_source: "website",
+              event_source_url: `https://chat.neoflowoff.agency/chat`,
+              event_id: eventId ?? undefined,
+              user_data: {
+                clientIpAddress: clientIp,
+                clientUserAgent: clientUserAgent ?? undefined,
+                fbc: body.attribution?.fbclid
+                  ? `fb.1.${Date.now()}.${body.attribution.fbclid}`
+                  : undefined,
+              },
+            }).catch(() => {});
           } catch (err) {
             logger.error("REGIS", "Error updating lead", err);
           }

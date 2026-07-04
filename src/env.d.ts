@@ -7,6 +7,9 @@ interface ImportMetaEnv {
   readonly REDIS_URL: string;
   // Meta Pixel (browser) — PUBLIC_ prefix exposes to client at build time
   readonly PUBLIC_META_PIXEL_ID: string;
+  // Meta Conversions API (server-only — NUNCA expor ao cliente)
+  readonly META_CAPI_TOKEN: string;
+  readonly META_TEST_EVENT_CODE: string;
 }
 
 interface ImportMeta {
