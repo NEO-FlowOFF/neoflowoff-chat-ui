@@ -98,7 +98,7 @@ JSON:`;
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      console.error(`[REGIS] Extraction failed: HTTP ${res.status} — ${body}`);
+      console.log(`[REGIS] Extraction failed: HTTP ${res.status} — ${body}`);
       return;
     }
 
@@ -122,8 +122,8 @@ JSON:`;
     try {
       extracted = JSON.parse(jsonStr);
     } catch (parseErr) {
-      console.error("[REGIS] JSON parse error:", parseErr);
-      console.error("[REGIS] Attempted to parse:", jsonStr);
+      console.log("[REGIS] JSON parse error:", parseErr);
+      console.log("[REGIS] Attempted to parse:", jsonStr);
       return;
     }
 
@@ -192,6 +192,6 @@ JSON:`;
     await upsertLead(leadData);
     console.log(`[REGIS] Lead upserted successfully for session ${sessionId}`);
   } catch (err) {
-    console.error("[REGIS] Unexpected error during extraction/save:", err);
+    console.warn("[REGIS] Unexpected error during extraction/save:", err);
   }
 }

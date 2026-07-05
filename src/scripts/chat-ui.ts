@@ -57,7 +57,7 @@ function getAttribution() {
     const cached = localStorage.getItem(ATTRIBUTION_KEY);
     if (cached) return JSON.parse(cached);
   } catch (e) {
-    console.error('[ATTRIBUTION] Error:', e);
+    console.warn('[ATTRIBUTION] Error:', e);
   }
   return null;
 }

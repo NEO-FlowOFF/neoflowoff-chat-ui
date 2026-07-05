@@ -153,7 +153,7 @@ export async function sendCapiEvent(event: CapiEvent): Promise<boolean> {
 
     if (!res.ok) {
       const errBody = await res.text();
-      console.error(`[CAPI] HTTP ${res.status}:`, errBody);
+      console.log(`[CAPI] HTTP ${res.status}:`, errBody);
       return false;
     }
 
@@ -166,7 +166,7 @@ export async function sendCapiEvent(event: CapiEvent): Promise<boolean> {
     return (json.events_received ?? 0) >= 1;
   } catch (err) {
     // Nunca bloqueia o fluxo principal — CAPI é fire-and-forget
-    console.error("[CAPI] Falha ao enviar evento:", err);
+    console.warn("[CAPI] Falha ao enviar evento:", err);
     return false;
   }
 }

@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ request }: APIContext) => {
       },
     });
   } catch (error: unknown) {
-    console.error("[HISTORY API ERROR]", error);
+    console.warn("[HISTORY API ERROR]", error);
     return new Response(JSON.stringify({ history: [] }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

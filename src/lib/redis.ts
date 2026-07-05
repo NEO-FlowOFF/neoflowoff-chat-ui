@@ -43,7 +43,7 @@ if (redis && redisUrl) {
   redis.on("error", (err) => {
     if (redisErrorLogged) return;
     redisErrorLogged = true;
-    console.error("[REDIS] Connection error:", err instanceof Error ? err.message : err);
+    console.log("[REDIS] Connection error:", err instanceof Error ? err.message : err);
   });
 
   redis.on("end", () => {
@@ -57,7 +57,7 @@ export async function getChatHistory(sessionId: string): Promise<Message[]> {
     const data = await redis.get(`chat:${sessionId}`);
     return data ? JSON.parse(data) : [];
   } catch (err) {
-    console.error("[REDIS] Failed to read chat history:", err instanceof Error ? err.message : err);
+    console.warn("[REDIS] Failed to read chat history:", err instanceof Error ? err.message : err);
     return [];
   }
 }
@@ -74,7 +74,7 @@ export async function saveChatHistory(sessionId: string, history: Message[]) {
       60 * 60 * 24 * 7,
     ); // Expira em 7 dias
   } catch (err) {
-    console.error("[REDIS] Failed to persist chat history:", err instanceof Error ? err.message : err);
+    console.warn("[REDIS] Failed to persist chat history:", err instanceof Error ? err.message : err);
   }
 }
 
