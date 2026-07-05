@@ -46,6 +46,18 @@ vi.stubGlobal("fetch", mockFetch);
 describe("Chat API Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFetch.mockImplementation((url: unknown) => {
+      if (typeof url === "string" && url.includes("graph.facebook.com")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ events_received: 1 }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        body: mockStream,
+      });
+    });
   });
 
   it("should return 500 if ASI1_API_KEY env is missing", async () => {
@@ -72,11 +84,6 @@ describe("Chat API Route", () => {
   });
 
   it("should process stream, save history, and update Regis lead with attribution", async () => {
-    // Mock fetch resolution with readable stream
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      body: mockStream,
-    });
 
     // Mock reader chunks
     const encoder = new TextEncoder();

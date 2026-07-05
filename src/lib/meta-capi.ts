@@ -117,7 +117,7 @@ async function buildUserData(userData: CapiUserData): Promise<Record<string, str
  */
 export async function sendCapiEvent(event: CapiEvent): Promise<boolean> {
   const pixelId = process.env.PUBLIC_META_PIXEL_ID;
-  const capiToken = process.env.META_CAPI_TOKEN;
+  const capiToken = process.env.META_CAPI_TOKEN || process.env.META_ACCESS_TOKEN;
 
   // Sem credenciais → silencioso (não bloqueia o fluxo principal)
   if (!pixelId || !capiToken) return false;
