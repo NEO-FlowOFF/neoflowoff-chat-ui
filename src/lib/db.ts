@@ -15,6 +15,16 @@ if (!databaseUrl) {
   );
 }
 
+// Configuração de SSL direcionada por variável de ambiente (ex: DB_SSL_MODE="require" | "strict" | "false")
+// Padrão: desativado (false), compatível com conexões HA internas (ex.: Railway HA).
+const sslMode = process.env.DB_SSL_MODE?.toLowerCase();
+const sslConfig =
+  sslMode === "require" || sslMode === "true" || sslMode === "1"
+    ? { rejectUnauthorized: false }
+    : sslMode === "strict"
+      ? true
+      : false;
+
 /**
  * Pool de conexões PostgreSQL.
  * Null quando DATABASE_URL não está configurada (dev sem banco).
@@ -22,7 +32,7 @@ if (!databaseUrl) {
 export const pool = databaseUrl
   ? new Pool({
       connectionString: databaseUrl,
-      ssl: false,
+      ssl: sslConfig,
       max: 5,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,

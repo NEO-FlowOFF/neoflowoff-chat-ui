@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   // Meta Conversions API (server-only — NUNCA expor ao cliente)
   readonly META_CAPI_TOKEN: string;
   readonly META_TEST_EVENT_CODE: string;
+  readonly DB_SSL_MODE: string;
 }
 
 interface ImportMeta {
