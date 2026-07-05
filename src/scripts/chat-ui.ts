@@ -23,19 +23,17 @@ const MAX_HISTORY = 40;
 
 function getAttribution() {
   try {
-    const cached = localStorage.getItem(ATTRIBUTION_KEY);
-    if (cached) return JSON.parse(cached);
-
     const params = new URLSearchParams(window.location.search);
     const utm_source = params.get('utm_source');
     const utm_medium = params.get('utm_medium');
     const utm_campaign = params.get('utm_campaign');
     const utm_term = params.get('utm_term');
     const utm_content = params.get('utm_content');
+    const context = params.get('context') || params.get('ctx');
     const gclid = params.get('gclid');
     const fbclid = params.get('fbclid');
 
-    const hasParams = utm_source || utm_medium || utm_campaign || utm_term || utm_content || gclid || fbclid;
+    const hasParams = utm_source || utm_medium || utm_campaign || utm_term || utm_content || context || gclid || fbclid;
     const referrer = document.referrer || null;
     const landing_path = window.location.pathname;
 
@@ -46,6 +44,7 @@ function getAttribution() {
         utm_campaign,
         utm_term,
         utm_content,
+        context,
         gclid,
         fbclid,
         landing_path,
@@ -54,6 +53,9 @@ function getAttribution() {
       localStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(attr));
       return attr;
     }
+
+    const cached = localStorage.getItem(ATTRIBUTION_KEY);
+    if (cached) return JSON.parse(cached);
   } catch (e) {
     console.error('[ATTRIBUTION] Error:', e);
   }
@@ -126,8 +128,9 @@ function formatMarkdown(text: string) {
       return preserve(`<code>${codeText}</code>`);
     });
 
-    parsed = parsed.replace(/\[([^\]]+)]\(([^)\s]+)\)/g, (_, linkText, url) => {
-      const safe = /^https?:\/\//i.test(url) ? escapeAttribute(url) : '#';
+    parsed = parsed.replace(/\[([^\]]+)]\(([^)\n]+)\)/g, (_, linkText, url) => {
+      const cleanUrl = url.trim().replace(/\s+/g, '%20');
+      const safe = /^https?:\/\//i.test(cleanUrl) ? escapeAttribute(cleanUrl) : '#';
       return preserve(
         `<a href="${safe}" target="_blank" rel="noreferrer noopener">${linkText}</a>`
       );

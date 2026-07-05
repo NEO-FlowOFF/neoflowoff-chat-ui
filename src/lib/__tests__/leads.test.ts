@@ -24,6 +24,7 @@ vi.mock("../emails", () => {
 });
 
 import { upsertLead, type Lead } from "@/lib/leads";
+import { sendHandoffNotification } from "../emails";
 
 describe("Leads Helper", () => {
   beforeEach(() => {
@@ -92,5 +93,30 @@ describe("Leads Helper", () => {
     // Verify first-touch COALESCE logic exists in the SQL query string
     expect(insertSql).toContain("utm_source      = COALESCE(leads.utm_source,   EXCLUDED.utm_source)");
     expect(insertSql).toContain("gclid           = COALESCE(leads.gclid,        EXCLUDED.gclid)");
+  });
+
+  it("should trigger sendHandoffNotification when lead is qualified for Speed-to-Lead", async () => {
+    mockPool.query.mockResolvedValueOnce({ rows: [] }); // check existing
+    mockPool.query.mockResolvedValueOnce({ rows: [] }); // insert
+    mockPool.query.mockResolvedValueOnce({ rows: [] }); // update handoff_sent
+
+    const lead: Lead = {
+      sessionId: "session-hot-1",
+      nome: "Carlos Silva",
+      telefone: "62999999999",
+      visitorIntent: "automação de atendimento",
+      utmCampaign: "agentes_ai",
+    };
+
+    await upsertLead(lead);
+
+    expect(sendHandoffNotification).toHaveBeenCalledTimes(1);
+    expect(sendHandoffNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nome: "Carlos Silva",
+        telefone: "62999999999",
+        utmCampaign: "agentes_ai",
+      })
+    );
   });
 });

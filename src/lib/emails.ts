@@ -4,13 +4,13 @@ import type { SuspiciousCategory } from "./sentinel";
 const RESEND_API = "https://api.resend.com/emails";
 
 const INTENT_LABELS: Record<string, string> = {
-  orcamento:       "Solicitação de Orçamento",
-  parceria:        "Proposta de Parceria",
-  suporte:         "Suporte Técnico",
-  projeto_webapp:  "Projeto de WebApp",
-  agents_empresa:  "Agentes de IA para Empresa",
-  curioso:         "Visitante Curioso",
-  outro:           "Outro",
+  orcamento: "Solicitação de Orçamento",
+  parceria: "Proposta de Parceria",
+  suporte: "Suporte Técnico",
+  projeto_webapp: "Projeto de WebApp",
+  agents_empresa: "Agentes de IA para Empresa",
+  curioso: "Visitante Curioso",
+  outro: "Outro",
 };
 
 function getEnv(key: string) {
@@ -18,19 +18,26 @@ function getEnv(key: string) {
 }
 
 function config() {
-  const apiKey  = getEnv("RESEND_API_KEY");
-  const from    = getEnv("RESEND_FROM") || "neo@neoflowoff.agency";
-  const toNeo   = getEnv("RESEND_TO")   || "neo@neoflowoff.agency";
-  return { apiKey, from, toNeo };
+  const apiKey = getEnv("RESEND_API_KEY");
+  const from = getEnv("RESEND_FROM") || "neo@neoflowoff.agency";
+  const rawTo = getEnv("RESEND_TO") || "neo@neoflowoff.agency, flowoff.mkt@gmail.com";
+  const toNeo = rawTo.includes(",")
+    ? rawTo.split(",").map((e) => e.trim()).filter(Boolean)
+    : rawTo;
+  return { apiKey, from, toNeo, replyTo: Array.isArray(toNeo) ? toNeo[0] : toNeo };
 }
 
 async function dispatch(apiKey: string, payload: object): Promise<void> {
   const res = await fetch(RESEND_API, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error(`Resend HTTP ${res.status}: ${await res.text()}`);
+  if (!res.ok)
+    throw new Error(`Resend HTTP ${res.status}: ${await res.text()}`);
 }
 
 function escapeHtml(str: string): string {
@@ -51,7 +58,17 @@ function footer(year = new Date().getFullYear()) {
 }
 
 function leadTable(lead: Lead) {
-  const intent = lead.visitorIntent ? (INTENT_LABELS[lead.visitorIntent] ?? lead.visitorIntent) : "Não identificado";
+  const intent = lead.visitorIntent
+    ? (INTENT_LABELS[lead.visitorIntent] ?? lead.visitorIntent)
+    : "Não identificado";
+  const utms = [
+    lead.utmSource ? `Fonte: ${lead.utmSource}` : "",
+    lead.utmCampaign ? `Campanha: ${lead.utmCampaign}` : "",
+    lead.utmMedium ? `Meio: ${lead.utmMedium}` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
   return `
   <table style="width:100%;border-collapse:collapse;">
     <tr style="border-bottom:1px solid #f0f0f0;">
@@ -67,7 +84,7 @@ function leadTable(lead: Lead) {
     <tr style="border-bottom:1px solid #f0f0f0;">
       <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;">WhatsApp:</td>
       <td style="padding:10px 0;font-size:14px;color:#111;font-weight:600;">
-        ${lead.telefone ? `<a href="https://wa.me/${lead.telefone.replace(/\D/g,"")}" style="color:#25d366;text-decoration:none;">${lead.telefone}</a>` : "Não informado"}
+        ${lead.telefone ? `<a href="https://wa.me/${lead.telefone.replace(/\D/g, "")}" style="color:#25d366;text-decoration:none;">${lead.telefone}</a>` : "Não informado"}
       </td>
     </tr>
     <tr style="border-bottom:1px solid #f0f0f0;">
@@ -78,6 +95,15 @@ function leadTable(lead: Lead) {
       <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;vertical-align:top;">Intenção:</td>
       <td style="padding:10px 0;font-size:14px;color:#111;">${intent}</td>
     </tr>
+    ${
+      utms
+        ? `
+    <tr style="border-bottom:1px solid #f0f0f0;">
+      <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;vertical-align:top;">Origem / UTMs:</td>
+      <td style="padding:10px 0;font-size:14px;color:#0055cc;font-weight:600;">${utms}</td>
+    </tr>`
+        : ""
+    }
     <tr>
       <td style="padding:10px 0;font-size:14px;color:#666;font-weight:500;vertical-align:top;">Contexto:</td>
       <td style="padding:10px 0;font-size:14px;color:#333;line-height:1.5;">${lead.observacoes || "Nenhum"}</td>
@@ -86,23 +112,51 @@ function leadTable(lead: Lead) {
 }
 
 /**
- * Template 1 — Lead Qualificado (para Neo)
+ * Template 1 — Lead Qualificado Speed-to-Lead < 1 Minuto (para Neo)
  * Disparo: lead tem nome + contato + contexto e ainda não recebeu handoff.
  */
 export async function sendHandoffNotification(lead: Lead): Promise<void> {
   const { apiKey, from, toNeo } = config();
-  if (!apiKey) { console.warn("[RESEND] API key ausente — handoff não enviado."); return; }
+  if (!apiKey) {
+    console.warn("[RESEND] API key ausente — handoff não enviado.");
+    return;
+  }
 
-  const intent = lead.visitorIntent ? (INTENT_LABELS[lead.visitorIntent] ?? lead.visitorIntent) : "";
-  const subject = `[LEAD] ${lead.nome || "Visitante"}${intent ? ` · ${intent}` : ""}`;
+  const intent = lead.visitorIntent
+    ? (INTENT_LABELS[lead.visitorIntent] ?? lead.visitorIntent)
+    : "";
+  const subject = `[🚨 LEAD QUENTE < 1 MIN] — ${lead.nome || "Visitante"}${intent ? ` · ${intent}` : ""}`;
+
+  const phoneDigits = lead.telefone ? lead.telefone.replace(/\D/g, "") : "";
+  const waMessage = encodeURIComponent(
+    `Olá ${lead.nome || ""}! Sou o Neo Mello. Vi que você conversou com o agente NEØ sobre ${intent || "automação com IA"} e quero avançar no seu atendimento!`
+  );
+  const waUrl = phoneDigits ? `https://wa.me/${phoneDigits}?text=${waMessage}` : "";
 
   const html = `
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eaeaea;border-radius:8px;background:#fff;">
+    <div style="background:#ffefe5;border-left:4px solid #ff5500;padding:12px 16px;border-radius:4px;margin-bottom:20px;">
+      <span style="color:#cc4400;font-weight:700;font-size:14px;">🚨 SPEED-TO-LEAD &lt; 1 MINUTO — Venda Quente</span>
+    </div>
     <h2 style="color:#000;font-size:20px;font-weight:700;letter-spacing:-0.5px;margin:0 0 6px;">NΞØ:One — Lead Qualificado</h2>
-    <p style="font-size:13px;color:#888;margin:0 0 24px;">Um visitante qualificado está pronto para acompanhamento.</p>
+    <p style="font-size:13px;color:#888;margin:0 0 24px;">Um visitante qualificado acabou de informar seus dados no chat.</p>
+    
     <div style="background:#f9f9f9;padding:20px;border-radius:6px;border:1px solid #f0f0f0;margin-bottom:24px;">
       ${leadTable(lead)}
     </div>
+
+    ${
+      waUrl
+        ? `
+    <div style="text-align:center;margin:30px 0;">
+      <a href="${waUrl}" target="_blank" style="background:#25d366;color:#ffffff;font-weight:700;font-size:16px;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block;box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+        💬 CHAMAR NO WHATSAPP AGORA
+      </a>
+      <p style="font-size:12px;color:#888;margin-top:8px;">Clique no botão acima para abrir o WhatsApp com mensagem contextualizada.</p>
+    </div>`
+        : ""
+    }
+
     <div style="background:#f1f7ff;border-left:4px solid #0066cc;padding:14px;border-radius:4px;margin-bottom:24px;">
       <p style="font-size:13px;color:#004499;margin:0;line-height:1.5;">
         <strong>ID da Sessão:</strong>
@@ -112,9 +166,14 @@ export async function sendHandoffNotification(lead: Lead): Promise<void> {
     ${footer()}
   </div>`;
 
-  console.log(`[RESEND] Enviando handoff para ${toNeo}...`);
-  await dispatch(apiKey, { from: `NEO One <${from}>`, to: toNeo, subject, html });
-  console.log("[RESEND] Handoff enviado.");
+  console.log(`[RESEND] Enviando handoff Speed-to-Lead para ${JSON.stringify(toNeo)}...`);
+  await dispatch(apiKey, {
+    from: `NEO One <${from}>`,
+    to: toNeo,
+    subject,
+    html,
+  });
+  console.log("[RESEND] Handoff Speed-to-Lead enviado.");
 }
 
 /**
@@ -172,23 +231,28 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
 export async function sendSuspiciousAlert(
   sessionId: string | undefined,
   category: SuspiciousCategory,
-  message: string
+  message: string,
 ): Promise<void> {
   const { apiKey, from, toNeo } = config();
-  if (!apiKey) { console.warn("[RESEND] API key ausente — alerta de segurança não enviado."); return; }
+  if (!apiKey) {
+    console.warn("[RESEND] API key ausente — alerta de segurança não enviado.");
+    return;
+  }
 
   const categoryLabel = {
-    prompt_injection:     "Injeção de Prompt",
-    system_access:        "Acesso ao Sistema",
+    prompt_injection: "Injeção de Prompt",
+    system_access: "Acesso ao Sistema",
     infrastructure_probe: "Sondagem de Infraestrutura",
-    social_engineering:   "Engenharia Social",
-    code_execution:       "Tentativa de Execução de Código",
-    security_test:        "Teste de Segurança",
+    social_engineering: "Engenharia Social",
+    code_execution: "Tentativa de Execução de Código",
+    security_test: "Teste de Segurança",
   } satisfies Record<SuspiciousCategory, string>;
 
   const label = categoryLabel[category] ?? category;
   const subject = `[ALERTA SEGURANÇA] ${label}`;
-  const ts = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  const ts = new Date().toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+  });
 
   const html = `
   <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;max-width:600px;margin:0 auto;padding:30px;border:1px solid #eaeaea;border-radius:8px;background:#fff;">
@@ -218,7 +282,12 @@ export async function sendSuspiciousAlert(
   </div>`;
 
   console.log("[RESEND] Enviando alerta de segurança...");
-  await dispatch(apiKey, { from: `NEO One <${from}>`, to: toNeo, subject, html });
+  await dispatch(apiKey, {
+    from: `NEO One <${from}>`,
+    to: toNeo,
+    subject,
+    html,
+  });
   console.log("[RESEND] Alerta de segurança enviado.");
 }
 
@@ -231,7 +300,9 @@ export async function sendConversationSummary(lead: Lead): Promise<void> {
   if (!apiKey || !lead.email) return;
 
   const nome = lead.nome ? lead.nome.split(" ")[0] : "visitante";
-  const intent = lead.visitorIntent ? (INTENT_LABELS[lead.visitorIntent] ?? lead.visitorIntent) : null;
+  const intent = lead.visitorIntent
+    ? (INTENT_LABELS[lead.visitorIntent] ?? lead.visitorIntent)
+    : null;
   const subject = "Resumo da sua conversa com NΞØ:One";
 
   const html = `
@@ -255,8 +326,19 @@ export async function sendConversationSummary(lead: Lead): Promise<void> {
 
   console.log(`[RESEND] Enviando resumo para ${lead.email} e ${toNeo}...`);
   await Promise.all([
-    dispatch(apiKey, { from: `NEO One <${from}>`, to: lead.email, reply_to: toNeo, subject, html }),
-    dispatch(apiKey, { from: `NEO One <${from}>`, to: toNeo, subject: `[RESUMO] Conversa com ${lead.nome || lead.email}`, html }),
+    dispatch(apiKey, {
+      from: `NEO One <${from}>`,
+      to: lead.email,
+      reply_to: toNeo,
+      subject,
+      html,
+    }),
+    dispatch(apiKey, {
+      from: `NEO One <${from}>`,
+      to: toNeo,
+      subject: `[RESUMO] Conversa com ${lead.nome || lead.email}`,
+      html,
+    }),
   ]);
   console.log("[RESEND] Resumo enviado.");
 }

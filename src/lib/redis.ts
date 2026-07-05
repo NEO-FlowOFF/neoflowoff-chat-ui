@@ -64,7 +64,7 @@ export async function getChatHistory(sessionId: string): Promise<Message[]> {
 
 export async function saveChatHistory(sessionId: string, history: Message[]) {
   if (!redis) return;
-  // Mantém apenas as últimas 40 mensagens para performance e custo
+  // Mantém apenas as últimas 40 mensagens para performance e custo no armazenamento persistente
   const limitedHistory = history.slice(-40);
   try {
     await redis.set(
@@ -77,3 +77,13 @@ export async function saveChatHistory(sessionId: string, history: Message[]) {
     console.error("[REDIS] Failed to persist chat history:", err instanceof Error ? err.message : err);
   }
 }
+
+/**
+ * Janela Deslizante de Memória (Sliding Memory Window)
+ * Retorna apenas as últimas N interações (padrão: 10 mensagens = 5 turnos),
+ * reduzindo o custo de tokens no LLM e mantendo a latência inferior a 250ms.
+ */
+export function getSlidingWindow(messages: Message[], maxMessages: number = 10): Message[] {
+  return messages.slice(-maxMessages);
+}
+

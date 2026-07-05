@@ -1,9 +1,0 @@
-allowBuilds:
-  esbuild: true
-  sharp: true
-
-minimumReleaseAgeExclude:
-  - '@neo-flowoff/shared@1.0.0'
-
-overrides:
-  yaml: ">=2.8.3"

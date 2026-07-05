@@ -7,8 +7,10 @@ const { mockSaveChatHistory, mockUpdateRegisLead } = vi.hoisted(() => {
   };
 });
 
-vi.mock("../../../lib/redis", () => {
+vi.mock("../../../lib/redis", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../../lib/redis")>();
   return {
+    ...actual,
     saveChatHistory: mockSaveChatHistory,
     redis: null,
   };
@@ -23,6 +25,7 @@ vi.mock("../../../lib/regis", () => {
 vi.mock("../../../lib/db", () => {
   return {
     ensureLeadsTable: vi.fn().mockResolvedValue(undefined),
+    ensureSuspiciousEventsTable: vi.fn().mockResolvedValue(undefined),
     pool: null,
   };
 });
@@ -102,6 +105,8 @@ describe("Chat API Route", () => {
         sessionId: "session-abc",
         attribution: {
           utm_source: "newsletter",
+          utm_campaign: "agentes_ai",
+          context: "vendas_b2b",
           gclid: "g123",
         },
       }),
@@ -130,7 +135,7 @@ describe("Chat API Route", () => {
     expect(regisCall[2]).toEqual({
       utmSource: "newsletter",
       utmMedium: null,
-      utmCampaign: null,
+      utmCampaign: "agentes_ai",
       utmTerm: null,
       utmContent: null,
       gclid: "g123",
@@ -138,5 +143,15 @@ describe("Chat API Route", () => {
       landingPath: null,
       referrer: null,
     });
+
+    // Verify LLM received attribution prompt with UTMs and context
+    expect(mockFetch).toHaveBeenCalled();
+    const fetchArgs = mockFetch.mock.calls[0];
+    expect(fetchArgs[0]).toBe("https://api.asi1.ai/v1/chat/completions");
+    const fetchBody = JSON.parse(fetchArgs[1].body);
+    const sysMsg = fetchBody.messages[0].content;
+    expect(sysMsg).toContain("DADOS DE ATRIBUIÇÃO E ORIGEM DO CLIENTE (UTMs)");
+    expect(sysMsg).toContain("Campanha: agentes_ai");
+    expect(sysMsg).toContain("Contexto da URL: vendas_b2b");
   });
 });

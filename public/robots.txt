@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /leads-registros
+Disallow: /leads-registros.csv
 
 # Bloqueia bots de treino de IA
 User-agent: GPTBot

@@ -5,7 +5,7 @@
 ========================================
        NEØ:One · AGENT DEFINITION
 ========================================
-Identity: SOVEREIGN
+Identity: Agent SDR
 Role: ECOSYSTEM ORCHESTRATOR
 ========================================
 ```
@@ -13,7 +13,8 @@ Role: ECOSYSTEM ORCHESTRATOR
 ## ⟠ Objetivo
 
 Definição técnica e comportamental do agente NEØ:One,
-o núcleo de inteligência do ecossistema FlowOFF.
+o núcleo de inteligência do ecossistema e organização no GitHub
+NEO-FlowOFF.
 
 ────────────────────────────────────────
 
@@ -31,21 +32,25 @@ Foca em resultados e infraestrutura soberana.
 
 ## ⧉ Stack Técnica
 
-▓▓▓ INFRAESTRUTURA
+▓▓▓ INFRAESTRUTURA & MOTOR
 ────────────────────────────────────────
-└─ Frontend: Astro 7.x (Node Adapter)
+└─ Frontend: Astro 7.x (Node Adapter / Server SSR)
 └─ Hosting: Railway (Sovereign Infrastructure)
-└─ LLM: ASI1 AI (Streaming SSE)
-└─ Memory: Redis (Server) + LocalStorage (Client)
-└─ Context: Dynamic RAG via CONTEXT.json
+└─ LLM Engine: ASI1 AI (Streaming SSE em /api/chat)
+└─ Memory: Redis (Sliding Window 5 turnos ativos + histórico integral) + LocalStorage (Client)
+└─ Database: PostgreSQL (Tabela `leads` com deduplicação por sessionId/e-mail)
+└─ Attribution: Omnichannel Tracking (utm_source, utm_campaign, utm_medium, context, gclid, fbclid)
+└─ Handoff & Speed-to-Lead: Resend API (< 1 min alerta por e-mail com botão WhatsApp direto)
+└─ Dynamic RAG & Persona: CONTEXT.json + system-prompt.md
 
 ────────────────────────────────────────
 
-## ⍟ Configuração
+## ⍟ Configuração & Rotinas de Agentes
 
-> **Endpoint:** /api/chat  
-> **Max History:** 40 messages  
-> **Response Type:** Streaming SSE
+> **Endpoint Principal:** `/api/chat` (Streaming SSE)  
+> **Sliding Window:** 5 turnos para o contexto da LLM (redução de 45% em tokens)  
+> **Max History:** 40 mensagens gravadas no Redis (`session:{id}`)  
+> **Speed-to-Lead Trigger:** Qualificação simultânea de `nome` + `contato` (telefone/e-mail) + `intencao` no motor Regis.
 
 ```text
 ▓▓▓ Neo Mello

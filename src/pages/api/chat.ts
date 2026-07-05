@@ -4,7 +4,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { ensureLeadsTable, ensureSuspiciousEventsTable } from "@/lib/db";
 import { getEcosystemContext } from "@/lib/rag";
-import { saveChatHistory } from "@/lib/redis";
+import { saveChatHistory, getSlidingWindow } from "@/lib/redis";
 import { type Message } from "@/types/chat";
 import { sendCapiEvent } from "@/lib/meta-capi";
 
@@ -73,6 +73,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         utm_campaign?: string | null;
         utm_term?: string | null;
         utm_content?: string | null;
+        context?: string | null;
         gclid?: string | null;
         fbclid?: string | null;
         landing_path?: string | null;
@@ -103,12 +104,32 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
       fs.readFile(contextPath, "utf-8"),
     ]);
 
-    const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---\n${getEcosystemContext()}`;
+    let attributionPrompt = "";
+    if (body.attribution) {
+      const attr = body.attribution;
+      const attrParts = [];
+      if (attr.utm_source) attrParts.push(`Origem (UTM Source): ${attr.utm_source}`);
+      if (attr.utm_campaign) attrParts.push(`Campanha: ${attr.utm_campaign}`);
+      if (attr.utm_medium) attrParts.push(`Mídia: ${attr.utm_medium}`);
+      if (attr.utm_term) attrParts.push(`Termo: ${attr.utm_term}`);
+      if (attr.utm_content) attrParts.push(`Conteúdo: ${attr.utm_content}`);
+      if (attr.context) attrParts.push(`Contexto da URL: ${attr.context}`);
+      if (attr.landing_path) attrParts.push(`Página de Entrada: ${attr.landing_path}`);
+
+      if (attrParts.length > 0) {
+        attributionPrompt = `\n\n--- DADOS DE ATRIBUIÇÃO E ORIGEM DO CLIENTE (UTMs) ---\nO visitante chegou através dos seguintes canais/campanhas:\n${attrParts.join("\n")}\nINSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente para contextualizar sua saudação inicial e condução do atendimento, demonstrando alinhamento com o interesse que o motivou a nos procurar.\n--- FIM ATRIBUIÇÃO ---`;
+      }
+    }
+
+    const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---\n${getEcosystemContext()}${attributionPrompt}`;
+
+    // Aplica a Janela Deslizante (últimas 10 interações = 5 turnos) para economizar tokens e acelerar a resposta
+    const slidingMessages = getSlidingWindow(messages, 10);
 
     // Constrói a lista final de mensagens com o prompt de sistema no topo
     const finalMessages = [
       { role: "system" as const, content: systemPrompt },
-      ...messages,
+      ...slidingMessages,
     ];
 
     logger.info("API", "Gerando resposta para o usuário", {

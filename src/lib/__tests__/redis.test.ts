@@ -20,7 +20,7 @@ vi.mock("ioredis", () => {
   };
 });
 
-import { getChatHistory, saveChatHistory } from "@/lib/redis";
+import { getChatHistory, saveChatHistory, getSlidingWindow } from "@/lib/redis";
 import { type Message } from "@/types/chat";
 
 describe("Redis Helper", () => {
@@ -52,11 +52,23 @@ describe("Redis Helper", () => {
     expect(mockRedis.set).toHaveBeenCalled();
     const setCallArgs = mockRedis.set.mock.calls[0];
     expect(setCallArgs[0]).toBe("chat:session-123");
-    
+
     const savedData = JSON.parse(setCallArgs[1]);
     expect(savedData.length).toBe(40);
     expect(savedData[0].content).toBe("msg 10"); // checks index slice(-40)
     expect(setCallArgs[2]).toBe("EX");
     expect(setCallArgs[3]).toBe(60 * 60 * 24 * 7); // 7 days expiration
+  });
+
+  it("should apply sliding window correctly to keep only the last N messages", () => {
+    const history: Message[] = Array.from({ length: 25 }, (_, i) => ({
+      role: i % 2 === 0 ? "user" : "assistant",
+      content: `turn ${i}`,
+    }));
+
+    const window = getSlidingWindow(history, 10);
+    expect(window.length).toBe(10);
+    expect(window[0].content).toBe("turn 15");
+    expect(window[9].content).toBe("turn 24");
   });
 });

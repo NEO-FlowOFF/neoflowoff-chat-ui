@@ -1,4 +1,4 @@
-const CACHE_NAME = "neoflow-v7";
+const CACHE_NAME = "neoflow-v8";
 
 // Apenas shell estático sem hashes — assets Astro são servidos network-first
 const SHELL_URLS = [
