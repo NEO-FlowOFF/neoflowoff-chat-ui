@@ -22,7 +22,7 @@ if (!databaseUrl) {
 export const pool = databaseUrl
   ? new Pool({
       connectionString: databaseUrl,
-      ssl: { rejectUnauthorized: false }, // Railway exige SSL
+      ssl: false,
       max: 5,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,
