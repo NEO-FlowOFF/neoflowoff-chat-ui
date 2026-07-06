@@ -39,15 +39,29 @@ export const pool = databaseUrl
     })
   : null;
 
-// Captura erros de conexão emitidos pelo pool (ex: quedas de rede, reinicializações
-// do banco, timeouts do PgBouncer). Sem este handler, o Node.js trata o evento
-// 'error' como não tratado e encerra o processo.
+// Capture connection errors emitted by the pool (e.g., network drops, database restarts,
+// or PgBouncer timeouts). Without this handler, Node.js treats the 'error' event as
+// unhandled and terminates the process.
 if (pool) {
-  pool.on("error", (err: Error) => {
+  pool.on("error", (err: Error, client: any) => {
     logger.error(
       "DB",
-      "Erro inesperado no pool de conexões PostgreSQL — conexão será descartada e o pool tentará reconectar automaticamente",
-      err,
+      "Unexpected error on PostgreSQL connection pool — connection will be discarded and the pool will attempt to reconnect automatically",
+      {
+        name: err.name,
+        message: err.message,
+        code: (err as any).code,
+        stack: err.stack,
+        client: client
+          ? {
+              host: client.host,
+              port: client.port,
+              database: client.database,
+              user: client.user,
+              processID: client.processID,
+            }
+          : undefined,
+      },
     );
   });
 }
