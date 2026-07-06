@@ -10,7 +10,7 @@
        NEØ:One · CHAT INTERFACE
 ========================================
 Status:  ACTIVE
-Version: v1.2.0
+Version: v1.2.1
 Type:    PWA (Progressive Web App)
 ========================================
 ```
