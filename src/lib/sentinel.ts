@@ -97,7 +97,7 @@ export async function logSuspiciousEvent(
       `[SENTINEL] Evento suspeito registrado — session: ${sessionId ?? "anon"} | categoria: ${category}`
     );
   } catch (err) {
-    console.error("[SENTINEL] Falha ao registrar evento suspeito:", err);
+    console.warn("[SENTINEL] Falha ao registrar evento suspeito:", err);
   }
 }
 

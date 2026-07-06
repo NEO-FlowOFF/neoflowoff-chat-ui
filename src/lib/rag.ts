@@ -15,7 +15,7 @@ export function getEcosystemContext(): string {
     context += "\n--- END OF KNOWLEDGE BASE ---\n";
     return context;
   } catch (error) {
-    console.error("[RAG ERROR]", error);
+    console.warn("[RAG ERROR]", error);
     return "";
   }
 }

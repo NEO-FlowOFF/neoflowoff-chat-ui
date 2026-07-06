@@ -213,7 +213,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       };
     }
   } catch (err) {
-    console.error("[LEADS] Erro ao consultar lead existente:", err);
+    console.log("[LEADS] Erro ao consultar lead existente:", err);
   }
 
   const finalNome = cleanText(lead.nome) || existing.nome;
@@ -576,7 +576,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
   // Confirmação para o visitante quando e-mail é capturado pela primeira vez
   if (mergedLead.email && !existing.email) {
     sendVisitorConfirmation(mergedLead).catch((err) =>
-      console.error("[LEADS] Falha ao enviar confirmação para visitante:", err),
+      console.log("[LEADS] Falha ao enviar confirmação para visitante:", err),
     );
   }
 
@@ -605,7 +605,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
         );
       })
       .catch((err) => {
-        console.error("[LEADS] Falha ao enviar e-mails de handoff:", err);
+        console.log("[LEADS] Falha ao enviar e-mails de handoff:", err);
       });
   }
 }
