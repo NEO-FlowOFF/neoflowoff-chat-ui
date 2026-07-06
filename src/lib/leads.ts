@@ -609,3 +609,52 @@ export async function upsertLead(lead: Lead): Promise<void> {
       });
   }
 }
+
+export interface LeadOperationalState {
+  nome: string;
+  empresa: string;
+  email: string;
+  telefone: string;
+  qualificado: boolean;
+  handoffSent: boolean;
+  lifecycleStage: string;
+  poiDetected: boolean;
+  produtoInteresse: string;
+  dorPrincipal: string;
+}
+
+/**
+ * Consulta o estado operacional do lead em tempo real no PostgreSQL
+ * para injeção de contexto (Backend Authority) antes da geração de resposta no chat.
+ */
+export async function getLeadBySessionId(
+  sessionId: string,
+): Promise<LeadOperationalState | null> {
+  if (!pool || !sessionId) return null;
+
+  try {
+    const result = await pool.query(
+      `SELECT nome, empresa, email, telefone, qualificado, handoff_sent, lifecycle_stage, poi_detected, produto_interesse, dor_principal FROM leads WHERE session_id = $1`,
+      [sessionId],
+    );
+
+    if (result.rows.length === 0) return null;
+
+    const row = result.rows[0];
+    return {
+      nome: row.nome || "",
+      empresa: row.empresa || "",
+      email: row.email || "",
+      telefone: row.telefone || "",
+      qualificado: !!row.qualificado,
+      handoffSent: !!row.handoff_sent,
+      lifecycleStage: row.lifecycle_stage || "visitor",
+      poiDetected: !!row.poi_detected,
+      produtoInteresse: row.produto_interesse || "",
+      dorPrincipal: row.dor_principal || "",
+    };
+  } catch (err) {
+    console.error("[LEADS] Erro ao consultar estado operacional do lead:", err);
+    return null;
+  }
+}

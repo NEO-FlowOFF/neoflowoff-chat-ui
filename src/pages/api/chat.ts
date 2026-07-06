@@ -7,6 +7,7 @@ import { getEcosystemContext } from "@/lib/rag";
 import { saveChatHistory, getSlidingWindow } from "@/lib/redis";
 import { type Message } from "@/types/chat";
 import { sendCapiEvent } from "@/lib/meta-capi";
+import { getLeadBySessionId } from "@/lib/leads";
 
 // Garante os schemas no primeiro request (idempotente)
 ensureLeadsTable().catch((e) =>
@@ -108,20 +109,95 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     if (body.attribution) {
       const attr = body.attribution;
       const attrParts = [];
-      if (attr.utm_source) attrParts.push(`Origem (UTM Source): ${attr.utm_source}`);
+      if (attr.utm_source)
+        attrParts.push(`Origem (UTM Source): ${attr.utm_source}`);
       if (attr.utm_campaign) attrParts.push(`Campanha: ${attr.utm_campaign}`);
       if (attr.utm_medium) attrParts.push(`Mídia: ${attr.utm_medium}`);
       if (attr.utm_term) attrParts.push(`Termo: ${attr.utm_term}`);
       if (attr.utm_content) attrParts.push(`Conteúdo: ${attr.utm_content}`);
       if (attr.context) attrParts.push(`Contexto da URL: ${attr.context}`);
-      if (attr.landing_path) attrParts.push(`Página de Entrada: ${attr.landing_path}`);
+      if (attr.landing_path)
+        attrParts.push(`Página de Entrada: ${attr.landing_path}`);
 
       if (attrParts.length > 0) {
-        attributionPrompt = `\n\n--- DADOS DE ATRIBUIÇÃO E ORIGEM DO CLIENTE (UTMs) ---\nO visitante chegou através dos seguintes canais/campanhas:\n${attrParts.join("\n")}\nINSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente para contextualizar sua saudação inicial e condução do atendimento, demonstrando alinhamento com o interesse que o motivou a nos procurar.\n--- FIM ATRIBUIÇÃO ---`;
+        attributionPrompt = `--- DADOS DE ATRIBUIÇÃO E ORIGEM DO CLIENTE (UTMs) ---
+O visitante chegou através dos seguintes canais/campanhas:
+${attrParts.join("\n")}
+INSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente para contextualizar sua saudação inicial e condução do atendimento, demonstrando alinhamento com o URL/campanha.
+--- FIM ATRIBUIÇÃO ---`;
       }
     }
 
-    const systemPrompt = `${systemPromptRaw}\n\n--- ECOSYSTEM CONTEXT ---\n${ecosystemContext}\n--- END CONTEXT ---\n${getEcosystemContext()}${attributionPrompt}`;
+    let operationalStatePrompt = "";
+    if (sessionId) {
+      try {
+        const leadState = await getLeadBySessionId(sessionId);
+        if (leadState) {
+          const hasNome = !!leadState.nome;
+          const hasEmail = !!leadState.email;
+          const hasTelefone = !!leadState.telefone;
+          const isReadyForHandoff = hasNome && hasTelefone;
+
+          const optionalContactFields: string[] = [];
+          if (leadState.produtoInteresse) {
+            optionalContactFields.push(
+              `- Produto de Interesse: ${leadState.produtoInteresse}`,
+            );
+          }
+          if (leadState.dorPrincipal) {
+            optionalContactFields.push(
+              `- Dor Principal: ${leadState.dorPrincipal}`,
+            );
+          }
+          const optionalContactText =
+            optionalContactFields.length > 0
+              ? `\n${optionalContactFields.join("\n")}`
+              : "";
+
+          const handoffStatusText = isReadyForHandoff
+            ? "ESTÃO PREENCHIDOS!"
+            : "AÇÕES NECESSÁRIAS ABAIXO";
+
+          operationalStatePrompt = `--- ESTADO OPERACIONAL DO CLIENTE (BACKEND AUTHORITY) ---
+Estágio no CRM (Lifecycle): ${leadState.lifecycleStage}
+POI (Intenção Comercial) Detectado no Banco: ${leadState.poiDetected ? "SIM" : "NÃO"}
+Qualificado no Banco: ${leadState.qualificado ? "SIM" : "NÃO"}
+Dados de Contato Capturados no Banco:
+- Nome: ${hasNome ? `PREENCHIDO (${leadState.nome})` : "AUSENTE"}
+- Telefone/WhatsApp: ${hasTelefone ? `PREENCHIDO (${leadState.telefone})` : "AUSENTE (OBRIGATÓRIO PARA HANDOFF COMERCIAL)"}
+- E-mail: ${hasEmail ? `PREENCHIDO (${leadState.email})` : "AUSENTE (Desejável para remarketing Meta)"}${optionalContactText}
+
+REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
+1. SE O CLIENTE DEMONSTRAR PRESSA/URGÊNCIA ("estou com pressa", "quero contratar logo") OU SE POI DETECTADO FOR "SIM":
+   - VOCÊ ESTÁ PROIBIDO DE FAZER NOVAS PERGUNTAS SOBRE DORES, NECESSIDADES OU QUALIFICAÇÃO. INTERROMPA QUALQUER INVESTIGAÇÃO IMEDIATAMENTE.
+2. REQUISITO COMERCIAL DE HANDOFF RÁPIDO (NOME + WHATSAPP):
+   - O time comercial precisa apenas de NOME e WHATSAPP para contato imediato no cenário de pressa ou intenção de compra. O e-mail é um bônus para remarketing Meta, mas JAMAIS deve bloquear o encaminhamento.
+   - SE NOME E WHATSAPP JÁ ESTIVEREM PREENCHIDOS (${handoffStatusText}): Confirme em uma única frase curta e humana que nosso especialista já está sendo acionado para contatá-lo no WhatsApp sem demora. Não peça e-mail se o cliente estiver com pressa!
+   - SE NOME OU WHATSAPP ESTIVEREM AUSENTES: Você DEVE solicitar apenas o que falta (dando preferência ao WhatsApp e Nome, e se possível e-mail junto).
+3. EXECUÇÃO NATURAL ("SEM PARECER CHATBOT SEM LLM"):
+   - É PROIBIDO listar perguntas em formato de formulário ou bullet points ("1. Nome: 2. Telefone:").
+   - É PROIBIDO enviar respostas longas, burocráticas ou repetitivas.
+   - É OBRIGATÓRIO usar a fluência natural do LLM para acolher a urgência do visitante em 1 frase curta e empática, solicitando os dados faltantes em UMA ÚNICA PERGUNTA fluida e direta, explicando que isso serve justamente para agilizar a conexão imediata com o especialista no WhatsApp.
+--- FIM DO ESTADO OPERACIONAL ---`;
+        }
+      } catch (err) {
+        logger.error(
+          "API",
+          "Erro ao buscar estado operacional em chat.ts",
+          err,
+        );
+      }
+    }
+
+    const systemPromptBlocks = [
+      systemPromptRaw.trim(),
+      `--- ECOSYSTEM CONTEXT ---\n${ecosystemContext.trim()}\n--- END CONTEXT ---`,
+      getEcosystemContext().trim(),
+      attributionPrompt.trim(),
+      operationalStatePrompt.trim(),
+    ].filter(Boolean);
+
+    const systemPrompt = systemPromptBlocks.join("\n\n");
 
     // Aplica a Janela Deslizante (últimas 10 interações = 5 turnos) para economizar tokens e acelerar a resposta
     const slidingMessages = getSlidingWindow(messages, 10);
