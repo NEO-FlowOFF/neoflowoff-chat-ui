@@ -27,6 +27,19 @@ function config() {
   return { apiKey, from, toNeo, replyTo: Array.isArray(toNeo) ? toNeo[0] : toNeo };
 }
 
+function getSanitizedFrom(from: string): string {
+  // Remove all non-ASCII characters to prevent validation errors in Resend
+  const clean = from.replace(/[^\x00-\x7F]/g, "").trim();
+  
+  // If the clean string already contains an email structure with a display name, return it directly
+  if (clean.includes("<") && clean.includes(">")) {
+    return clean;
+  }
+  
+  // Otherwise, wrap it with the default "NEO One" display name
+  return `NEO One <${clean}>`;
+}
+
 async function dispatch(apiKey: string, payload: object): Promise<void> {
   const res = await fetch(RESEND_API, {
     method: "POST",
@@ -168,7 +181,7 @@ export async function sendHandoffNotification(lead: Lead): Promise<void> {
 
   console.log(`[RESEND] Enviando handoff Speed-to-Lead para ${JSON.stringify(toNeo)}...`);
   await dispatch(apiKey, {
-    from: `NEO One <${from}>`,
+    from: getSanitizedFrom(from),
     to: toNeo,
     subject,
     html,
@@ -206,7 +219,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
 
   console.log(`[RESEND] Enviando confirmação para ${lead.email}...`);
   await dispatch(apiKey, {
-    from: `NEO One <${from}>`,
+    from: getSanitizedFrom(from),
     to: lead.email,
     reply_to: toNeo,
     subject,
@@ -215,7 +228,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
 
   // Cópia interna para Neo
   await dispatch(apiKey, {
-    from: `NEO One <${from}>`,
+    from: getSanitizedFrom(from),
     to: toNeo,
     subject: `[CÓPIA] Confirmação enviada para ${lead.email}`,
     html,
@@ -283,7 +296,7 @@ export async function sendSuspiciousAlert(
 
   console.log("[RESEND] Enviando alerta de segurança...");
   await dispatch(apiKey, {
-    from: `NEO One <${from}>`,
+    from: getSanitizedFrom(from),
     to: toNeo,
     subject,
     html,
@@ -327,14 +340,14 @@ export async function sendConversationSummary(lead: Lead): Promise<void> {
   console.log(`[RESEND] Enviando resumo para ${lead.email} e ${toNeo}...`);
   await Promise.all([
     dispatch(apiKey, {
-      from: `NEO One <${from}>`,
+      from: getSanitizedFrom(from),
       to: lead.email,
       reply_to: toNeo,
       subject,
       html,
     }),
     dispatch(apiKey, {
-      from: `NEO One <${from}>`,
+      from: getSanitizedFrom(from),
       to: toNeo,
       subject: `[RESUMO] Conversa com ${lead.nome || lead.email}`,
       html,
