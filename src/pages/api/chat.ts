@@ -8,11 +8,6 @@ import { saveChatHistory, getSlidingWindow } from "@/lib/redis";
 import { type Message } from "@/types/chat";
 import { sendCapiEvent } from "@/lib/meta-capi";
 import { getLeadBySessionId } from "@/lib/leads";
-import {
-  isGodModeActive,
-  getGodModeSystemPrompt,
-  getGodModeTools,
-} from "@/lib/god-mode";
 
 // Garante os schemas no primeiro request (idempotente)
 ensureLeadsTable().catch((e) =>
@@ -214,8 +209,6 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
       getEcosystemContext().trim(),
       attributionPrompt.trim(),
       operationalStatePrompt.trim(),
-      // God Mode injects dev assistant persona at the end — no-op when flag is off
-      isGodModeActive() ? getGodModeSystemPrompt() : "",
     ].filter(Boolean);
 
     const systemPrompt = systemPromptBlocks.join("\n\n");
@@ -260,10 +253,6 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
         max_tokens: 600,
         frequency_penalty: 0.4,
         presence_penalty: 0.3,
-        // God Mode injects tools into LLM payload — no-op when flag is off
-        ...(isGodModeActive()
-          ? { tools: getGodModeTools(), tool_choice: "auto" }
-          : {}),
       }),
     });
 
