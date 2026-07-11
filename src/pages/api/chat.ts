@@ -1,13 +1,13 @@
+import { ensureLeadsTable, ensureSuspiciousEventsTable } from "@/lib/db";
+import { getLeadBySessionId } from "@/lib/leads";
 import { logger } from "@/lib/logger";
+import { sendCapiEvent } from "@/lib/meta-capi";
+import { getEcosystemContext } from "@/lib/rag";
+import { getSlidingWindow, saveChatHistory } from "@/lib/redis";
+import { type Message } from "@/types/chat";
 import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { ensureLeadsTable, ensureSuspiciousEventsTable } from "@/lib/db";
-import { getEcosystemContext } from "@/lib/rag";
-import { saveChatHistory, getSlidingWindow } from "@/lib/redis";
-import { type Message } from "@/types/chat";
-import { sendCapiEvent } from "@/lib/meta-capi";
-import { getLeadBySessionId } from "@/lib/leads";
 
 // Garante os schemas no primeiro request (idempotente)
 ensureLeadsTable().catch((e) =>
@@ -99,11 +99,17 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     // Carrega o System Prompt e Contexto no Server-Side para evitar exposição
     const promptPath = path.join(process.cwd(), "src/lib/system-prompt.md");
     const contextPath = path.join(process.cwd(), "src/lib/CONTEXT.json");
+    const humanizationSkillPath = path.join(
+      process.cwd(),
+      "src/lib/humanization-skill.md",
+    );
 
-    const [systemPromptRaw, ecosystemContext] = await Promise.all([
-      fs.readFile(promptPath, "utf-8"),
-      fs.readFile(contextPath, "utf-8"),
-    ]);
+    const [systemPromptRaw, ecosystemContext, humanizationSkill] =
+      await Promise.all([
+        fs.readFile(promptPath, "utf-8"),
+        fs.readFile(contextPath, "utf-8"),
+        fs.readFile(humanizationSkillPath, "utf-8"),
+      ]);
 
     let attributionPrompt = "";
     if (body.attribution) {
@@ -167,9 +173,7 @@ INSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente 
         );
       }
       if (state.dorPrincipal) {
-        optionalContactFields.push(
-          `- Dor Principal: ${state.dorPrincipal}`,
-        );
+        optionalContactFields.push(`- Dor Principal: ${state.dorPrincipal}`);
       }
       const optionalContactText =
         optionalContactFields.length > 0
@@ -205,6 +209,7 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
 
     const systemPromptBlocks = [
       systemPromptRaw.trim(),
+      humanizationSkill.trim(),
       `--- ECOSYSTEM CONTEXT ---\n${ecosystemContext.trim()}\n--- END CONTEXT ---`,
       getEcosystemContext().trim(),
       attributionPrompt.trim(),
