@@ -17,17 +17,17 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.0.6",
+    "astro": "^7.0.9",
     "ioredis": "^5.11.1",
     "pg": "^8.22.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@astrojs/node": "^11.0.2",
-    "@types/node": "^25.9.4",
+    "@types/node": "^25.9.5",
     "@types/pg": "^8.20.0",
     "typescript": "^5.0.0",
-    "vitest": "^4.1.9",
+    "vitest": "^4.1.10",
     "yaml": "^2.8.3"
   }
 }
