@@ -1,0 +1,233 @@
+---
+import { pool } from "@/lib/db";
+
+type LeadRow = {
+  updated_at: Date;
+  nome: string | null;
+  email: string | null;
+  telefone: string | null;
+  empresa: string | null;
+  visitor_intent: string | null;
+  resumo_conversa: string | null;
+  dor_principal: string | null;
+  ultima_mensagem: string | null;
+  produto_interesse: string | null;
+  urgencia: string | null;
+  qualificado: boolean;
+  lead_score: number;
+  intent_score: number;
+  poi_detected: boolean;
+  handoff_sent: boolean;
+  followup_status: string;
+  followup_due_at: Date | null;
+};
+
+if (!pool) {
+  Astro.response.status = 503;
+}
+
+const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+const fromParam = Astro.url.searchParams.get("from") ?? "";
+const toParam = Astro.url.searchParams.get("to") ?? "";
+const orderParam = Astro.url.searchParams.get("order") ?? "desc";
+const fromDate = datePattern.test(fromParam) ? fromParam : "";
+const toDate = datePattern.test(toParam) ? toParam : "";
+const order = orderParam === "asc" ? "asc" : "desc";
+const filters: string[] = [];
+const filterValues: string[] = [];
+
+if (fromDate) {
+  filterValues.push(fromDate);
+  filters.push(`created_at >= $${filterValues.length}::date`);
+}
+if (toDate) {
+  filterValues.push(toDate);
+  filters.push(`created_at < ($${filterValues.length}::date + INTERVAL '1 day')`);
+}
+
+const whereClause = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+const orderHref = (nextOrder: "asc" | "desc") => {
+  const params = new URLSearchParams();
+  if (fromDate) params.set("from", fromDate);
+  if (toDate) params.set("to", toDate);
+  params.set("order", nextOrder);
+  return `/admin?${params.toString()}`;
+};
+const result = pool
+  ? await pool.query<LeadRow>(`
+      SELECT
+        updated_at, nome, email, telefone, empresa,
+        visitor_intent, resumo_conversa, dor_principal, ultima_mensagem,
+        produto_interesse, urgencia, qualificado, lead_score, intent_score,
+        poi_detected,
+        handoff_sent, followup_status, followup_due_at
+      FROM leads
+      ${whereClause}
+      ORDER BY updated_at ${order === "asc" ? "ASC" : "DESC"}
+      LIMIT 500
+    `, filterValues)
+  : { rows: [] as LeadRow[] };
+
+const leads = result.rows;
+const qualified = leads.filter((lead) => lead.qualificado).length;
+const pendingHandoffs = leads.filter(
+  (lead) => lead.qualificado && !lead.handoff_sent,
+).length;
+const overdueFollowups = leads.filter(
+  (lead) =>
+    lead.followup_due_at &&
+    new Date(lead.followup_due_at).getTime() < Date.now() &&
+    !["done", "closed"].includes(lead.followup_status),
+).length;
+
+const formatDate = (date: Date | null) =>
+  date
+    ? new Intl.DateTimeFormat("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+        timeZone: "America/Sao_Paulo",
+      }).format(new Date(date))
+    : "—";
+
+const text = (value: string | null) => value?.trim() || "—";
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <title>Leads · NEØ:one</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Leads</h1>
+          <p>PostgreSQL HA · últimos 500 registros · atualizado a cada acesso</p>
+        </div>
+        <a href="/admin">Atualizar</a>
+      </header>
+
+      {
+        !pool ? (
+          <p class="error">DATABASE_URL não está configurada.</p>
+        ) : (
+          <>
+            <form method="get" class="filters" aria-label="Filtrar leads por data de criação">
+              <input type="hidden" name="order" value={order} />
+              <label>
+                Data inicial
+                <input type="date" name="from" value={fromDate} />
+              </label>
+              <label>
+                Data final
+                <input type="date" name="to" value={toDate} />
+              </label>
+              <fieldset class="sort">
+                <legend>Ordem da data</legend>
+                <a href={orderHref("asc")} class:list={{ active: order === "asc" }} title="Mais antigos primeiro" aria-label="Ordenar do mais antigo para o mais recente">↑</a>
+                <a href={orderHref("desc")} class:list={{ active: order === "desc" }} title="Mais recentes primeiro" aria-label="Ordenar do mais recente para o mais antigo">↓</a>
+              </fieldset>
+              <button type="submit">Filtrar</button>
+              <a href="/admin">Limpar</a>
+            </form>
+
+            <section class="summary" aria-label="Resumo operacional">
+              <div><strong>{leads.length}</strong><span>registros</span></div>
+              <div><strong>{qualified}</strong><span>qualificados</span></div>
+              <div><strong>{pendingHandoffs}</strong><span>handoffs pendentes</span></div>
+              <div><strong>{overdueFollowups}</strong><span>follow-ups vencidos</span></div>
+            </section>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Atualizado</th><th>Contato</th><th>Empresa</th>
+                    <th>Intenção / produto</th><th>Score</th>
+                    <th>Resumo / dor</th><th>Sinais</th><th>Última mensagem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map((lead) => (
+                    <tr>
+                      <td data-label="Atualizado">{formatDate(lead.updated_at)}</td>
+                      <td data-label="Contato">
+                        <strong>{text(lead.nome)}</strong>
+                        <small>{text(lead.email)}</small>
+                        <small>{text(lead.telefone)}</small>
+                      </td>
+                      <td data-label="Empresa">{text(lead.empresa)}</td>
+                      <td data-label="Intenção / produto">
+                        {text(lead.visitor_intent)}
+                        <small>{text(lead.produto_interesse)}</small>
+                      </td>
+                      <td data-label="Score">
+                        Lead: {lead.lead_score}<small>Intenção: {lead.intent_score}</small>
+                      </td>
+                      <td data-label="Resumo / dor">
+                        {text(lead.resumo_conversa)}<small>{text(lead.dor_principal)}</small>
+                      </td>
+                      <td data-label="Sinais">
+                        POI: {lead.poi_detected ? "sim" : "não"}<small>Urgência: {text(lead.urgencia)}</small>
+                      </td>
+                      <td data-label="Última mensagem">{text(lead.ultima_mensagem)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )
+      }
+    </main>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(body) { margin: 0; background: #0d0f0e; color: #f3f4f3; font: 14px/1.45 system-ui, sans-serif; }
+  main { width: 100%; padding: 16px; }
+  header { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  h1 { margin: 0; font-size: 24px; }
+  p { margin: 4px 0 0; color: #a8ada9; }
+  a { color: #dfff00; }
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; padding: 12px; border: 1px solid #303431; background: #151816; }
+  .filters label { display: grid; gap: 4px; color: #a8ada9; font-size: 12px; }
+  .filters input, .filters button { width: 100%; min-height: 40px; border: 1px solid #414642; border-radius: 4px; background: #0d0f0e; color: #f3f4f3; padding: 8px; font: inherit; }
+  .filters button { background: #dfff00; color: #0d0f0e; border-color: #dfff00; font-weight: 700; cursor: pointer; }
+  .filters a { align-self: center; justify-self: center; }
+  .sort { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 0; padding: 0; border: 0; }
+  .sort legend { margin-bottom: 4px; color: #a8ada9; font-size: 12px; }
+  .sort a { display: grid; min-height: 40px; place-items: center; border: 1px solid #414642; border-radius: 4px; background: #0d0f0e; color: #dfff00; font-size: 18px; text-decoration: none; }
+  .sort a.active { background: #dfff00; color: #0d0f0e; }
+  .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .summary div { padding: 12px; border: 1px solid #303431; background: #151816; }
+  .summary strong, .summary span, td small { display: block; }
+  .summary strong { font-size: 22px; }
+  .summary span, td small { color: #a8ada9; }
+  table, tbody, tr, td { display: block; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { display: none; }
+  tr { margin-bottom: 12px; border: 1px solid #303431; background: #151816; }
+  td { display: grid; grid-template-columns: minmax(100px, 35%) 1fr; gap: 12px; padding: 9px 12px; border-bottom: 1px solid #292c2a; overflow-wrap: anywhere; }
+  td:last-child { border-bottom: 0; }
+  td::before { content: attr(data-label); color: #8b918c; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .error { padding: 16px; border: 1px solid #a33; color: #fcc; }
+
+  @media (min-width: 760px) {
+    main { padding: 24px; }
+    .filters { grid-template-columns: minmax(160px, 220px) minmax(160px, 220px) 100px 100px auto; align-items: end; }
+    .summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .table-wrap { overflow-x: auto; }
+    table { display: table; min-width: 1180px; }
+    thead { display: table-header-group; }
+    tbody { display: table-row-group; }
+    tr { display: table-row; margin: 0; border: 0; }
+    th, td { display: table-cell; padding: 10px; border: 1px solid #303431; text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: #202421; color: #dfff00; font-size: 12px; }
+    td::before { content: none; }
+  }
+</style>

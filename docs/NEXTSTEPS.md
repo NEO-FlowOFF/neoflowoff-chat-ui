@@ -6,7 +6,7 @@
        NEØ:One · EVOLUTION ROADMAP
 ========================================
 Focus: SOVEREIGNTY & CONTEXT
-Version: v1.2.0
+Version: v1.2.1
 ========================================
 ```
 
@@ -60,6 +60,8 @@ da interface soberana NEØ:One.
 - [x] Deduplicação Meta: `event_id` é compartilhado entre browser e servidor.
 - [x] Consentimento/LGPD: GA4, Meta Pixel e CAPI exigem opt-in; status, fonte
   e instante são persistidos e a revogação fica disponível em `/privacidade`.
+- [x] Dashboard mínimo `/admin`: tabela mobile-first, leitura direta de `leads`
+  no PostgreSQL HA e proteção server-side por HTTP Basic Auth.
 - [ ] Dashboard de aquisição: consolidar visitas, conversas iniciadas, leads criados, leads qualificados, reuniões e origem de campanha.
 - [ ] Dashboard operacional: acompanhar latência ASI1, erros de streaming, taxa de handoff, Regis/PostgreSQL e disponibilidade de Redis.
 - [ ] FlowPay: mapear oferta de serviços, orçamento/proposta e cobrança recorrente como capability interna da stack NEØ.

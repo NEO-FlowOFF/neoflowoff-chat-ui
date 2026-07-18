@@ -1,4 +1,4 @@
-const CACHE_NAME = "neoflow-v8";
+const CACHE_NAME = "neoflow-v9";
 
 // Apenas shell estático sem hashes — assets Astro são servidos network-first
 const SHELL_URLS = [
@@ -52,13 +52,28 @@ self.addEventListener("sync", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
+  if (event.request.method !== "GET") return;
+
   // API e assets com hash do Astro: sempre network-first, sem cache
   if (
     (url.origin === self.location.origin && url.pathname.startsWith("/api/")) ||
     url.pathname.startsWith("/_astro/")
   ) return;
 
-  // Shell e assets estáticos: cache-first com fallback de rede
+  // Navegação: prioriza sempre o HTML atual para não reter referências antigas
+  // aos assets versionados do Astro. O cache serve apenas como fallback offline.
+  if (url.origin === self.location.origin && event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(async () =>
+        (await caches.match(url.pathname)) ||
+        (await caches.match("/")) ||
+        new Response("Offline", { status: 503 })
+      )
+    );
+    return;
+  }
+
+  // Demais assets estáticos: cache-first com fallback de rede
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );

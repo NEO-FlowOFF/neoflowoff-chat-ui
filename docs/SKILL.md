@@ -6,7 +6,7 @@
        NEØ:One · SKILL MANIFEST
 ========================================
 Status: BETA
-Version: v1.1.0
+Version: v1.2.1
 ========================================
 ```
 
@@ -26,6 +26,8 @@ operacionais do agente NEØ:One no ecossistema FlowOFF.
 └─ tactile-ui: interface dark-only com shell monolítico e bolhas quebradas.
 └─ pwa-sovereign: suporte offline e instalação standalone.
 └─ measurement: GA4 + Meta Pixel + Meta CAPI com deduplicação por event_id.
+└─ growth-context: Neo Growth System + oferta ativa Agent SDR.
+└─ attribution: contexto de campanha via UTMs e query string controlada.
 
 ────────────────────────────────────────
 
@@ -33,7 +35,7 @@ operacionais do agente NEØ:One no ecossistema FlowOFF.
 
 ▓▓▓ ROADMAP TÉCNICO
 ────────────────────────────────────────
-└─ context: injeção dinâmica de ecossistema via RAG.
+└─ context: evoluir o RAG Lite estático para recuperação seletiva.
 └─ auth: proteção via assinatura de wallet ou JWT.
 └─ consent: gate LGPD ativo para analytics, pixels e CAPI após opt-in.
 
