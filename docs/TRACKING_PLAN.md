@@ -135,8 +135,8 @@ somente em uma mudança específica e validada.
   problema, solução, interesse comercial, pedido de ação e ação urgente.
 - `lead_score`: soma determinística de nome, contato válido, empresa/cargo,
   dor/necessidade, produto, urgência e UTM.
-- `poi_detected`: exige classificação positiva e trecho literal verificável da
-  conversa; inferência sem evidência é descartada.
+- O sinal comercial interno exige evidência verificável; inferências sem prova
+  são descartadas. Taxonomia, pesos e protocolo permanecem confidenciais.
 - `qualificado`: requer nome, contato válido, intenção mínima e score mínimo.
 - `handoff`: requer qualificação, WhatsApp válido e intenção comercial explícita.
 

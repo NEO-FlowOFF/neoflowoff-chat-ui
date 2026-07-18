@@ -75,8 +75,8 @@ Extraction rules:
 9. "produto_interesse": specific service or product discussed, otherwise null.
 10. "urgencia": explicit deadline or urgency, otherwise null.
 11. "commercial_intent": exactly one of "no_signal", "curiosity", "problem_identified", "solution_interest", "commercial_interest", "action_request", "urgent_action".
-12. "poi_detected": true only when the visitor explicitly demonstrates buying, proposal, pricing, meeting, implementation or immediate-action intent.
-13. "poi_evidence": when poi_detected is true, copy one short exact excerpt from a VISITOR message that proves it. Otherwise null. Never infer evidence from an AGENT message.
+12. "commercial_signal_detected": true only when the visitor explicitly demonstrates buying, proposal, pricing, meeting, implementation or immediate-action intent.
+13. "commercial_signal_evidence": when commercial_signal_detected is true, copy one short exact excerpt from a VISITOR message that proves it. Otherwise null. Never infer evidence from an AGENT message.
 
 Output format (strict JSON):
 {
@@ -91,8 +91,8 @@ Output format (strict JSON):
   "produto_interesse": string | null,
   "urgencia": string | null,
   "commercial_intent": string,
-  "poi_detected": boolean,
-  "poi_evidence": string | null
+  "commercial_signal_detected": boolean,
+  "commercial_signal_evidence": string | null
 }
 
 Conversation:
@@ -187,13 +187,14 @@ JSON:`;
     )
       ? (rawCommercialIntent as CommercialIntent)
       : "no_signal";
-    const poiEvidence = sanitizeStr(extracted.poi_evidence);
+    const poiEvidence = sanitizeStr(extracted.commercial_signal_evidence);
     const normalizedTranscript = transcript.toLocaleLowerCase("pt-BR");
     const evidenceExists = !!(
       poiEvidence &&
       normalizedTranscript.includes(poiEvidence.toLocaleLowerCase("pt-BR"))
     );
-    const poiDetected = extracted.poi_detected === true && evidenceExists;
+    const poiDetected =
+      extracted.commercial_signal_detected === true && evidenceExists;
     const ultimaMensagem =
       [...messages].reverse().find((message) => message.role === "user")
         ?.content ?? null;

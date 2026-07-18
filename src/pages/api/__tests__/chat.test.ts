@@ -1,20 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockSaveChatHistory, mockUpdateRegisLead } = vi.hoisted(() => {
+const {
+  mockCheckChatRateLimit,
+  mockGetChatHistory,
+  mockSaveChatHistory,
+  mockUpdateRegisLead,
+} = vi.hoisted(() => {
   return {
+    mockCheckChatRateLimit: vi.fn().mockResolvedValue(true),
+    mockGetChatHistory: vi.fn().mockResolvedValue([]),
     mockSaveChatHistory: vi.fn(),
     mockUpdateRegisLead: vi.fn(),
   };
 });
 
-vi.mock("../../../lib/redis", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../../lib/redis")>();
-  return {
-    ...actual,
-    saveChatHistory: mockSaveChatHistory,
-    redis: null,
-  };
-});
+vi.mock("../../../lib/redis", () => ({
+  checkChatRateLimit: mockCheckChatRateLimit,
+  getChatHistory: mockGetChatHistory,
+  getSlidingWindow: <T>(messages: T[], limit: number) =>
+    messages.slice(-limit),
+  saveChatHistory: mockSaveChatHistory,
+  redis: null,
+}));
 
 vi.mock("../../../lib/regis", () => {
   return {

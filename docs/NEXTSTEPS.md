@@ -39,8 +39,8 @@ da interface soberana NEØ:One.
 ────────────────────────────────────────
 - [x] RAG Logic: Injeção de manifestos organizacionais.
 - [x] Regis Extraction: Estruturação de dados para CRM.
-- [x] Scoring determinístico v2026-07-18: intenção em sete níveis, lead score
-  por componentes verificáveis, POI com evidência e handoff estrito.
+- [x] Qualificação server-side v2026-07-18: sinais verificáveis, estado
+  operacional auditável e handoff estrito, sem expor o protocolo proprietário.
 - [x] Type Safety: Eliminação total de 'any' (Strategic Typing). ✓ zero `any` em produção.
 - [x] Testing: Suíte robusta para rotas de API e Redis. (Vitest/Mocks)
 <!-- - [ ] SDK para identificação do user (Wallet/Redis/Postgres) -->

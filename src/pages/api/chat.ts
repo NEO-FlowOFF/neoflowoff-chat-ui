@@ -220,11 +220,15 @@ INSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente 
         : isReadyForHandoff
           ? "PRONTO PARA HANDOFF, AINDA NÃO ENVIADO"
           : "AGUARDANDO DADOS MÍNIMOS";
+      const operationalLifecycle =
+        state.lifecycleStage === "poi_detected"
+          ? "commercial_signal"
+          : state.lifecycleStage;
 
       operationalStatePrompt = `--- ESTADO OPERACIONAL DO CLIENTE (BACKEND AUTHORITY) ---
 Este estado representa o último turno já persistido. Informações fornecidas na mensagem atual são mais recentes: reconheça-as imediatamente e nunca repita uma pergunta apenas porque o banco ainda mostra o campo como ausente.
-Estágio no CRM (Lifecycle): ${state.lifecycleStage}
-POI (Intenção Comercial) Detectado no Banco: ${state.poiDetected ? "SIM" : "NÃO"}
+Estágio no CRM (Lifecycle): ${operationalLifecycle}
+Sinal comercial validado no Banco: ${state.poiDetected ? "SIM" : "NÃO"}
 Qualificado no Banco: ${state.qualificado ? "SIM" : "NÃO"}
 Handoff registrado no Banco: ${handoffAlreadySent ? "SIM" : "NÃO"}
 Dados de Contato Capturados no Banco:
@@ -235,7 +239,7 @@ Dados de Contato Capturados no Banco:
 Status do Handoff: ${handoffStatusText}
 
 REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
-1. SE O CLIENTE DEMONSTRAR PRESSA/URGÊNCIA ("estou com pressa", "quero contratar logo") OU SE POI DETECTADO FOR "SIM":
+1. SE O CLIENTE DEMONSTRAR PRESSA/URGÊNCIA ("estou com pressa", "quero contratar logo") OU SE O SINAL COMERCIAL VALIDADO FOR "SIM":
    - VOCÊ ESTÁ PROIBIDO DE FAZER NOVAS PERGUNTAS SOBRE DORES, NECESSIDADES OU QUALIFICAÇÃO. INTERROMPA QUALQUER INVESTIGAÇÃO IMEDIATAMENTE.
 2. REQUISITO COMERCIAL DE HANDOFF RÁPIDO (NOME + WHATSAPP):
    - O time comercial precisa apenas de NOME e WHATSAPP para contato imediato no cenário de pressa ou intenção de compra. O e-mail é um bônus para remarketing Meta, mas JAMAIS deve bloquear o encaminhamento.

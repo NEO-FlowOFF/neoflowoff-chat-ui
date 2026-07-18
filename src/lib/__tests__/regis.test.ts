@@ -13,7 +13,7 @@ describe("Regis extraction contract", () => {
     mockUpsertLead.mockResolvedValue(null);
   });
 
-  it("persists structured facts and accepts verbatim POI evidence", async () => {
+  it("persists structured facts and accepts verified commercial evidence", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -34,8 +34,8 @@ describe("Regis extraction contract", () => {
                   produto_interesse: "Agent SDR",
                   urgencia: "este mês",
                   commercial_intent: "action_request",
-                  poi_detected: true,
-                  poi_evidence: "quero uma proposta",
+                  commercial_signal_detected: true,
+                  commercial_signal_evidence: "quero uma proposta",
                 }),
               },
             },
@@ -59,7 +59,7 @@ describe("Regis extraction contract", () => {
     );
   });
 
-  it("rejects POI evidence that is not present in a visitor message", async () => {
+  it("rejects commercial evidence absent from visitor messages", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -71,8 +71,8 @@ describe("Regis extraction contract", () => {
                 content: JSON.stringify({
                   visitor_intent: "curioso",
                   commercial_intent: "commercial_interest",
-                  poi_detected: true,
-                  poi_evidence: "quero contratar agora",
+                  commercial_signal_detected: true,
+                  commercial_signal_evidence: "quero contratar agora",
                 }),
               },
             },

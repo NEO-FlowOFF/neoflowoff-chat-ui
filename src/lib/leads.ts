@@ -631,7 +631,7 @@ export async function upsertLead(lead: Lead): Promise<LeadUpsertResult | null> {
   );
 
   const qualReason = isQualified
-    ? `qualified | leadScore=${leadScore}, intentScore=${intentScore}, poi=${poiDetected}`
+    ? `qualified | leadScore=${leadScore}, intentScore=${intentScore}, commercialSignal=${poiDetected}`
     : `not qualified | leadScore=${leadScore}, intentScore=${intentScore}, contact=${hasContact}`;
 
   logger.info("LEADS", "Lead saved", {
