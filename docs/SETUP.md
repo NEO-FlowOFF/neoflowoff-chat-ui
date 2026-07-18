@@ -136,9 +136,12 @@ pnpm build
 ```text
 ASI1_API_KEY=    # Chave ASI1 AI
 ASI1_MODEL=asi1  # Modelo (padrão: asi1)
+SESSION_SIGNING_SECRET= # Mínimo 32 caracteres; obrigatório em produção
 REDIS_URL=       # Redis Cloud externo (redis://default:***@host:port)
 DATABASE_URL=    # PostgreSQL HA no Railway (${{ Postgres HA.DATABASE_URL }})
-SITE_URL=        # Domínio oficial (https://chat.neoflowoff.agency)
+DB_SSL_MODE=false # false no HA interno; require para endpoint externo com SSL
+DASHBOARD_USER=  # Obrigatório apenas para habilitar /admin
+DASHBOARD_PASSWORD= # Obrigatório apenas para habilitar /admin
 RESEND_API_KEY=  # Chave da API do Resend (para disparos de Handoff)
 PUBLIC_META_PIXEL_ID= # Meta Pixel no browser; requer consentimento prévio
 META_CAPI_TOKEN=      # Meta CAPI server-side; segredo, nunca expor no cliente

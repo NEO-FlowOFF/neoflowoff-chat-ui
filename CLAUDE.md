@@ -105,6 +105,7 @@ evidência; não define diretamente os scores nem a qualificação.
 | `ASI1_MODEL`    | No        | Model name (default: `"asi1"`)                      |
 | `REDIS_URL`     | No        | Redis Cloud connection; session memory disabled if absent. Password is embedded in the URL (`redis://default:<pwd>@host:port`) — there is NO separate `REDIS_PASSWORD` var. Use `rediss://` if the provider requires TLS. |
 | `DATABASE_URL`  | No        | Postgres HA no Railway via PgBouncer; Regis lead capture disabled if absent. |
+| `DB_SSL_MODE`   | No        | `false` para HA interno; `require`/`strict` conforme endpoint externo. |
 | `SESSION_SIGNING_SECRET` | Yes in production | Random secret with at least 32 characters used to sign the server session cookie. |
 | `RESEND_API_KEY`| No        | Resend API key; email handoff/summary disabled if absent |
 | `RESEND_FROM`   | No        | Sender (default `neo@neoflowoff.agency`); domain must be verified in Resend |
