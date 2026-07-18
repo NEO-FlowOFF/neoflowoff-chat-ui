@@ -140,13 +140,24 @@ REDIS_URL=       # Redis Cloud externo (redis://default:***@host:port)
 DATABASE_URL=    # PostgreSQL HA no Railway (${{ Postgres HA.DATABASE_URL }})
 SITE_URL=        # Domínio oficial (https://chat.neoflowoff.agency)
 RESEND_API_KEY=  # Chave da API do Resend (para disparos de Handoff)
+PUBLIC_META_PIXEL_ID= # Meta Pixel no browser; requer consentimento prévio
+META_CAPI_TOKEN=      # Meta CAPI server-side; segredo, nunca expor no cliente
 ```
 
 Notas:
 - `REDIS_URL` é a fonte ativa da memória server-side.
+- O runtime não lê `REDIS_PASSWORD`; usuário e senha ficam incorporados em
+  `REDIS_URL` quando o provedor exigir autenticação.
 - Em 2026-06-02, produção validada com Redis Cloud externo (ex: Upstash ou Redis Cloud).
 - O módulo nativo de Redis não está mais disponível por padrão no Railway, então manter o Redis hospedado externamente é a arquitetura correta e recomendada.
 - `DATABASE_URL` utiliza o **Postgres HA** dentro do Railway para maior estabilidade e performance de banco relacional.
+- A aplicação acessa o cluster por PgBouncer; topologia, réplicas e detalhes
+  internos não devem ser expostos pelo agente ao visitante.
+- GA4, Meta Pixel e Meta CAPI já possuem implementação. Analytics, pixels e
+  CAPI só são ativados após consentimento explícito; a escolha pode ser
+  recusada ou revogada em `/privacidade`.
+- Query strings de páginas e campanhas seguem
+  [`CAMPAIGN_ATTRIBUTION.md`](../CAMPAIGN_ATTRIBUTION.md).
 
 ────────────────────────────────────────
 

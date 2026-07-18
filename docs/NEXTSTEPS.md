@@ -21,7 +21,8 @@ da interface soberana NEØ:One.
 
 ▓▓▓ PRÓXIMOS PODERES
 ────────────────────────────────────────
-- [x] Limite de Sessão Beta (10 msgs).
+- [x] Histórico limitado a 40 mensagens; handoff controlado por qualificação
+  server-side, sem gatilho client-side por contagem de mensagens.
 - [x] Background Sync (IndexedDB → retry offline).
 <!-- - [ ] Web Push Notifications (iOS 16.4+) - Inútil para chat síncrono -->
 - [x] Custom Install Trigger (Banner manual para iOS).
@@ -38,7 +39,8 @@ da interface soberana NEØ:One.
 - [x] Type Safety: Eliminação total de 'any' (Strategic Typing). ✓ zero `any` em produção.
 - [x] Testing: Suíte robusta para rotas de API e Redis. (Vitest/Mocks)
 <!-- - [ ] SDK para identificação do user (Wallet/Redis/Postgres) -->
-- [x] Sentiment Analysis: Tom emocional com mudanças dinâmicas na UI.
+- [x] Direção visual dark-only consolidada; mudanças de tema por sentimento
+  foram removidas e permanecem fora do contrato ativo.
 
 ────────────────────────────────────────
 
@@ -47,16 +49,17 @@ da interface soberana NEØ:One.
 ▓▓▓ BACKLOG FUTURO
 ────────────────────────────────────────
 - [/] **Plano-mestre de medição em [`TRACKING_PLAN.md`](./TRACKING_PLAN.md)** —
-  GA4 (feito), UTM -> CRM (feito - Fase 1), Meta Pixel + Conversions API
-  (Backlog), dedup por `event_id`, privacidade/LGPD e faseamento. Os itens
-  abaixo são consolidados lá.
+  GA4, UTM -> CRM, Meta Pixel e Meta CAPI estão implementados. Permanecem
+  pendentes a cobertura completa da taxonomia, validação operacional e dashboard.
 - [x] Baseline sanitizado da tabela `leads` registrado em `LEADS_TABLE_REGISTROS.md` com snapshot de 2026-05-27.
 - [x] Campos base de follow-up adicionados em `leads` para não perder oportunidade antes da automação.
 - [ ] OpenAI Ads Measurement Pixel: instalar no `Base.astro` somente com `PUBLIC_OPENAI_ADS_PIXEL_ID` configurado e sem expor dados pessoais.
 - [ ] Eventos de campanha: medir `page_viewed`, `chat_started`, `lead_created`, `appointment_scheduled`, `qualified_lead` e `quote_requested`.
 - [ ] Privacidade: não enviar nome, email, telefone, mensagens do chat, prompts ou dados sensíveis para eventos de ads.
 - [ ] Próximo snapshot de `leads`: executar somente sob demanda, usando query sanitizada e sem registrar PII.
-- [ ] Deduplicação futura: gerar `event_id` interno quando houver envio browser + servidor, reaproveitando o mesmo ID no Pixel e na Conversions API.
+- [x] Deduplicação Meta: `event_id` é compartilhado entre browser e servidor.
+- [x] Consentimento/LGPD: GA4, Meta Pixel e CAPI exigem opt-in; status, fonte
+  e instante são persistidos e a revogação fica disponível em `/privacidade`.
 - [ ] Dashboard de aquisição: consolidar visitas, conversas iniciadas, leads criados, leads qualificados, reuniões e origem de campanha.
 - [ ] Dashboard operacional: acompanhar latência ASI1, erros de streaming, taxa de handoff, Regis/PostgreSQL e disponibilidade de Redis.
 - [ ] FlowPay: mapear oferta de serviços, orçamento/proposta e cobrança recorrente como capability interna da stack NEØ.

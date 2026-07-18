@@ -25,6 +25,17 @@ O sistema opera como um front-end direto (estilo ChatGPT), focado
 em proporcionar uma experiência humana, consultiva e de alta
 conversão para empresários e visionários.
 
+O agente integra o **Neo Growth System**, ecossistema comercial
+arquitetado por Neo Mello e distribuído pela neoflowoff.agency.
+A oferta ativa de implementação Agent SDR está publicada em
+`https://sdr.neoflowoff.agency` e vai além da conversa: conecta
+aquisição, sinais, leads, CRM, mensuração e handoff humano.
+
+A neoflowoff.agency possui reconhecimento **Meta Tech Provider**.
+O ativo comprobatório interno está em
+`public/badge_meta_tech_provider.png`; ele não precisa ser renderizado
+na interface para compor o contexto factual do agente.
+
 ```text
 ────────────────────────────────────────
 
@@ -102,11 +113,23 @@ graph TD
 ────────────────────────────────────────
 ```
 
+## ⬢ Mensuração e Privacidade
+
+GA4, Meta Pixel e Meta CAPI integram a camada de mensuração. Analytics e
+eventos de marketing permanecem desativados até o visitante aceitar; a escolha
+pode ser recusada ou revogada na rota pública `/privacidade`.
+O chat continua operacional sem consentimento de marketing.
+
 ## ◬ Documentação
 
-Para detalhes de infraestrutura, stack técnica e comandos de
-desenvolvimento, consulte o arquivo:
-👉 [**SETUP.md**](./SETUP.md)
+Para detalhes de infraestrutura, stack técnica, variáveis e comandos de
+desenvolvimento, consulte [**docs/SETUP.md**](./docs/SETUP.md).
+
+O contrato operacional para agentes está em
+[**CODEX.md**](./CODEX.md).
+
+Query strings canônicas para páginas e campanhas estão em
+[**CAMPAIGN_ATTRIBUTION.md**](./CAMPAIGN_ATTRIBUTION.md).
 
 ```line
 Requisito de runtime:

@@ -1,5 +1,6 @@
 import type { Lead } from "./leads";
 import type { SuspiciousCategory } from "./sentinel";
+import { logger } from "./logger";
 
 const RESEND_API = "https://api.resend.com/emails";
 
@@ -131,7 +132,7 @@ function leadTable(lead: Lead) {
 export async function sendHandoffNotification(lead: Lead): Promise<void> {
   const { apiKey, from, toNeo } = config();
   if (!apiKey) {
-    console.warn("[RESEND] API key ausente — handoff não enviado.");
+    logger.warn("RESEND", "API key missing; handoff skipped");
     return;
   }
 
@@ -179,14 +180,14 @@ export async function sendHandoffNotification(lead: Lead): Promise<void> {
     ${footer()}
   </div>`;
 
-  console.log(`[RESEND] Enviando handoff Speed-to-Lead para ${JSON.stringify(toNeo)}...`);
+  logger.info("RESEND", "Sending Speed-to-Lead handoff");
   await dispatch(apiKey, {
     from: getSanitizedFrom(from),
     to: toNeo,
     subject,
     html,
   });
-  console.log("[RESEND] Handoff Speed-to-Lead enviado.");
+  logger.info("RESEND", "Speed-to-Lead handoff sent");
 }
 
 /**
@@ -217,7 +218,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
     ${footer()}
   </div>`;
 
-  console.log(`[RESEND] Enviando confirmação para ${lead.email}...`);
+  logger.info("RESEND", "Sending visitor confirmation");
   await dispatch(apiKey, {
     from: getSanitizedFrom(from),
     to: lead.email,
@@ -234,7 +235,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
     html,
   });
 
-  console.log("[RESEND] Confirmação enviada.");
+  logger.info("RESEND", "Visitor confirmation sent");
 }
 
 /**
@@ -248,7 +249,7 @@ export async function sendSuspiciousAlert(
 ): Promise<void> {
   const { apiKey, from, toNeo } = config();
   if (!apiKey) {
-    console.warn("[RESEND] API key ausente — alerta de segurança não enviado.");
+    logger.warn("RESEND", "API key missing; security alert skipped");
     return;
   }
 
@@ -294,14 +295,14 @@ export async function sendSuspiciousAlert(
     ${footer()}
   </div>`;
 
-  console.log("[RESEND] Enviando alerta de segurança...");
+  logger.info("RESEND", "Sending security alert");
   await dispatch(apiKey, {
     from: getSanitizedFrom(from),
     to: toNeo,
     subject,
     html,
   });
-  console.log("[RESEND] Alerta de segurança enviado.");
+  logger.info("RESEND", "Security alert sent");
 }
 
 /**
@@ -337,7 +338,7 @@ export async function sendConversationSummary(lead: Lead): Promise<void> {
     ${footer()}
   </div>`;
 
-  console.log(`[RESEND] Enviando resumo para ${lead.email} e ${toNeo}...`);
+  logger.info("RESEND", "Sending conversation summary");
   await Promise.all([
     dispatch(apiKey, {
       from: getSanitizedFrom(from),
@@ -353,5 +354,5 @@ export async function sendConversationSummary(lead: Lead): Promise<void> {
       html,
     }),
   ]);
-  console.log("[RESEND] Resumo enviado.");
+  logger.info("RESEND", "Conversation summary sent");
 }

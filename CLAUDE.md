@@ -18,9 +18,10 @@ Build Failed: ... "npm i -g corepack@latest && corepack enable && corepack prepa
 Causa: `corepack@latest` traz um default de pnpm hardcoded mais novo que o publicado; `--activate` sem
 versão usa esse default em vez do campo `packageManager`.
 
-**Sempre pinar a versão exata do pnpm** que bate com `packageManager` da raiz do monorepo
-(`/Users/nettomello/neomello/NEO-FlowOFF/package.json` → `pnpm@11.5.3`). Não confiar em resolução
-automática de "latest". Este projeto é um package do monorepo `NEO-FlowOFF`; `install`/overrides são na raiz.
+**Sempre usar a versão exata do pnpm** fixada no `packageManager` deste
+repositório. Não confiar em resolução automática de `latest`.
+`NEO-FlowOFF` é um control plane multi-repo; este child repo é soberano e
+mantém seu próprio `package.json`, lockfile, instalação e runtime.
 
 ## Commands
 
@@ -36,7 +37,8 @@ make commit           # verify + git add + interactive commit + push
 make repair           # clean dist/.astro/ + rm node_modules + reinstall
 ```
 
-There is no test suite. `astro check` is the primary correctness gate.
+Vitest cobre os helpers de Redis e leads. A validação mínima é
+`pnpm run test`, `pnpm run check` e `pnpm run build`.
 
 ## Architecture
 
@@ -75,7 +77,9 @@ Browser (chat-ui.ts)
 
 ### Handoff trigger
 
-After **10 messages** in a session (`MAX_SESSION_MESSAGES`), `chat-ui.ts` dynamically imports `CONTEXT.json` client-side and renders a WhatsApp link to hand the user off to the real Neo Mello. Input is then disabled.
+O handoff é controlado no backend. Regis estrutura o lead e `leads.ts`
+aciona Resend quando há contato e sinal comercial suficientes. Não existe
+gatilho ativo de handoff no cliente baseado em dez mensagens.
 
 ### PWA / offline
 
@@ -91,15 +95,21 @@ After **10 messages** in a session (`MAX_SESSION_MESSAGES`), `chat-ui.ts` dynami
 | `ASI1_API_KEY`  | Yes       | LLM API key for asi1.ai                             |
 | `ASI1_MODEL`    | No        | Model name (default: `"asi1"`)                      |
 | `REDIS_URL`     | No        | Redis Cloud connection; session memory disabled if absent. Password is embedded in the URL (`redis://default:<pwd>@host:port`) — there is NO separate `REDIS_PASSWORD` var. Use `rediss://` if the provider requires TLS. |
-| `DATABASE_URL`  | No        | PostgreSQL; Regis lead capture disabled if absent   |
+| `DATABASE_URL`  | No        | Postgres HA no Railway via PgBouncer; Regis lead capture disabled if absent. |
 | `RESEND_API_KEY`| No        | Resend API key; email handoff/summary disabled if absent |
 | `RESEND_FROM`   | No        | Sender (default `neo@neoflowoff.agency`); domain must be verified in Resend |
 | `RESEND_TO`     | No        | Handoff/summary recipient + `reply_to` to lead (default `neo@neoflowoff.agency`) |
+| `PUBLIC_META_PIXEL_ID` | No | Meta Pixel ID exposed to the browser; Pixel loading requires visitor consent. |
+| `META_CAPI_TOKEN` | No | Meta CAPI server-only token; never expose it to the browser or logs. |
 ```
 
 See `.env.example` for format. Redis, PostgreSQL and Resend are all optional for local development — the app degrades gracefully when they are absent.
 
 **Resend is called directly** over HTTPS (`https://api.resend.com/emails`, see `src/lib/emails.ts`) using only `RESEND_API_KEY`. It does NOT require a separate Railway service — a standalone "Resend Starter" service is redundant and was removed (2026-06-07).
+
+GA4, Meta Pixel e Meta CAPI possuem implementação ativa. GA4 e Meta Pixel
+só carregam após opt-in salvo em `neo_consent_v1`; a CAPI também exige
+`consent.status === "granted"`. Revogação fica disponível em `/privacidade`.
 
 ## Key files
 
@@ -111,7 +121,6 @@ See `.env.example` for format. Redis, PostgreSQL and Resend are all optional for
 - `public/sw.js` — service worker; uses `skipWaiting` + `clients.claim()` for immediate activation
 - `public/robots.txt` — permite Googlebot; bloqueia `/api/` e bots de treino de IA (GPTBot, ClaudeBot, CCBot, etc.)
 - `astro.config.mjs` — inclui `@astrojs/sitemap`; gera `/sitemap-index.xml` no build
-
 
 ## Security headers
 
@@ -137,7 +146,6 @@ O CSP usa `'unsafe-inline'` em `script-src` e `style-src` porque o Astro injeta 
 - JSON-LD: `WebApplication` + `Organization` em `src/layouts/Base.astro`
 - Conteúdo estático indexável em `EmptyState.astro` (visually hidden via CSS clip, legível por crawlers)
 - GA4 (`gtag.js`, ID `G-5VD6EVN3C4`) no `<head>` do `Base.astro` via `is:inline`, ao lado do Cloudflare Web Analytics.
-
 
 ## Security — resolved
 

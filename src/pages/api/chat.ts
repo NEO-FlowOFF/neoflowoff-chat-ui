@@ -80,6 +80,11 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         landing_path?: string | null;
         referrer?: string | null;
       } | null;
+      consent?: {
+        status?: "granted" | "denied";
+        source?: string;
+        at?: string;
+      } | null;
     };
     const { messages, sessionId, eventId } = body;
 
@@ -164,6 +169,8 @@ INSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente 
       const hasNome = !!state.nome;
       const hasEmail = !!state.email;
       const hasTelefone = !!state.telefone;
+      const hasEmpresa = !!state.empresa;
+      const handoffAlreadySent = state.handoffSent;
       const isReadyForHandoff = hasNome && hasTelefone;
 
       const optionalContactFields: string[] = [];
@@ -180,26 +187,33 @@ INSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente 
           ? `\n${optionalContactFields.join("\n")}`
           : "";
 
-      const handoffStatusText = isReadyForHandoff
-        ? "ESTÃO PREENCHIDOS!"
-        : "AÇÕES NECESSÁRIAS ABAIXO";
+      const handoffStatusText = handoffAlreadySent
+        ? "HANDOFF JÁ ENVIADO AO COMERCIAL"
+        : isReadyForHandoff
+          ? "PRONTO PARA HANDOFF, AINDA NÃO ENVIADO"
+          : "AGUARDANDO DADOS MÍNIMOS";
 
       operationalStatePrompt = `--- ESTADO OPERACIONAL DO CLIENTE (BACKEND AUTHORITY) ---
 Estágio no CRM (Lifecycle): ${state.lifecycleStage}
 POI (Intenção Comercial) Detectado no Banco: ${state.poiDetected ? "SIM" : "NÃO"}
 Qualificado no Banco: ${state.qualificado ? "SIM" : "NÃO"}
+Handoff registrado no Banco: ${handoffAlreadySent ? "SIM" : "NÃO"}
 Dados de Contato Capturados no Banco:
 - Nome: ${hasNome ? `PREENCHIDO (${state.nome})` : "AUSENTE"}
+- Empresa: ${hasEmpresa ? `PREENCHIDA (${state.empresa})` : "AUSENTE (OPCIONAL)"}
 - Telefone/WhatsApp: ${hasTelefone ? `PREENCHIDO (${state.telefone})` : "AUSENTE (OBRIGATÓRIO PARA HANDOFF COMERCIAL)"}
 - E-mail: ${hasEmail ? `PREENCHIDO (${state.email})` : "AUSENTE (Desejável para remarketing Meta)"}${optionalContactText}
+Status do Handoff: ${handoffStatusText}
 
 REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
 1. SE O CLIENTE DEMONSTRAR PRESSA/URGÊNCIA ("estou com pressa", "quero contratar logo") OU SE POI DETECTADO FOR "SIM":
    - VOCÊ ESTÁ PROIBIDO DE FAZER NOVAS PERGUNTAS SOBRE DORES, NECESSIDADES OU QUALIFICAÇÃO. INTERROMPA QUALQUER INVESTIGAÇÃO IMEDIATAMENTE.
 2. REQUISITO COMERCIAL DE HANDOFF RÁPIDO (NOME + WHATSAPP):
    - O time comercial precisa apenas de NOME e WHATSAPP para contato imediato no cenário de pressa ou intenção de compra. O e-mail é um bônus para remarketing Meta, mas JAMAIS deve bloquear o encaminhamento.
-   - SE NOME E WHATSAPP JÁ ESTIVEREM PREENCHIDOS (${handoffStatusText}): Confirme em uma única frase curta e humana que nosso especialista já está sendo acionado para contatá-lo no WhatsApp sem demora. Não peça e-mail se o cliente estiver com pressa!
+   - SE O HANDOFF JÁ ESTIVER REGISTRADO COMO ENVIADO: Não anuncie um novo acionamento, não solicite novamente dados já capturados e apenas confirme que o contexto já foi encaminhado ao comercial.
+   - SE NOME E WHATSAPP ESTIVEREM PREENCHIDOS E O HANDOFF AINDA NÃO TIVER SIDO ENVIADO: Confirme em uma única frase curta e humana que o contexto está pronto para encaminhamento imediato. Não afirme que o envio já ocorreu antes da confirmação do backend.
    - SE NOME OU WHATSAPP ESTIVEREM AUSENTES: Você DEVE solicitar apenas o que falta (dando preferência ao WhatsApp e Nome, e se possível e-mail junto).
+   - EMPRESA É CONTEXTO OPCIONAL: use quando já estiver preenchida, mas nunca repita a pergunta nem bloqueie o handoff por ausência desse campo.
 3. EXECUÇÃO NATURAL ("SEM PARECER CHATBOT SEM LLM"):
    - É PROIBIDO listar perguntas em formato de formulário ou bullet points ("1. Nome: 2. Telefone:").
    - É PROIBIDO enviar respostas longas, burocráticas ou repetitivas.
@@ -269,6 +283,16 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
     }
 
     const stream = new ReadableStream({
+      /**
+       * Inicia o streaming da resposta do LLM para o cliente e gerencia o pós-processamento.
+       * Lê o corpo SSE da resposta, retransmite os chunks para o cliente e acumula o conteúdo final para persistência e integrações.
+       *
+       * Args:
+       *   controller: Controlador da `ReadableStream` responsável por enfileirar chunks e finalizar o stream.
+       *
+       * Returns:
+       *   Não retorna valor; opera via efeitos colaterais (streaming, persistência em Redis, atualização de CRM e disparo de CAPI).
+       */
       async start(controller) {
         const reader = res.body?.getReader();
         if (!reader) return;
@@ -320,8 +344,19 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
                   fbclid: body.attribution.fbclid ?? null,
                   landingPath: body.attribution.landing_path ?? null,
                   referrer: body.attribution.referrer ?? null,
+                  ...(body.consent && {
+                    consentStatus: body.consent.status ?? null,
+                    consentSource: body.consent.source ?? null,
+                    consentAt: body.consent.at ?? null,
+                  }),
                 }
-              : null;
+              : body.consent
+                ? {
+                    consentStatus: body.consent.status ?? null,
+                    consentSource: body.consent.source ?? null,
+                    consentAt: body.consent.at ?? null,
+                  }
+                : null;
 
             // Passa o histórico completo e a atribuição
             await updateRegisLead(sessionId, updatedHistory, attribution);
@@ -333,7 +368,7 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
               null;
             const clientUserAgent = request.headers.get("user-agent");
 
-            sendCapiEvent({
+            if (body.consent?.status === "granted") sendCapiEvent({
               event_name: "Lead",
               event_time: Math.floor(Date.now() / 1000),
               action_source: "website",

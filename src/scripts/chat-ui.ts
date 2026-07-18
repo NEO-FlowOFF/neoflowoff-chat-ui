@@ -19,6 +19,7 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const STORAGE_KEY = 'flow_history_v1';
 const SESSION_KEY = 'flow_session_id';
 const ATTRIBUTION_KEY = 'neo_attribution_v1';
+const CONSENT_KEY = 'neo_consent_v1';
 const MAX_HISTORY = 40;
 
 function getAttribution() {
@@ -310,7 +311,12 @@ const streamProxy = async (
       stream: true,
       max_tokens: 1024,
       temperature: 0.7,
-      attribution: attributionData
+      attribution: attributionData,
+      eventId: crypto.randomUUID(),
+      consent: (() => {
+        try { return JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null'); }
+        catch { return null; }
+      })()
     }),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -1,5 +1,6 @@
 import { type Message } from "@/types/chat";
 import { upsertLead } from "./leads";
+import { logger } from "./logger";
 
 /**
  * Sistema Regis — Extrator de dados de lead via IA.
@@ -30,6 +31,9 @@ export interface AttributionData {
   fbclid?: string | null;
   landingPath?: string | null;
   referrer?: string | null;
+  consentStatus?: string | null;
+  consentSource?: string | null;
+  consentAt?: string | null;
 }
 
 export async function updateRegisLead(
@@ -41,13 +45,11 @@ export async function updateRegisLead(
   const model = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
 
   if (!apiKey) {
-    console.warn("[REGIS] ASI1_API_KEY missing — lead extraction skipped.");
+    logger.warn("REGIS", "ASI1_API_KEY missing; lead extraction skipped");
     return;
   }
 
-  console.log(
-    `[REGIS] Starting extraction for session ${sessionId} (${messages.length} messages)`,
-  );
+  logger.debug("REGIS", "Starting extraction", { messageCount: messages.length });
 
   // Format the conversation history as plain text for the extractor
   const transcript = messages
@@ -98,7 +100,10 @@ JSON:`;
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      console.log(`[REGIS] Extraction failed: HTTP ${res.status} — ${body}`);
+      logger.warn("REGIS", "Extraction request failed", {
+        status: res.status,
+        response: body.slice(0, 200),
+      });
       return;
     }
 
@@ -106,11 +111,11 @@ JSON:`;
     const raw = data?.choices?.[0]?.message?.content?.trim();
 
     if (!raw) {
-      console.warn("[REGIS] Empty response from LLM — nothing to extract.");
+      logger.warn("REGIS", "Empty response from LLM; extraction skipped");
       return;
     }
 
-    console.log(`[REGIS] Raw LLM response: ${raw.slice(0, 300)}`);
+    logger.debug("REGIS", "LLM extraction response received");
 
     // Strip possible markdown code fences (```json ... ```)
     const jsonStr = raw
@@ -122,8 +127,7 @@ JSON:`;
     try {
       extracted = JSON.parse(jsonStr);
     } catch (parseErr) {
-      console.log("[REGIS] JSON parse error:", parseErr);
-      console.log("[REGIS] Attempted to parse:", jsonStr);
+      logger.error("REGIS", "Failed to parse extraction response", parseErr);
       return;
     }
 
@@ -160,9 +164,7 @@ JSON:`;
       normalizedIntent && VALID_INTENTS.has(normalizedIntent) ? normalizedIntent : "outro";
 
     if (rawIntent && !VALID_INTENTS.has(normalizedIntent!)) {
-      console.warn(
-        `[REGIS] Invalid visitor_intent "${rawIntent}" (normalized: "${normalizedIntent}") — falling back to "outro"`,
-      );
+      logger.warn("REGIS", "Invalid visitor intent; using fallback");
     }
 
     const leadData = {
@@ -182,16 +184,14 @@ JSON:`;
       fbclid: attribution?.fbclid ?? null,
       landingPath: attribution?.landingPath ?? null,
       referrer: attribution?.referrer ?? null,
+      consentStatus: attribution?.consentStatus ?? null,
+      consentSource: attribution?.consentSource ?? null,
+      consentAt: attribution?.consentAt ?? null,
     };
 
-    console.log("[REGIS] Extracted lead data:", {
-      ...leadData,
-      sessionId: sessionId.slice(0, 8) + "…",
-    });
-
     await upsertLead(leadData);
-    console.log(`[REGIS] Lead upserted successfully for session ${sessionId}`);
+    logger.info("REGIS", "Lead upserted successfully");
   } catch (err) {
-    console.warn("[REGIS] Unexpected error during extraction/save:", err);
+    logger.error("REGIS", "Unexpected extraction or persistence error", err);
   }
 }

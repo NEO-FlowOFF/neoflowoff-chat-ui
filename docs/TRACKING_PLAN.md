@@ -6,17 +6,16 @@
 ========================================
      NEØ:One · MEASUREMENT MASTER PLAN
 ========================================
-Status:  PROPOSTA (não implementado)
+Status:  PARCIALMENTE IMPLEMENTADO
 Escopo:  GA4 · Meta Ads · App/PWA · CRM
 Autor:   Claude (sugestão técnica)
 Data:    2026-06-07
 ========================================
 ```
 
-> **Não implementar sem aprovação do operador.** Este documento é o desenho-alvo.
-> O que JÁ está no ar: **apenas o GA4 (`gtag.js`, `G-5VD6EVN3C4`)** no `<head>` do
-> `Base.astro`, com os domínios do Google liberados no CSP (`middleware.ts`).
-> Tudo abaixo é proposta. Complementa o backlog de aquisição do `NEXTSTEPS.md`.
+> Estado confirmado no checkout: GA4, captura UTM, Meta Pixel e Meta CAPI
+> possuem implementação. O documento separa abaixo o que está ativo do que
+> ainda depende de validação operacional ou expansão.
 
 ---
 
@@ -53,9 +52,9 @@ reaproveitado na chamada server-side. Sem isso, conversões contam em dobro.
 
 ## ⧉ 2. Camada de eventos (taxonomia única)
 
-Um único "event layer" no cliente (`src/scripts/tracking.ts`, a criar) que recebe
-um evento canônico e faz fan-out para GA4, Meta e o backend. Nunca chamar `gtag()`
-ou `fbq()` espalhado pelo código.
+A taxonomia abaixo é o contrato-alvo. A implementação atual ainda não possui
+um `src/scripts/tracking.ts` único; chamadas existentes devem ser consolidadas
+somente em uma mudança específica e validada.
 
 ```text
 ▓▓▓ TAXONOMIA DE EVENTOS
@@ -81,7 +80,7 @@ ou `fbq()` espalhado pelo código.
    └─ Meta:      `CompleteRegistration`
 
 └─ handoff_clicked
-   ├─ Dispara:   clique no link WhatsApp (após 10 msgs)
+   ├─ Dispara:   clique no contato liberado após qualificação server-side
    ├─ GA4 (en):  `handoff_clicked`
    └─ Meta:      `Contact`
 
@@ -110,14 +109,14 @@ ou `fbq()` espalhado pelo código.
 ## ⨷ 3. Meta Ads (Pixel + Conversions API)
 
 ### 3.1 Browser — Meta Pixel
-- Adicionar o snippet do Pixel no `<head>` do `Base.astro` via `is:inline`
-  (mesmo padrão do gtag), guardado atrás de **`PUBLIC_META_PIXEL_ID`** —
-  só carrega se a env var existir (não hardcodar o ID).
+- O snippet já existe no `Base.astro`, guardado por
+  **`PUBLIC_META_PIXEL_ID`**.
+- O carregamento só ocorre após consentimento explícito do visitante.
 - Eventos `track`/`trackCustom` saem da camada de eventos (§2), não soltos.
 
 ### 3.2 Servidor — Conversions API (CAPI)
-- Novo módulo `src/lib/meta-capi.ts`: `POST https://graph.facebook.com/v21.0/<PIXEL_ID>/events`
-  com `META_CAPI_TOKEN` (secret, server-only — **nunca** no cliente).
+- O módulo `src/lib/meta-capi.ts` já envia eventos server-side usando token
+  secreto e é acionado por `/api/chat`.
 - Cada evento server-side envia:
   - `event_id` (o mesmo do browser → dedup)
   - `event_name`, `event_time`, `action_source: "website"`
@@ -125,7 +124,7 @@ ou `fbq()` espalhado pelo código.
     exige hash; PII crua nunca trafega.
   - `custom_data` com `utm_*` e valor estimado, se houver.
 
-### 3.3 Variáveis de ambiente (novas)
+### 3.3 Variáveis de ambiente
 
 ```text
 PUBLIC_META_PIXEL_ID=   # ID do Pixel (público, vai pro browser)
@@ -133,8 +132,10 @@ META_CAPI_TOKEN=        # Conversions API token (SECRET, server-only)
 META_TEST_EVENT_CODE=   # opcional, p/ validar no Events Manager (Test Events)
 ```
 
-### 3.4 CSP (obrigatório, senão o Pixel é bloqueado)
-Adicionar em `CSP_DIRECTIVES` (`src/middleware.ts`):
+### 3.4 CSP
+
+As origens do Meta já estão liberadas em `CSP_DIRECTIVES`
+(`src/middleware.ts`):
 
 ```text
 script-src   ... https://connect.facebook.net
@@ -204,9 +205,12 @@ ALTER TABLE leads ADD COLUMN IF NOT EXISTS referrer     TEXT;
   parâmetro de evento de ads em texto puro. Meta CAPI exige **SHA-256**; GA4 não
   deve receber PII de forma alguma.
 - **UTMs não são PII** — podem ir para eventos normalmente.
-- **Consent Mode v2 (Google)** e banner de consentimento: hoje não há banner.
-  Decisão pendente do operador — se for exigir consentimento, os pixels só
-  disparam após o opt-in (`consent: denied` → `granted`).
+- O estado inicial não autoriza medição. Scripts e eventos não essenciais só
+  são ativados depois do opt-in explícito.
+- Registrar `consent_status`, `consent_source` e `consent_at` no backend sem
+  enviar a decisão junto com PII para plataformas de analytics.
+- Oferecer recusa e revogação tão acessíveis quanto a aceitação; a aplicação
+  principal deve continuar funcional sem consentimento de marketing.
 - `gclid`/`fbclid` são identificadores de clique — tratar como sensível,
   não logar em claro nem expor em URL de terceiros.
 - Respeitar `robots.txt`/Block AI Bots já configurado (não conflita).
@@ -236,23 +240,22 @@ e reusar no disparo server-side. Validar no **Meta Test Events** e no **GA4 Debu
 ## ✦ 8. Faseamento sugerido (ordem de execução)
 
 ```text
-FASE 0 — JÁ FEITO
-  └─ GA4 gtag.js + CSP. UTMs capturados nativamente nos relatórios do Google.
+FASE 0 — FEITO
+  └─ GA4 gtag.js + CSP.
 
-FASE 1 — Camada de eventos + UTM→CRM (first-party, sem ads externos)
-  └─ src/scripts/tracking.ts (event layer)
-  └─ captura utm/gclid/fbclid → localStorage first-touch → POST /api/chat
-  └─ colunas utm_* em leads (ALTER idempotente) + interface Lead
-  └─ eventos chat_started / lead_created / qualified_lead
+FASE 1 — PARCIALMENTE FEITO
+  └─ captura UTM/gclid/fbclid → localStorage → POST /api/chat
+  └─ colunas de atribuição e consentimento em leads
+  └─ pendente consolidar uma camada única de eventos
 
-FASE 2 — Meta Pixel (browser)
-  └─ snippet atrás de PUBLIC_META_PIXEL_ID + CSP facebook
-  └─ mapear eventos canônicos → eventos Meta
+FASE 2 — IMPLEMENTADO
+  └─ Meta Pixel atrás de PUBLIC_META_PIXEL_ID + CSP
+  └─ carregamento bloqueado até consentimento explícito
 
-FASE 3 — Meta Conversions API (servidor)
-  └─ src/lib/meta-capi.ts + META_CAPI_TOKEN (secret)
-  └─ hash SHA-256 de email/telefone + event_id dedup
-  └─ validar no Test Events
+FASE 3 — IMPLEMENTADO, VALIDAÇÃO OPERACIONAL PENDENTE
+  └─ src/lib/meta-capi.ts + token server-only
+  └─ hash SHA-256 + event_id para deduplicação
+  └─ validar no Meta Test Events
 
 FASE 4 — App/PWA + GA4 server-side
   └─ pwa_installed, standalone context
@@ -265,29 +268,29 @@ FASE 5 — Dashboard de aquisição
 
 ---
 
-## ⚙ 9. Checklist de arquivos a tocar (quando for implementar)
+## ⚙ 9. Estado por arquivo
 
 ```text
 ▓▓▓ ARQUIVOS A ALTERAR
 ────────────────────────────────────────
-└─ src/scripts/tracking.ts
-   └─ novo — camada de eventos / fan-out
 └─ src/scripts/chat-ui.ts
-   └─ captura UTM, anexa attribution + event_id no POST
+   └─ implementado — captura atribuição + event_id no POST
 └─ src/pages/api/chat.ts
-   └─ recebe attribution/event_id, repassa a leads + CAPI
+   └─ implementado — recebe attribution/event_id e aciona leads + CAPI
 └─ src/lib/leads.ts
-   └─ interface Lead + colunas utm no upsert (first-touch)
+   └─ implementado — atribuição, sinal e consentimento no upsert
 └─ src/lib/db.ts
-   └─ ALTER TABLE ... ADD COLUMN IF NOT EXISTS utm_*
+   └─ implementado — migrações aditivas e idempotentes
 └─ src/lib/meta-capi.ts
-   └─ novo — Conversions API server-side
+   └─ implementado — Conversions API server-side
 └─ src/layouts/Base.astro
-   └─ Meta Pixel is:inline atrás de PUBLIC_META_PIXEL_ID
+   └─ implementado — Meta Pixel com gate de consentimento
 └─ src/middleware.ts
-   └─ CSP: liberar facebook / facebook.net / graph.facebook
+   └─ implementado — origens Meta no CSP
 └─ .env.example
-   └─ documentar novas envs
+   └─ implementado — nomes das variáveis sem valores reais
+└─ src/scripts/tracking.ts
+   └─ pendente — camada única de eventos, se aprovada
 ```
 
 ---
@@ -300,7 +303,7 @@ FASE 5 — Dashboard de aquisição
 - **Secrets**: `META_CAPI_TOKEN` e afins são server-only; apenas `PUBLIC_*` vai
   ao browser. Nunca commitar valores.
 - **PII**: nada de dados pessoais em eventos de ads sem hash (Meta) ou nunca (GA4).
-- **`packageManager`**: manter `pnpm@11.5.3` pinado (regra crítica do build).
+- **`packageManager`**: usar a versão exata fixada no `package.json` deste repo.
 
 ```text
 ────────────────────────────────────────

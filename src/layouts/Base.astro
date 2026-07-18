@@ -337,39 +337,6 @@ const canonical = canonicalUrl ?? `${BASE}${Astro.url.pathname}`;
       <feBlend in="rb" in2="SourceGraphic" mode="screen" />
     </filter>
   </svg>
-  <!-- Cloudflare Web Analytics -->
-  <script is:inline defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "abc85a5fe49144d391a3c0e6bc7608d7"}'></script>
-  <!-- Google tag (gtag.js) -->
-  <script async is:inline src="https://www.googletagmanager.com/gtag/js?id=G-5VD6EVN3C4"></script>
-  <script is:inline>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-5VD6EVN3C4');
-  </script>
-  <!-- Meta Pixel — só carrega se PUBLIC_META_PIXEL_ID estiver configurado -->
-  {import.meta.env.PUBLIC_META_PIXEL_ID && (
-    <>
-      <script is:inline define:vars={{ pixelId: import.meta.env.PUBLIC_META_PIXEL_ID }}>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', pixelId);
-        fbq('track', 'PageView');
-      </script>
-      <noscript>
-        <img height="1" width="1" style="display:none"
-          src={`https://www.facebook.com/tr?id=${import.meta.env.PUBLIC_META_PIXEL_ID}&ev=PageView&noscript=1`}
-        />
-      </noscript>
-    </>
-  )}
-
 </head>
 <body>
     <ClientRouter />
@@ -380,6 +347,62 @@ const canonical = canonicalUrl ?? `${BASE}${Astro.url.pathname}`;
         </main>
       </div>
     </div>
+    <aside id="consent-banner" hidden style="position:fixed;left:16px;right:16px;bottom:16px;z-index:1000;max-width:680px;margin:auto;padding:16px;border:1px solid #3b3b3b;border-radius:12px;background:#171717;color:#f5f5f5;font:14px/1.45 system-ui;box-shadow:0 12px 36px #000a;">
+      <p style="margin:0 0 12px;">Usamos analytics e pixels de marketing para medir campanhas. Você pode recusar sem perder acesso ao chat. Consulte a <a href="/privacidade" style="color:#ff6aac;">Política de Privacidade</a>.</p>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button id="consent-deny" type="button">Recusar</button>
+        <button id="consent-accept" type="button">Aceitar</button>
+      </div>
+    </aside>
+    <script is:inline define:vars={{ pixelId: import.meta.env.PUBLIC_META_PIXEL_ID }}>
+      const consentKey = "neo_consent_v1";
+      const banner = document.getElementById("consent-banner");
+
+      function loadMeasurement() {
+        if (window.__neoMeasurementLoaded) return;
+        window.__neoMeasurementLoaded = true;
+        const cloudflare = document.createElement("script");
+        cloudflare.defer = true;
+        cloudflare.src = "https://static.cloudflareinsights.com/beacon.min.js";
+        cloudflare.dataset.cfBeacon = JSON.stringify({ token: "abc85a5fe49144d391a3c0e6bc7608d7" });
+        document.head.appendChild(cloudflare);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ window.dataLayer.push(arguments); };
+        window.gtag("js", new Date());
+        window.gtag("config", "G-5VD6EVN3C4");
+        const google = document.createElement("script");
+        google.async = true;
+        google.src = "https://www.googletagmanager.com/gtag/js?id=G-5VD6EVN3C4";
+        document.head.appendChild(google);
+
+        if (pixelId) {
+          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+          n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);
+          t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+          (window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
+          window.fbq("init", pixelId);
+          window.fbq("track", "PageView");
+        }
+      }
+
+      function saveConsent(status) {
+        localStorage.setItem(consentKey, JSON.stringify({
+          status,
+          source: "consent_banner",
+          at: new Date().toISOString()
+        }));
+        banner.hidden = true;
+        if (status === "granted") loadMeasurement();
+      }
+
+      let consent = null;
+      try { consent = JSON.parse(localStorage.getItem(consentKey) || "null"); } catch {}
+      if (consent?.status === "granted") loadMeasurement();
+      else if (!consent) banner.hidden = false;
+      document.getElementById("consent-deny")?.addEventListener("click", () => saveConsent("denied"));
+      document.getElementById("consent-accept")?.addEventListener("click", () => saveConsent("granted"));
+    </script>
     <script is:inline>
       if ("serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname)) {
         window.addEventListener("load", () => {

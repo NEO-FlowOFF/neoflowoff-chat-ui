@@ -7,6 +7,8 @@
  * Referência: https://developers.facebook.com/docs/marketing-api/conversions-api
  */
 
+import { logger } from "./logger";
+
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 /**
@@ -153,20 +155,23 @@ export async function sendCapiEvent(event: CapiEvent): Promise<boolean> {
 
     if (!res.ok) {
       const errBody = await res.text();
-      console.log(`[CAPI] HTTP ${res.status}:`, errBody);
+      logger.warn("CAPI", "Meta rejected event", {
+        status: res.status,
+        response: errBody.slice(0, 200),
+      });
       return false;
     }
 
     const json = (await res.json()) as { events_received?: number; messages?: string[] };
 
     if (json.messages?.length) {
-      console.warn("[CAPI] Avisos do Meta:", json.messages);
+      logger.warn("CAPI", "Meta returned warnings", json.messages);
     }
 
     return (json.events_received ?? 0) >= 1;
   } catch (err) {
     // Nunca bloqueia o fluxo principal — CAPI é fire-and-forget
-    console.warn("[CAPI] Falha ao enviar evento:", err);
+    logger.error("CAPI", "Failed to send event", err);
     return false;
   }
 }

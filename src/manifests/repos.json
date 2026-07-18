@@ -10,8 +10,8 @@
       "role": "interface de atendimento oficial com motor ASI1, captura de leads no Regis (PostgreSQL), sessao no Redis e Meta CAPI",
       "runtime": {
         "category": "ssr-web-app",
-        "framework": "Astro 5 (Node Standalone SSR) + Tailwind / Vanilla CSS",
-        "node": "20+"
+        "framework": "Astro 7 (Node Standalone SSR) + Vanilla CSS",
+        "node": ">=22.12.0"
       },
       "localDevelopment": {
         "primaryCommand": "pnpm dev",
@@ -78,7 +78,7 @@
       "name": "neo-flw-landing",
       "localPath": "./neo-flw-landing",
       "remote": "https://github.com/NEO-FlowOFF/neo-flw-landing.git",
-      "role": "landing principal com proxy de pagamento, webhooks e tracking server-side",
+      "role": "vitrine de produtos, catálogo comercial e links de checkout usados pela operação de commerce da neoflowoff.agency, com proxy de pagamento, webhooks e tracking server-side",
       "runtime": {
         "category": "static-site-plus-serverless",
         "framework": "Static HTML/CSS + Vercel Functions",
@@ -103,14 +103,11 @@
       },
       "publicSurface": {
         "domains": [
-          "https://neoflowoff.agency",
-          "https://www.neoflowoff.agency",
           "https://lp.neoflowoff.agency"
         ],
         "ecosystemLinks": [
           "https://flowpay.cash",
-          "https://neoprotocol.space",
-          "https://neo-convert.site"
+          "https://neoprotocol.space"
         ],
         "apiEndpoints": [
           "/api/charge/:chargeId",

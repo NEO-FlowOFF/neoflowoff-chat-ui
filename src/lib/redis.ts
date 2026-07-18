@@ -1,12 +1,11 @@
 import Redis from "ioredis";
 import { type Message } from "@/types/chat";
+import { logger } from "./logger";
 
 const redisUrl = import.meta.env.REDIS_URL || process.env.REDIS_URL;
 
 if (!redisUrl) {
-  console.warn(
-    "[REDIS] REDIS_URL não encontrada. Memória server-side desativada.",
-  );
+  logger.warn("REDIS", "REDIS_URL não encontrada; memória server-side desativada");
 }
 
 function describeRedisTarget(url: string) {
@@ -33,21 +32,21 @@ export const redis = redisUrl
   : null;
 
 if (redis && redisUrl) {
-  console.info(`[REDIS] Connecting to ${describeRedisTarget(redisUrl)}`);
+  logger.info("REDIS", "Connecting", { target: describeRedisTarget(redisUrl) });
 
   redis.on("ready", () => {
     redisErrorLogged = false;
-    console.info("[REDIS] Connection ready");
+    logger.info("REDIS", "Connection ready");
   });
 
   redis.on("error", (err) => {
     if (redisErrorLogged) return;
     redisErrorLogged = true;
-    console.log("[REDIS] Connection error:", err instanceof Error ? err.message : err);
+    logger.error("REDIS", "Connection error", err);
   });
 
   redis.on("end", () => {
-    console.warn("[REDIS] Connection ended. Server-side memory degraded.");
+    logger.warn("REDIS", "Connection ended; server-side memory degraded");
   });
 }
 
@@ -57,7 +56,7 @@ export async function getChatHistory(sessionId: string): Promise<Message[]> {
     const data = await redis.get(`chat:${sessionId}`);
     return data ? JSON.parse(data) : [];
   } catch (err) {
-    console.warn("[REDIS] Failed to read chat history:", err instanceof Error ? err.message : err);
+    logger.error("REDIS", "Failed to read chat history", err);
     return [];
   }
 }
@@ -74,7 +73,7 @@ export async function saveChatHistory(sessionId: string, history: Message[]) {
       60 * 60 * 24 * 7,
     ); // Expira em 7 dias
   } catch (err) {
-    console.warn("[REDIS] Failed to persist chat history:", err instanceof Error ? err.message : err);
+    logger.error("REDIS", "Failed to persist chat history", err);
   }
 }
 
@@ -86,4 +85,3 @@ export async function saveChatHistory(sessionId: string, history: Message[]) {
 export function getSlidingWindow(messages: Message[], maxMessages: number = 10): Message[] {
   return messages.slice(-maxMessages);
 }
-

@@ -4,6 +4,7 @@ import {
   sendVisitorConfirmation,
   sendConversationSummary,
 } from "./emails";
+import { logger } from "./logger";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -213,7 +214,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
       };
     }
   } catch (err) {
-    console.log("[LEADS] Erro ao consultar lead existente:", err);
+    logger.error("LEADS", "Failed to query existing lead", err);
   }
 
   const finalNome = cleanText(lead.nome) || existing.nome;
@@ -548,9 +549,12 @@ export async function upsertLead(lead: Lead): Promise<void> {
           : ""
       }`.trim();
 
-  console.log(
-    `[LEADS] Lead saved — session ${lead.sessionId} | stage=${lifecycleStage} | score=${leadScore}/${intentScore} | ${qualReason}`,
-  );
+  logger.info("LEADS", "Lead saved", {
+    stage: lifecycleStage,
+    leadScore,
+    intentScore,
+    qualification: qualReason,
+  });
 
   const mergedLead: Lead = {
     ...lead,
@@ -576,7 +580,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
   // Confirmação para o visitante quando e-mail é capturado pela primeira vez
   if (mergedLead.email && !existing.email) {
     sendVisitorConfirmation(mergedLead).catch((err) =>
-      console.log("[LEADS] Falha ao enviar confirmação para visitante:", err),
+      logger.error("LEADS", "Failed to send visitor confirmation", err),
     );
   }
 
@@ -605,7 +609,7 @@ export async function upsertLead(lead: Lead): Promise<void> {
         );
       })
       .catch((err) => {
-        console.log("[LEADS] Falha ao enviar e-mails de handoff:", err);
+        logger.error("LEADS", "Failed to send handoff emails", err);
       });
   }
 }
@@ -654,7 +658,7 @@ export async function getLeadBySessionId(
       dorPrincipal: row.dor_principal || "",
     };
   } catch (err) {
-    console.error("[LEADS] Erro ao consultar estado operacional do lead:", err);
+    logger.error("LEADS", "Failed to query operational lead state", err);
     return null;
   }
 }

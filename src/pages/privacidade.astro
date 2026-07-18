@@ -12,8 +12,34 @@ import Base from "@/layouts/Base.astro";
     <p style="line-height: 1.6; margin-bottom: 10px;">
       Dados podem incluir conteúdo da conversa, identificador de sessão e metadados técnicos necessários para operação.
     </p>
+    <p style="line-height: 1.6; margin-bottom: 10px;">
+      Analytics e pixels de marketing são opcionais e só carregam após seu
+      consentimento. A recusa não impede o uso do chat. Você pode alterar sua
+      escolha a qualquer momento abaixo.
+    </p>
+    <div style="display:flex;gap:8px;margin:16px 0;">
+      <button id="privacy-deny" type="button">Recusar ou revogar</button>
+      <button id="privacy-accept" type="button">Aceitar analytics</button>
+    </div>
+    <p id="privacy-consent-status" aria-live="polite" style="line-height:1.6;margin-bottom:10px;"></p>
     <p style="line-height: 1.6;">
       Para solicitações relacionadas a dados, contate: <a href="mailto:neo@neoflowoff.agency">neo@neoflowoff.agency</a>.
     </p>
   </main>
+  <script>
+    const consentKey = "neo_consent_v1";
+    const status = document.getElementById("privacy-consent-status");
+    const updateConsent = (value: "granted" | "denied") => {
+      localStorage.setItem(consentKey, JSON.stringify({
+        status: value,
+        source: "privacy_page",
+        at: new Date().toISOString(),
+      }));
+      if (status) status.textContent = value === "granted"
+        ? "Consentimento registrado."
+        : "Consentimento recusado ou revogado. A alteração vale imediatamente para os próximos carregamentos.";
+    };
+    document.getElementById("privacy-deny")?.addEventListener("click", () => updateConsent("denied"));
+    document.getElementById("privacy-accept")?.addEventListener("click", () => updateConsent("granted"));
+  </script>
 </Base>

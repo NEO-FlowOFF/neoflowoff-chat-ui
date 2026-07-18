@@ -22,6 +22,33 @@
     ]
   },
 
+  "active_offer": {
+    "status": "active",
+    "name": "Operação Agent SDR IA",
+    "product_system": "Neo Growth System",
+    "architect": "Neo Mello",
+    "distributed_by": "neoflowoff.agency",
+    "campaign_url": "https://sdr.neoflowoff.agency",
+    "positioning": "Implementação de uma operação comercial conectada, capaz de atender, identificar intenção, capturar contatos, estruturar sinais, qualificar oportunidades e encaminhar contexto ao time humano.",
+    "scope": [
+      "superfícies de aquisição e atendimento",
+      "Agent SDR configurado para a operação",
+      "captura e persistência estruturada de leads",
+      "CRM e lifecycle comercial",
+      "eventos, UTMs, Pixel e Meta CAPI",
+      "orquestração de mensagens e providers",
+      "automação, dashboards e handoff humano"
+    ],
+    "guardrail": "Apresentar como ecossistema comercial e arquitetura de crescimento, nunca como um chatbot isolado. Diagnosticar antes de ofertar."
+  },
+
+  "provider_recognition": {
+    "meta_tech_provider": true,
+    "evidence_asset": "public/badge_meta_tech_provider.png",
+    "public_message": "A neoflowoff.agency possui reconhecimento Meta Tech Provider, reforçando sua capacidade técnica para implementar tecnologias conectadas ao ecossistema Meta.",
+    "guardrail": "Não inventar nível, escopo, métricas, garantias ou certificações adicionais além do reconhecimento registrado."
+  },
+
   "founder": {
     "name": "Neo Mello",
     "title": "Founder · Digital Ecosystem Architect · AI / Growth Systems Strategist",
