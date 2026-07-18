@@ -69,17 +69,26 @@ Browser (chat-ui.ts)
 ```bash
 | Layer           | Storage                             | Scope                                             |
 |---              |---                                  |---                                                |
-| `sessionId`     | `localStorage`                      | Persists across page loads; reset on "clear chat" |
-| Chat history    | `localStorage` (`flow_history_v1`)  | Up to 40 messages; synced from Redis on load      |
-| Session history | Redis (`chat:{sessionId}`)          | 7-day TTL; source of truth for server             |
+| `sessionId`     | signed `HttpOnly` cookie            | Issued and verified by the server; not readable by JS |
+| Chat history    | browser UI state                    | Rendering only; never authoritative for `/api/chat` |
+| Session history | Redis (`chat:{sessionId}`)          | 7-day TTL; server-side source of truth             |
 | Offline queue   | IndexedDB (`neo-offline-queue`)     | Messages queued when network is unavailable       |
 ```
+
+`/api/history` derives the session exclusively from the signed cookie. The
+browser cannot select another session or submit an authoritative transcript.
 
 ### Handoff trigger
 
 O handoff é controlado no backend. Regis estrutura o lead e `leads.ts`
-aciona Resend quando há contato e sinal comercial suficientes. Não existe
+calcula os scores por regras determinísticas. O handoff exige nome, WhatsApp
+válido e intenção comercial explícita; email isolado não o libera. Não existe
 gatilho ativo de handoff no cliente baseado em dez mensagens.
+
+`intent_score` usa a escala 0/20/40/60/75/90/100, de ausência de sinal a ação
+urgente. `lead_score` é composto por dados verificáveis (identidade, contato,
+contexto, dor, produto, urgência e atribuição). O LLM classifica sinais e extrai
+evidência; não define diretamente os scores nem a qualificação.
 
 ### PWA / offline
 
@@ -96,6 +105,7 @@ gatilho ativo de handoff no cliente baseado em dez mensagens.
 | `ASI1_MODEL`    | No        | Model name (default: `"asi1"`)                      |
 | `REDIS_URL`     | No        | Redis Cloud connection; session memory disabled if absent. Password is embedded in the URL (`redis://default:<pwd>@host:port`) — there is NO separate `REDIS_PASSWORD` var. Use `rediss://` if the provider requires TLS. |
 | `DATABASE_URL`  | No        | Postgres HA no Railway via PgBouncer; Regis lead capture disabled if absent. |
+| `SESSION_SIGNING_SECRET` | Yes in production | Random secret with at least 32 characters used to sign the server session cookie. |
 | `RESEND_API_KEY`| No        | Resend API key; email handoff/summary disabled if absent |
 | `RESEND_FROM`   | No        | Sender (default `neo@neoflowoff.agency`); domain must be verified in Resend |
 | `RESEND_TO`     | No        | Handoff/summary recipient + `reply_to` to lead (default `neo@neoflowoff.agency`) |

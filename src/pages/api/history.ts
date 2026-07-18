@@ -1,18 +1,11 @@
 import type { APIContext, APIRoute } from "astro";
 import { getChatHistory } from "@/lib/redis";
 import { logger } from "@/lib/logger";
+import { getOrCreateSessionId } from "@/lib/session";
 
-export const GET: APIRoute = async ({ request }: APIContext) => {
+export const GET: APIRoute = async ({ request, cookies }: APIContext) => {
   try {
-    const url = new URL(request.url);
-    const sessionId = url.searchParams.get("sessionId");
-
-    if (!sessionId) {
-      return new Response(JSON.stringify({ error: "sessionId is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const sessionId = getOrCreateSessionId(cookies, request.url);
 
     logger.debug("HISTORY_API", "Loading session history");
     const history = await getChatHistory(sessionId);
@@ -21,13 +14,13 @@ export const GET: APIRoute = async ({ request }: APIContext) => {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
+        "Cache-Control": "no-store",
       },
     });
   } catch (error: unknown) {
     logger.error("HISTORY_API", "Failed to load session history", error);
-    return new Response(JSON.stringify({ history: [] }), {
-      status: 200,
+    return new Response(JSON.stringify({ error: "History unavailable" }), {
+      status: 503,
       headers: { "Content-Type": "application/json" },
     });
   }

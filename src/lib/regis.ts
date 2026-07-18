@@ -1,5 +1,9 @@
 import { type Message } from "@/types/chat";
-import { upsertLead } from "./leads";
+import { type LeadUpsertResult, upsertLead } from "./leads";
+import {
+  COMMERCIAL_INTENTS,
+  type CommercialIntent,
+} from "./lead-scoring";
 import { logger } from "./logger";
 
 /**
@@ -40,13 +44,13 @@ export async function updateRegisLead(
   sessionId: string,
   messages: Message[],
   attribution?: AttributionData | null,
-): Promise<void> {
+): Promise<LeadUpsertResult | null> {
   const apiKey = import.meta.env.ASI1_API_KEY || process.env.ASI1_API_KEY;
   const model = import.meta.env.ASI1_MODEL || process.env.ASI1_MODEL || "asi1";
 
   if (!apiKey) {
     logger.warn("REGIS", "ASI1_API_KEY missing; lead extraction skipped");
-    return;
+    return null;
   }
 
   logger.debug("REGIS", "Starting extraction", { messageCount: messages.length });
@@ -64,8 +68,15 @@ Extraction rules:
 2. "email": email address if mentioned, otherwise null.
 3. "telefone": phone or WhatsApp number if mentioned, otherwise null.
 4. "empresa": company name if mentioned, otherwise null.
-5. "observacoes": REQUIRED — write a 1-2 sentence summary of what the visitor wants or needs, based on the conversation. If the visitor said anything at all, summarize it here. Only use null if the conversation is completely empty.
-6. "visitor_intent": MUST be exactly one of these values: "orcamento", "parceria", "suporte", "projeto_webapp", "agents_empresa", "curioso", "outro". Choose the best match based on the conversation context. Never return null for this field — default to "curioso" if unsure.
+5. "visitor_intent": one of "orcamento", "parceria", "suporte", "projeto_webapp", "agents_empresa", "curioso", "outro".
+6. "resumo_conversa": factual 1-2 sentence summary, otherwise null.
+7. "dor_principal": explicit business pain stated by the visitor, otherwise null.
+8. "necessidade_detectada": explicit desired outcome, otherwise null.
+9. "produto_interesse": specific service or product discussed, otherwise null.
+10. "urgencia": explicit deadline or urgency, otherwise null.
+11. "commercial_intent": exactly one of "no_signal", "curiosity", "problem_identified", "solution_interest", "commercial_interest", "action_request", "urgent_action".
+12. "poi_detected": true only when the visitor explicitly demonstrates buying, proposal, pricing, meeting, implementation or immediate-action intent.
+13. "poi_evidence": when poi_detected is true, copy one short exact excerpt from a VISITOR message that proves it. Otherwise null. Never infer evidence from an AGENT message.
 
 Output format (strict JSON):
 {
@@ -73,8 +84,15 @@ Output format (strict JSON):
   "email": string | null,
   "telefone": string | null,
   "empresa": string | null,
-  "observacoes": string,
-  "visitor_intent": string
+  "visitor_intent": string,
+  "resumo_conversa": string | null,
+  "dor_principal": string | null,
+  "necessidade_detectada": string | null,
+  "produto_interesse": string | null,
+  "urgencia": string | null,
+  "commercial_intent": string,
+  "poi_detected": boolean,
+  "poi_evidence": string | null
 }
 
 Conversation:
@@ -94,7 +112,7 @@ JSON:`;
         messages: [{ role: "user", content: extractionPrompt }],
         stream: false,
         temperature: 0.1,
-        max_tokens: 400,
+        max_tokens: 700,
       }),
     });
 
@@ -104,7 +122,7 @@ JSON:`;
         status: res.status,
         response: body.slice(0, 200),
       });
-      return;
+      return null;
     }
 
     const data = await res.json();
@@ -112,7 +130,7 @@ JSON:`;
 
     if (!raw) {
       logger.warn("REGIS", "Empty response from LLM; extraction skipped");
-      return;
+      return null;
     }
 
     logger.debug("REGIS", "LLM extraction response received");
@@ -128,7 +146,7 @@ JSON:`;
       extracted = JSON.parse(jsonStr);
     } catch (parseErr) {
       logger.error("REGIS", "Failed to parse extraction response", parseErr);
-      return;
+      return null;
     }
 
     // Helper: reject placeholder/empty strings and return null
@@ -163,6 +181,23 @@ JSON:`;
     const visitorIntent =
       normalizedIntent && VALID_INTENTS.has(normalizedIntent) ? normalizedIntent : "outro";
 
+    const rawCommercialIntent = sanitizeStr(extracted.commercial_intent);
+    const commercialIntent = COMMERCIAL_INTENTS.includes(
+      rawCommercialIntent as CommercialIntent,
+    )
+      ? (rawCommercialIntent as CommercialIntent)
+      : "no_signal";
+    const poiEvidence = sanitizeStr(extracted.poi_evidence);
+    const normalizedTranscript = transcript.toLocaleLowerCase("pt-BR");
+    const evidenceExists = !!(
+      poiEvidence &&
+      normalizedTranscript.includes(poiEvidence.toLocaleLowerCase("pt-BR"))
+    );
+    const poiDetected = extracted.poi_detected === true && evidenceExists;
+    const ultimaMensagem =
+      [...messages].reverse().find((message) => message.role === "user")
+        ?.content ?? null;
+
     if (rawIntent && !VALID_INTENTS.has(normalizedIntent!)) {
       logger.warn("REGIS", "Invalid visitor intent; using fallback");
     }
@@ -173,8 +208,17 @@ JSON:`;
       email: sanitizeStr(extracted.email),
       telefone: sanitizeStr(extracted.telefone),
       empresa: sanitizeStr(extracted.empresa),
-      observacoes: sanitizeStr(extracted.observacoes),
+      observacoes: sanitizeStr(extracted.resumo_conversa),
       visitorIntent,
+      resumoConversa: sanitizeStr(extracted.resumo_conversa),
+      dorPrincipal: sanitizeStr(extracted.dor_principal),
+      necessidadeDetectada: sanitizeStr(extracted.necessidade_detectada),
+      produtoInteresse: sanitizeStr(extracted.produto_interesse),
+      urgencia: sanitizeStr(extracted.urgencia),
+      ultimaMensagem,
+      commercialIntent,
+      poiDetected,
+      poiEvidence: evidenceExists ? poiEvidence : null,
       utmSource: attribution?.utmSource ?? null,
       utmMedium: attribution?.utmMedium ?? null,
       utmCampaign: attribution?.utmCampaign ?? null,
@@ -189,9 +233,11 @@ JSON:`;
       consentAt: attribution?.consentAt ?? null,
     };
 
-    await upsertLead(leadData);
+    const result = await upsertLead(leadData);
     logger.info("REGIS", "Lead upserted successfully");
+    return result;
   } catch (err) {
     logger.error("REGIS", "Unexpected extraction or persistence error", err);
+    return null;
   }
 }

@@ -77,6 +77,23 @@ export async function saveChatHistory(sessionId: string, history: Message[]) {
   }
 }
 
+export async function checkChatRateLimit(
+  sessionId: string,
+  limit = 12,
+  windowSeconds = 60,
+): Promise<boolean> {
+  if (!redis) return true;
+  try {
+    const key = `rate:chat:${sessionId}`;
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, windowSeconds);
+    return count <= limit;
+  } catch (err) {
+    logger.error("REDIS", "Failed to evaluate chat rate limit", err);
+    return true;
+  }
+}
+
 /**
  * Janela Deslizante de Memória (Sliding Memory Window)
  * Retorna apenas as últimas N interações (padrão: 10 mensagens = 5 turnos),

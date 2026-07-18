@@ -1,4 +1,5 @@
 import { enqueue, getPending, dequeue } from '@/lib/idb-queue';
+import { SseContentParser } from '@/lib/sse';
 
 try {
   const introSeen = sessionStorage.getItem("flow_intro_seen");
@@ -270,6 +271,11 @@ if (!sessionId) {
 }
 
 const attributionData = getAttribution();
+const sessionReady = fetch('/api/session', { credentials: 'same-origin' }).then(
+  (response) => {
+    if (!response.ok) throw new Error('Sessão segura indisponível');
+  },
+);
 
 let chatHistory = loadHistory();
 let isStreaming = false;
@@ -277,7 +283,8 @@ let toastTimer: ReturnType<typeof setTimeout>;
 
 async function syncHistoryWithRedis() {
   try {
-    const res = await fetch(`/api/history?sessionId=${sessionId}`);
+    await sessionReady;
+    const res = await fetch('/api/history', { credentials: 'same-origin' });
     if (!res.ok) return;
     const data = await res.json();
     if (Array.isArray(data.history) && data.history.length > 0) {
@@ -293,21 +300,15 @@ async function syncHistoryWithRedis() {
 }
 
 const streamProxy = async (
-  _userText: string,
+  userText: string,
   typingEl: HTMLElement
 ): Promise<string> => {
-  const messages = [
-    ...chatHistory.slice(-MAX_HISTORY).map((m: any) => ({
-      role: m.role === 'agent' ? 'assistant' : m.role,
-      content: m.content
-    }))
-  ];
+  await sessionReady;
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      messages,
-      sessionId,
+      message: userText,
       stream: true,
       max_tokens: 1024,
       temperature: 0.7,
@@ -328,17 +329,13 @@ const streamProxy = async (
   if (!res.body) throw new Error('A resposta da API está vazia (res.body é null).');
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
+  const sseParser = new SseContentParser();
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-    const chunk = decoder.decode(value);
-    for (const line of chunk.split('\n')) {
-      if (!line.startsWith('data: ')) continue;
-      const json = line.replace('data: ', '').trim();
-      if (json === '[DONE]') break;
-      try {
-        const delta = JSON.parse(json).choices?.[0]?.delta?.content || '';
-        if (!delta) continue;
+    const chunk = decoder.decode(value, { stream: true });
+    for (const delta of sseParser.push(chunk)) {
+      if (!delta) continue;
         fullText += delta;
         // Debounce: schedule one render per animation frame to avoid layout thrashing
         if (!renderScheduled) {
@@ -349,9 +346,13 @@ const streamProxy = async (
             renderScheduled = false;
           });
         }
-        await sleep(10 + Math.random() * 25);
-      } catch {}
+      await sleep(10 + Math.random() * 25);
     }
+  }
+  for (const delta of sseParser
+    .push(decoder.decode())
+    .concat(sseParser.flush())) {
+    fullText += delta;
   }
   // Final render to ensure last chunk is displayed
   textEl.innerHTML = formatMarkdown(fullText); // safe — see formatMarkdown JSDoc // nosemgrep: javascript.browser.security.insecure-document-method,javascript.browser.security.insecure-innerhtml

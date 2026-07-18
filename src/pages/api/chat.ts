@@ -3,7 +3,14 @@ import { getLeadBySessionId } from "@/lib/leads";
 import { logger } from "@/lib/logger";
 import { sendCapiEvent } from "@/lib/meta-capi";
 import { getEcosystemContext } from "@/lib/rag";
-import { getSlidingWindow, saveChatHistory } from "@/lib/redis";
+import {
+  checkChatRateLimit,
+  getChatHistory,
+  getSlidingWindow,
+  saveChatHistory,
+} from "@/lib/redis";
+import { getOrCreateSessionId } from "@/lib/session";
+import { SseContentParser } from "@/lib/sse";
 import { type Message } from "@/types/chat";
 import type { APIContext, APIRoute } from "astro";
 import * as fs from "node:fs/promises";
@@ -49,7 +56,7 @@ function isAllowedOrigin(origin: string | null, host: string | null): boolean {
   return false;
 }
 
-export const POST: APIRoute = async ({ request }: APIContext) => {
+export const POST: APIRoute = async ({ request, cookies }: APIContext) => {
   try {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
@@ -64,8 +71,7 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
     }
 
     const body = (await request.json()) as {
-      messages: Message[];
-      sessionId?: string;
+      message?: string;
       /** UUID gerado pelo browser Pixel — repassado ao CAPI para deduplicação */
       eventId?: string | null;
       attribution?: {
@@ -86,14 +92,36 @@ export const POST: APIRoute = async ({ request }: APIContext) => {
         at?: string;
       } | null;
     };
-    const { messages, sessionId, eventId } = body;
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    if (!message || message.length > 2000) {
+      return new Response(JSON.stringify({ error: "Invalid message" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const sessionId = getOrCreateSessionId(cookies, request.url);
+    if (!(await checkChatRateLimit(sessionId))) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": "60",
+        },
+      });
+    }
+    const storedHistory = await getChatHistory(sessionId);
+    const messages: Message[] = [
+      ...storedHistory,
+      { role: "user", content: message },
+    ];
+    const { eventId } = body;
 
     // Sentinel — detecta atividade suspeita no input antes de chamar o LLM
-    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
-    if (lastUserMsg?.content) {
+    if (message) {
       try {
         const { handleSuspiciousActivity } = await import("../../lib/sentinel");
-        handleSuspiciousActivity(sessionId, lastUserMsg.content).catch(
+        handleSuspiciousActivity(sessionId, message).catch(
           () => {},
         );
       } catch (err) {
@@ -194,6 +222,7 @@ INSTRUÇÃO DE ATENDIMENTO: Utilize o contexto da campanha ou origem do cliente 
           : "AGUARDANDO DADOS MÍNIMOS";
 
       operationalStatePrompt = `--- ESTADO OPERACIONAL DO CLIENTE (BACKEND AUTHORITY) ---
+Este estado representa o último turno já persistido. Informações fornecidas na mensagem atual são mais recentes: reconheça-as imediatamente e nunca repita uma pergunta apenas porque o banco ainda mostra o campo como ausente.
 Estágio no CRM (Lifecycle): ${state.lifecycleStage}
 POI (Intenção Comercial) Detectado no Banco: ${state.poiDetected ? "SIM" : "NÃO"}
 Qualificado no Banco: ${state.qualificado ? "SIM" : "NÃO"}
@@ -282,6 +311,7 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
       });
     }
 
+    const upstreamReader = res.body?.getReader() ?? null;
     const stream = new ReadableStream({
       /**
        * Inicia o streaming da resposta do LLM para o cliente e gerencia o pós-processamento.
@@ -294,32 +324,34 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
        *   Não retorna valor; opera via efeitos colaterais (streaming, persistência em Redis, atualização de CRM e disparo de CAPI).
        */
       async start(controller) {
-        const reader = res.body?.getReader();
-        if (!reader) return;
+        const reader = upstreamReader;
+        if (!reader) {
+          controller.error(new Error("ASI1 response body is unavailable"));
+          return;
+        }
 
         let accumulatedResponse = "";
         const decoder = new TextDecoder();
+        const sseParser = new SseContentParser();
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          const chunk = decoder.decode(value);
-          controller.enqueue(value);
-
-          // Extrai o conteúdo para salvar no Redis depois
-          const lines = chunk.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              const jsonStr = line.replace("data: ", "").trim();
-              if (jsonStr === "[DONE]") continue;
-              try {
-                const data = JSON.parse(jsonStr);
-                accumulatedResponse += data.choices?.[0]?.delta?.content || "";
-              } catch {}
-            }
+            const chunk = decoder.decode(value, { stream: true });
+            controller.enqueue(value);
+            accumulatedResponse += sseParser.push(chunk).join("");
           }
+        } catch (error) {
+          await reader.cancel(error).catch(() => {});
+          controller.error(error);
+          return;
         }
+        accumulatedResponse += sseParser
+          .push(decoder.decode())
+          .concat(sseParser.flush())
+          .join("");
 
         // Ao finalizar, salva no Redis se houver sessionId
         if (sessionId && accumulatedResponse) {
@@ -359,7 +391,11 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
                 : null;
 
             // Passa o histórico completo e a atribuição
-            await updateRegisLead(sessionId, updatedHistory, attribution);
+            const transition = await updateRegisLead(
+              sessionId,
+              updatedHistory,
+              attribution,
+            );
 
             // Dispara CAPI: lead_created (fire-and-forget — não bloqueia SSE)
             const clientIp =
@@ -368,26 +404,44 @@ REGRAS ESTRITAS DE CONDUÇÃO (PROTOCOL ZERO-INVENTION & FLUID CAPTURE):
               null;
             const clientUserAgent = request.headers.get("user-agent");
 
-            if (body.consent?.status === "granted") sendCapiEvent({
-              event_name: "Lead",
-              event_time: Math.floor(Date.now() / 1000),
-              action_source: "website",
-              event_source_url: `https://chat.neoflowoff.agency/chat`,
-              event_id: eventId ?? undefined,
-              user_data: {
+            if (body.consent?.status === "granted" && transition) {
+              const userData = {
                 clientIpAddress: clientIp,
                 clientUserAgent: clientUserAgent ?? undefined,
                 fbc: body.attribution?.fbclid
                   ? `fb.1.${Date.now()}.${body.attribution.fbclid}`
                   : undefined,
-              },
-            }).catch(() => {});
+              };
+              if (transition.becameLead) {
+                sendCapiEvent({
+                  event_name: "Lead",
+                  event_time: Math.floor(Date.now() / 1000),
+                  action_source: "website",
+                  event_source_url: "https://chat.neoflowoff.agency/chat",
+                  event_id: eventId ?? undefined,
+                  user_data: userData,
+                }).catch(() => {});
+              }
+              if (transition.becameQualified) {
+                sendCapiEvent({
+                  event_name: "qualified_lead",
+                  event_time: Math.floor(Date.now() / 1000),
+                  action_source: "website",
+                  event_source_url: "https://chat.neoflowoff.agency/chat",
+                  event_id: eventId ? `${eventId}:qualified` : undefined,
+                  user_data: userData,
+                }).catch(() => {});
+              }
+            }
           } catch (err) {
             logger.error("REGIS", "Error updating lead", err);
           }
         }
 
         controller.close();
+      },
+      async cancel(reason) {
+        await upstreamReader?.cancel(reason).catch(() => {});
       },
     });
 

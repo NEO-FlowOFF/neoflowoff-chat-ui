@@ -5,6 +5,12 @@ import {
   sendConversationSummary,
 } from "./emails";
 import { logger } from "./logger";
+import {
+  type CommercialIntent,
+  isValidEmail,
+  isValidPhone,
+  scoreLead,
+} from "./lead-scoring";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -40,6 +46,8 @@ export interface Lead {
   leadScore?: number;
   intentScore?: number;
   poiDetected?: boolean;
+  commercialIntent?: CommercialIntent | null;
+  poiEvidence?: string | null;
   lifecycleStage?: string | null;
   opportunityStatus?: string | null;
 
@@ -116,8 +124,17 @@ function resolveLifecycleStage(input: {
  * Nova lógica:
  * lead = contato + contexto + sinal + intenção + estágio comercial.
  */
-export async function upsertLead(lead: Lead): Promise<void> {
-  if (!pool) return;
+export interface LeadUpsertResult {
+  becameLead: boolean;
+  becameQualified: boolean;
+  becameHandoffReady: boolean;
+  leadScore: number;
+  intentScore: number;
+  poiDetected: boolean;
+}
+
+export async function upsertLead(lead: Lead): Promise<LeadUpsertResult | null> {
+  if (!pool) return null;
 
   const hasData =
     lead.nome ||
@@ -152,13 +169,16 @@ export async function upsertLead(lead: Lead): Promise<void> {
     lead.fbc ||
     lead.userAgent ||
     lead.ipHash ||
+    lead.commercialIntent ||
+    lead.poiEvidence ||
+    lead.poiDetected ||
     hasJsonData(lead.commercialContext) ||
     hasJsonData(lead.signalContext) ||
     hasJsonData(lead.agentContext) ||
     lead.consentStatus ||
     lead.consentSource;
 
-  if (!hasData) return;
+  if (!hasData) return null;
 
   let existing = {
     nome: "",
@@ -180,11 +200,18 @@ export async function upsertLead(lead: Lead): Promise<void> {
     leadScore: 0,
     intentScore: 0,
     poiDetected: false,
+    commercialIntent: "no_signal" as CommercialIntent,
+    poiEvidence: "",
+    cargo: "",
+    urgencia: "",
+    utmSource: "",
+    utmCampaign: "",
+    scoringVersion: "",
   };
 
   try {
     const result = await pool.query(
-      `SELECT nome, empresa, email, telefone, observacoes, visitor_intent, dor_principal, necessidade_detectada, resumo_conversa, produto_interesse, codigo_item_interesse, qualificado, handoff_sent, followup_status, lifecycle_stage, opportunity_status, lead_score, intent_score, poi_detected FROM leads WHERE session_id = $1`,
+      `SELECT nome, empresa, email, telefone, cargo, observacoes, visitor_intent, dor_principal, necessidade_detectada, resumo_conversa, produto_interesse, codigo_item_interesse, urgencia, utm_source, utm_campaign, qualificado, handoff_sent, followup_status, lifecycle_stage, opportunity_status, lead_score, intent_score, poi_detected, signal_context FROM leads WHERE session_id = $1`,
       [lead.sessionId],
     );
 
@@ -211,109 +238,157 @@ export async function upsertLead(lead: Lead): Promise<void> {
         leadScore: scoreNumber(row.lead_score),
         intentScore: scoreNumber(row.intent_score),
         poiDetected: !!row.poi_detected,
+        commercialIntent:
+          row.signal_context?.commercialIntent || "no_signal",
+        poiEvidence: row.signal_context?.poiEvidence || "",
+        cargo: row.cargo || "",
+        urgencia: row.urgencia || "",
+        utmSource: row.utm_source || "",
+        utmCampaign: row.utm_campaign || "",
+        scoringVersion: row.signal_context?.scoringVersion || "",
       };
     }
   } catch (err) {
     logger.error("LEADS", "Failed to query existing lead", err);
   }
 
-  const finalNome = cleanText(lead.nome) || existing.nome;
-  const finalEmpresa = cleanText(lead.empresa) || existing.empresa;
-  const finalEmail = cleanText(lead.email) || existing.email;
-  const finalTelefone = cleanText(lead.telefone) || existing.telefone;
-  const finalObservacoes = cleanText(lead.observacoes) || existing.observacoes;
-  const finalVisitorIntent =
-    cleanText(lead.visitorIntent) || existing.visitorIntent;
-  const finalDorPrincipal =
-    cleanText(lead.dorPrincipal) || existing.dorPrincipal;
+  const {
+    nome: leadNome,
+    empresa: leadEmpresa,
+    email: leadEmail,
+    telefone: leadTelefone,
+    observacoes: leadObservacoes,
+    visitorIntent: leadVisitorIntent,
+    dorPrincipal: leadDorPrincipal,
+    necessidadeDetectada: leadNecessidadeDetectada,
+    resumoConversa: leadResumoConversa,
+    produtoInteresse: leadProdutoInteresse,
+    codigoItemInteresse: leadCodigoItemInteresse,
+    cargo: leadCargo,
+    urgencia: leadUrgencia,
+    utmSource: leadUtmSource,
+    utmCampaign: leadUtmCampaign,
+    commercialIntent: leadCommercialIntent,
+    poiEvidence: leadPoiEvidence,
+    poiDetected: leadPoiDetected,
+  } = lead;
+
+  const {
+    nome: existingNome,
+    empresa: existingEmpresa,
+    email: existingEmail,
+    telefone: existingTelefone,
+    observacoes: existingObservacoes,
+    visitorIntent: existingVisitorIntent,
+    dorPrincipal: existingDorPrincipal,
+    necessidadeDetectada: existingNecessidadeDetectada,
+    resumoConversa: existingResumoConversa,
+    produtoInteresse: existingProdutoInteresse,
+    codigoItemInteresse: existingCodigoItemInteresse,
+    cargo: existingCargo,
+    urgencia: existingUrgencia,
+    utmSource: existingUtmSource,
+    utmCampaign: existingUtmCampaign,
+    commercialIntent: existingCommercialIntent,
+    poiEvidence: existingPoiEvidence,
+    poiDetected: existingPoiDetected,
+    qualificado: existingQualificado,
+    handoffSent: existingHandoffSent,
+    followupStatus: existingFollowupStatus,
+    lifecycleStage: existingLifecycleStage,
+    opportunityStatus: existingOpportunityStatus,
+    scoringVersion: existingScoringVersion,
+    leadScore: existingLeadScore,
+    intentScore: existingIntentScore,
+  } = existing;
+
+  const finalNome = cleanText(leadNome) || existingNome;
+  const finalEmpresa = cleanText(leadEmpresa) || existingEmpresa;
+  const finalEmail = cleanText(leadEmail) || existingEmail;
+  const finalTelefone = cleanText(leadTelefone) || existingTelefone;
+  const finalObservacoes = cleanText(leadObservacoes) || existingObservacoes;
+  const finalVisitorIntent = cleanText(leadVisitorIntent) || existingVisitorIntent;
+  const finalDorPrincipal = cleanText(leadDorPrincipal) || existingDorPrincipal;
   const finalNecessidadeDetectada =
-    cleanText(lead.necessidadeDetectada) || existing.necessidadeDetectada;
+    cleanText(leadNecessidadeDetectada) || existingNecessidadeDetectada;
   const finalResumoConversa =
-    cleanText(lead.resumoConversa) || existing.resumoConversa;
+    cleanText(leadResumoConversa) || existingResumoConversa;
   const finalProdutoInteresse =
-    cleanText(lead.produtoInteresse) || existing.produtoInteresse;
+    cleanText(leadProdutoInteresse) || existingProdutoInteresse;
   const finalCodigoItemInteresse =
-    cleanText(lead.codigoItemInteresse) || existing.codigoItemInteresse;
+    cleanText(leadCodigoItemInteresse) || existingCodigoItemInteresse;
+  const finalCargo = cleanText(leadCargo) || existingCargo;
+  const finalUrgencia = cleanText(leadUrgencia) || existingUrgencia;
+  const finalUtmSource = cleanText(leadUtmSource) || existingUtmSource;
+  const finalUtmCampaign =
+    cleanText(leadUtmCampaign) || existingUtmCampaign;
+  const finalCommercialIntent =
+    leadCommercialIntent || existingCommercialIntent;
+  const finalPoiEvidence = cleanText(leadPoiEvidence) || existingPoiEvidence;
 
-  const hasContact = !!(finalEmail || finalTelefone);
-  const hasIdentity = !!(finalNome || finalEmpresa);
+  const scoring = scoreLead({
+    nome: finalNome,
+    email: finalEmail,
+    telefone: finalTelefone,
+    empresa: finalEmpresa,
+    cargo: finalCargo,
+    dorPrincipal: finalDorPrincipal,
+    necessidadeDetectada: finalNecessidadeDetectada,
+    produtoInteresse: finalProdutoInteresse,
+    urgencia: finalUrgencia,
+    utmSource: finalUtmSource,
+    utmCampaign: finalUtmCampaign,
+    commercialIntent: finalCommercialIntent,
+    poiDetected: leadPoiDetected || existingPoiDetected,
+    poiEvidence: finalPoiEvidence,
+  });
+  const hasContact = isValidEmail(finalEmail) || isValidPhone(finalTelefone);
+  const existingHasContact =
+    isValidEmail(existingEmail) || isValidPhone(existingTelefone);
+  const {
+    poiDetected: scoringPoiDetected,
+    qualified: scoringQualified,
+    leadScore: scoringLeadScore,
+    intentScore: scoringIntentScore,
+    handoffReady,
+  } = scoring;
 
-  const hasNeed = !!(
-    finalObservacoes ||
-    finalVisitorIntent ||
-    finalDorPrincipal ||
-    finalNecessidadeDetectada ||
-    finalResumoConversa
-  );
-
-  const hasCommercialInterest = !!(
-    finalProdutoInteresse ||
-    finalCodigoItemInteresse ||
-    cleanText(lead.categoriaInteresse) ||
-    cleanText(lead.urgencia) ||
-    cleanText(lead.faixaOrcamento)
-  );
-
-  const hasCommercialSignal = hasNeed || hasCommercialInterest;
-
-  const poiDetected = !!(
-    lead.poiDetected ||
-    existing.poiDetected ||
-    hasCommercialInterest ||
-    finalDorPrincipal ||
-    finalNecessidadeDetectada
-  );
-
-  /**
-   * Regra atual:
-   * Para qualificar, precisa ter contato + algum sinal mínimo:
-   * - identidade;
-   * - necessidade;
-   * - interesse comercial;
-   * - POI detectado.
-   */
-  const isQualified =
-    lead.qualificado ??
-    (existing.qualificado
-      ? true
-      : hasContact &&
-        (hasIdentity || hasNeed || hasCommercialInterest || poiDetected));
-
-  const leadScore = Math.max(
-    existing.leadScore,
-    scoreNumber(lead.leadScore),
-    isQualified ? 70 : 0,
-    poiDetected ? 50 : 0,
-  );
-
-  const intentScore = Math.max(
-    existing.intentScore,
-    scoreNumber(lead.intentScore),
-    hasCommercialInterest ? 70 : 0,
-    hasNeed ? 50 : 0,
-  );
+  const poiDetected = existingPoiDetected || scoringPoiDetected;
+  const isQualified = existingQualificado || scoringQualified;
+  const isCurrentScoringVersion =
+    existingScoringVersion === "2026-07-18.v1";
+  const leadScore = isCurrentScoringVersion
+    ? Math.max(existingLeadScore, scoringLeadScore)
+    : scoringLeadScore;
+  const intentScore = isCurrentScoringVersion
+    ? Math.max(existingIntentScore, scoringIntentScore)
+    : scoringIntentScore;
+  const becameLead = !existingHasContact && hasContact;
+  const becameQualified = !existingQualificado && isQualified;
+  const becameHandoffReady = !existingHandoffSent && handoffReady;
+  const hasCommercialSignal = intentScore >= 40 || poiDetected;
 
   const followupStatus =
     isQualified &&
-    (!existing.followupStatus || existing.followupStatus === "pending")
+    (!existingFollowupStatus || existingFollowupStatus === "pending")
       ? "ready"
-      : existing.followupStatus || "pending";
+      : existingFollowupStatus || "pending";
 
   const lifecycleStage = resolveLifecycleStage({
-    existingStage: existing.lifecycleStage,
-    existingHandoffSent: existing.handoffSent,
+    existingStage: existingLifecycleStage,
+    existingHandoffSent: existingHandoffSent,
     isQualified,
     poiDetected,
     hasCommercialSignal,
   });
 
   const opportunityStatus =
-    existing.opportunityStatus === "won" ||
-    existing.opportunityStatus === "lost"
-      ? existing.opportunityStatus
+    existingOpportunityStatus === "won" ||
+    existingOpportunityStatus === "lost"
+      ? existingOpportunityStatus
       : isQualified
         ? "open"
-        : existing.opportunityStatus || "new";
+        : existingOpportunityStatus || "new";
 
   const now = new Date();
 
@@ -429,7 +504,13 @@ export async function upsertLead(lead: Lead): Promise<void> {
     now,
 
     JSON.stringify(lead.commercialContext || {}),
-    JSON.stringify(lead.signalContext || {}),
+    JSON.stringify({
+      ...(lead.signalContext || {}),
+      commercialIntent: finalCommercialIntent,
+      poiEvidence: finalPoiEvidence || null,
+      scoreComponents: scoring.components,
+      scoringVersion: "2026-07-18.v1",
+    }),
     JSON.stringify(lead.agentContext || {}),
 
     cleanText(lead.consentStatus),
@@ -472,8 +553,16 @@ export async function upsertLead(lead: Lead): Promise<void> {
         ELSE EXCLUDED.qualificado
       END,
 
-      lead_score = GREATEST(leads.lead_score, EXCLUDED.lead_score),
-      intent_score = GREATEST(leads.intent_score, EXCLUDED.intent_score),
+      lead_score = CASE
+        WHEN COALESCE(leads.signal_context->>'scoringVersion', '') <> '2026-07-18.v1'
+          THEN EXCLUDED.lead_score
+        ELSE GREATEST(leads.lead_score, EXCLUDED.lead_score)
+      END,
+      intent_score = CASE
+        WHEN COALESCE(leads.signal_context->>'scoringVersion', '') <> '2026-07-18.v1'
+          THEN EXCLUDED.intent_score
+        ELSE GREATEST(leads.intent_score, EXCLUDED.intent_score)
+      END,
 
       poi_detected = CASE
         WHEN leads.poi_detected = TRUE THEN TRUE
@@ -542,12 +631,8 @@ export async function upsertLead(lead: Lead): Promise<void> {
   );
 
   const qualReason = isQualified
-    ? `qualified | contact=${hasContact}, identity=${hasIdentity}, need=${hasNeed}, poi=${poiDetected}, product=${!!finalProdutoInteresse}`
-    : `not qualified | missing: ${!hasContact ? "contact " : ""}${
-        !hasIdentity && !hasNeed && !hasCommercialInterest
-          ? "identity/need/commercial-signal"
-          : ""
-      }`.trim();
+    ? `qualified | leadScore=${leadScore}, intentScore=${intentScore}, poi=${poiDetected}`
+    : `not qualified | leadScore=${leadScore}, intentScore=${intentScore}, contact=${hasContact}`;
 
   logger.info("LEADS", "Lead saved", {
     stage: lifecycleStage,
@@ -584,8 +669,8 @@ export async function upsertLead(lead: Lead): Promise<void> {
     );
   }
 
-  // Handoff + resumo quando lead qualifica pela primeira vez
-  if (isQualified && !existing.handoffSent) {
+  // Handoff exige nome, WhatsApp válido e intenção comercial explícita.
+  if (becameHandoffReady) {
     Promise.all([
       sendHandoffNotification(mergedLead),
       sendConversationSummary(mergedLead),
@@ -612,6 +697,15 @@ export async function upsertLead(lead: Lead): Promise<void> {
         logger.error("LEADS", "Failed to send handoff emails", err);
       });
   }
+
+  return {
+    becameLead,
+    becameQualified,
+    becameHandoffReady,
+    leadScore,
+    intentScore,
+    poiDetected,
+  };
 }
 
 export interface LeadOperationalState {

@@ -28,6 +28,9 @@ operacionais do agente NEØ:One no ecossistema FlowOFF.
 └─ measurement: GA4 + Meta Pixel + Meta CAPI com deduplicação por event_id.
 └─ growth-context: Neo Growth System + oferta ativa Agent SDR.
 └─ attribution: contexto de campanha via UTMs e query string controlada.
+└─ session-authority: sessão assinada `HttpOnly`; Redis é a fonte do histórico.
+└─ lead-intelligence: extração Regis + scoring determinístico e auditável.
+└─ handoff-governance: nome + WhatsApp válido + intenção comercial explícita.
 
 ────────────────────────────────────────
 
@@ -36,8 +39,8 @@ operacionais do agente NEØ:One no ecossistema FlowOFF.
 ▓▓▓ ROADMAP TÉCNICO
 ────────────────────────────────────────
 └─ context: evoluir o RAG Lite estático para recuperação seletiva.
-└─ auth: proteção via assinatura de wallet ou JWT.
-└─ consent: gate LGPD ativo para analytics, pixels e CAPI após opt-in.
+└─ auth: autenticação de usuário final além da sessão técnica assinada.
+└─ consent: ampliar auditoria e testes do gate LGPD já ativo.
 
 ────────────────────────────────────────
 
@@ -53,12 +56,11 @@ operacionais do agente NEØ:One no ecossistema FlowOFF.
 ▓▓▓ Neo Mello
 ────────────────────────────────────────
 Fundador · NEO FlowOFF
-neo@neoflowoff.agency
+neo@neoprotocol.space
 
 "Automação de marketing e infraestrutura 
 digital autônoma."
 
-Security by design.
 Security by design.
 ────────────────────────────────────────
 ```

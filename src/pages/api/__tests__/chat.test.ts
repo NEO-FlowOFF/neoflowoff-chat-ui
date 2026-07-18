@@ -31,7 +31,6 @@ vi.mock("../../../lib/db", () => {
 });
 
 import { POST } from "@/pages/api/chat";
-import type { Message } from "@/types/chat";
 
 // Mock global fetch
 const mockReader = {
@@ -46,6 +45,7 @@ vi.stubGlobal("fetch", mockFetch);
 describe("Chat API Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.SESSION_SIGNING_SECRET = "test-session-secret-with-at-least-32-characters";
     mockFetch.mockImplementation((url: unknown) => {
       if (typeof url === "string" && url.includes("graph.facebook.com")) {
         return Promise.resolve({
@@ -71,10 +71,10 @@ describe("Chat API Route", () => {
         "Origin": "http://localhost",
         "Host": "localhost",
       },
-      body: JSON.stringify({ messages: [] }),
+      body: JSON.stringify({ message: "hi" }),
     });
 
-    const response = await POST({ request } as any);
+    const response = await POST({ request, cookies: createCookies() } as any);
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toContain("missing");
@@ -100,7 +100,6 @@ describe("Chat API Route", () => {
         done: true,
       });
 
-    const messages: Message[] = [{ role: "user", content: "hi" }];
     const request = new Request("http://localhost/api/chat", {
       method: "POST",
       headers: {
@@ -108,8 +107,7 @@ describe("Chat API Route", () => {
         "Host": "localhost",
       },
       body: JSON.stringify({
-        messages,
-        sessionId: "session-abc",
+        message: "hi",
         attribution: {
           utm_source: "newsletter",
           utm_campaign: "agentes_ai",
@@ -119,7 +117,7 @@ describe("Chat API Route", () => {
       }),
     });
 
-    const response = await POST({ request } as any);
+    const response = await POST({ request, cookies: createCookies() } as any);
     expect(response.status).toBe(200);
 
     // Consume stream to trigger starting start() block functions
@@ -132,13 +130,13 @@ describe("Chat API Route", () => {
     // Verify chat history saved to Redis
     expect(mockSaveChatHistory).toHaveBeenCalled();
     const saveCall = mockSaveChatHistory.mock.calls[0];
-    expect(saveCall[0]).toBe("session-abc");
+    expect(saveCall[0]).toMatch(/^[0-9a-f-]{36}$/);
     expect(saveCall[1][1]).toEqual({ role: "assistant", content: "Hello user" });
 
     // Verify CRM update triggered with correct attribution mapping
     expect(mockUpdateRegisLead).toHaveBeenCalled();
     const regisCall = mockUpdateRegisLead.mock.calls[0];
-    expect(regisCall[0]).toBe("session-abc");
+    expect(regisCall[0]).toBe(saveCall[0]);
     expect(regisCall[2]).toEqual({
       utmSource: "newsletter",
       utmMedium: null,
@@ -162,3 +160,16 @@ describe("Chat API Route", () => {
     expect(sysMsg).toContain("Contexto da URL: vendas_b2b");
   });
 });
+
+function createCookies() {
+  const values = new Map<string, string>();
+  return {
+    get(name: string) {
+      const value = values.get(name);
+      return value ? { value } : undefined;
+    },
+    set(name: string, value: string) {
+      values.set(name, value);
+    },
+  };
+}

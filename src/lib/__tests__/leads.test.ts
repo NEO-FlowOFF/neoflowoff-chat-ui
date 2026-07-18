@@ -105,6 +105,10 @@ describe("Leads Helper", () => {
       nome: "Carlos Silva",
       telefone: "62999999999",
       visitorIntent: "automação de atendimento",
+      produtoInteresse: "Agent SDR",
+      commercialIntent: "action_request",
+      poiDetected: true,
+      poiEvidence: "quero contratar",
       utmCampaign: "agentes_ai",
     };
 

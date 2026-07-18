@@ -23,6 +23,9 @@ da interface soberana NEØ:One.
 ────────────────────────────────────────
 - [x] Histórico limitado a 40 mensagens; handoff controlado por qualificação
   server-side, sem gatilho client-side por contagem de mensagens.
+- [x] Sessão soberana por cookie assinado `HttpOnly`; histórico carregado pelo
+  servidor e rejeição de transcript/session ID controlados pelo cliente.
+- [x] Rate limit distribuído no Redis e parser SSE resiliente a chunks parciais.
 - [x] Background Sync (IndexedDB → retry offline).
 <!-- - [ ] Web Push Notifications (iOS 16.4+) - Inútil para chat síncrono -->
 - [x] Custom Install Trigger (Banner manual para iOS).
@@ -36,6 +39,8 @@ da interface soberana NEØ:One.
 ────────────────────────────────────────
 - [x] RAG Logic: Injeção de manifestos organizacionais.
 - [x] Regis Extraction: Estruturação de dados para CRM.
+- [x] Scoring determinístico v2026-07-18: intenção em sete níveis, lead score
+  por componentes verificáveis, POI com evidência e handoff estrito.
 - [x] Type Safety: Eliminação total de 'any' (Strategic Typing). ✓ zero `any` em produção.
 - [x] Testing: Suíte robusta para rotas de API e Redis. (Vitest/Mocks)
 <!-- - [ ] SDK para identificação do user (Wallet/Redis/Postgres) -->
@@ -54,7 +59,10 @@ da interface soberana NEØ:One.
 - [x] Baseline sanitizado da tabela `leads` registrado em `LEADS_TABLE_REGISTROS.md` com snapshot de 2026-05-27.
 - [x] Campos base de follow-up adicionados em `leads` para não perder oportunidade antes da automação.
 - [ ] OpenAI Ads Measurement Pixel: instalar no `Base.astro` somente com `PUBLIC_OPENAI_ADS_PIXEL_ID` configurado e sem expor dados pessoais.
-- [ ] Eventos de campanha: medir `page_viewed`, `chat_started`, `lead_created`, `appointment_scheduled`, `qualified_lead` e `quote_requested`.
+- [ ] Completar eventos de campanha ainda ausentes: `page_viewed`,
+  `chat_started`, `appointment_scheduled` e `quote_requested`.
+- [x] CAPI de conversão: `Lead` somente na transição para lead e
+  `qualified_lead` somente na transição para qualificado, ambos após consentimento.
 - [ ] Privacidade: não enviar nome, email, telefone, mensagens do chat, prompts ou dados sensíveis para eventos de ads.
 - [ ] Próximo snapshot de `leads`: executar somente sob demanda, usando query sanitizada e sem registrar PII.
 - [x] Deduplicação Meta: `event_id` é compartilhado entre browser e servidor.

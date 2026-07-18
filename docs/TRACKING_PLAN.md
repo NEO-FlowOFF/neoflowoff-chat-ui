@@ -45,8 +45,9 @@ materializa — é o lugar certo para a verdade da conversão.
                 └─────────────────────────────────────────────┘
 ```
 
-**Regra de ouro:** o `event_id` é gerado **uma vez** no browser por evento e
-reaproveitado na chamada server-side. Sem isso, conversões contam em dobro.
+**Regra de ouro:** cada conversão possui um `event_id` único e estável entre as
+camadas que enviarem o mesmo evento. Atualmente as conversões de lead são
+server-side; qualquer espelho futuro no Pixel deve reutilizar o mesmo ID.
 
 ---
 
@@ -75,9 +76,9 @@ somente em uma mudança específica e validada.
    └─ Meta:      `Lead`
 
 └─ qualified_lead
-   ├─ Dispara:   lead vira `qualificado = true`
+   ├─ Dispara:   transição única de `qualificado = false` para `true`
    ├─ GA4 (en):  `qualified_lead`
-   └─ Meta:      `CompleteRegistration`
+   └─ Meta:      `qualified_lead` (custom)
 
 └─ handoff_clicked
    ├─ Dispara:   clique no contato liberado após qualificação server-side
@@ -123,8 +124,23 @@ somente em uma mudança específica e validada.
   - `user_data` **hasheado em SHA-256** (email/telefone normalizados) — o Meta
     exige hash; PII crua nunca trafega.
   - `custom_data` com `utm_*` e valor estimado, se houver.
+- `Lead` é enviado somente quando o registro adquire um contato válido pela
+  primeira vez. `qualified_lead` é enviado somente na primeira qualificação.
+- O envio depende do consentimento persistido. Reprocessar uma conversa não
+  deve reenviar conversões já materializadas.
 
-### 3.3 Variáveis de ambiente
+### 3.3 Contrato de qualificação
+
+- `intent_score`: 0/20/40/60/75/90/100 para ausência de sinal, curiosidade,
+  problema, solução, interesse comercial, pedido de ação e ação urgente.
+- `lead_score`: soma determinística de nome, contato válido, empresa/cargo,
+  dor/necessidade, produto, urgência e UTM.
+- `poi_detected`: exige classificação positiva e trecho literal verificável da
+  conversa; inferência sem evidência é descartada.
+- `qualificado`: requer nome, contato válido, intenção mínima e score mínimo.
+- `handoff`: requer qualificação, WhatsApp válido e intenção comercial explícita.
+
+### 3.4 Variáveis de ambiente
 
 ```text
 PUBLIC_META_PIXEL_ID=   # ID do Pixel (público, vai pro browser)
@@ -132,7 +148,7 @@ META_CAPI_TOKEN=        # Conversions API token (SECRET, server-only)
 META_TEST_EVENT_CODE=   # opcional, p/ validar no Events Manager (Test Events)
 ```
 
-### 3.4 CSP
+### 3.5 CSP
 
 As origens do Meta já estão liberadas em `CSP_DIRECTIVES`
 (`src/middleware.ts`):
