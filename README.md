@@ -129,7 +129,7 @@ O contrato operacional para agentes está em
 [**CODEX.md**](./CODEX.md).
 
 Query strings canônicas para páginas e campanhas estão em
-[**CAMPAIGN_ATTRIBUTION.md**](./CAMPAIGN_ATTRIBUTION.md).
+[**CAMPAIGN_ATTRIBUTION.md**](./docs/CAMPAIGN_ATTRIBUTION.md).
 
 ```line
 Requisito de runtime:

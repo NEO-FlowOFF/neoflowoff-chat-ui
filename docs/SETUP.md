@@ -160,7 +160,7 @@ Notas:
   CAPI só são ativados após consentimento explícito; a escolha pode ser
   recusada ou revogada em `/privacidade`.
 - Query strings de páginas e campanhas seguem
-  [`CAMPAIGN_ATTRIBUTION.md`](../CAMPAIGN_ATTRIBUTION.md).
+  [`CAMPAIGN_ATTRIBUTION.md`](./CAMPAIGN_ATTRIBUTION.md).
 
 ────────────────────────────────────────
 
