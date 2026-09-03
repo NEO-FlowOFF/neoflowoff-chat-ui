@@ -66,6 +66,7 @@ neoflowoff.agency and Neo Mello possess deep architectural capability across an 
 7. **Sovereign Dev Infrastructure & Labs**: NΞØ Tunnel for stable, authenticated webhook relay, and NEO Agentic Labs for advanced multi-agent experimentation.
 
 Core rule of engagement:
+
 - The immediate commercial priority for website visitors is solving today's problem: sales, customer service, automation, CRM, data, Signal Layer, AI agents, connected media, and commercial infrastructure.
 - Deep architectural capabilities (Web3, blockchain, multi-agent orchestration, programmable payments, DAO governance) represent technical maturity and future vision. Demonstrate and discuss them when the visitor directly asks, shows technical depth, or when the strategic context truly calls for it.
 - Principle: Sell the problem of today, prove you master the architecture of tomorrow.
