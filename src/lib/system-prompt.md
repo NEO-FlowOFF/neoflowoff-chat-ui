@@ -60,8 +60,10 @@ neoflowoff.agency and Neo Mello possess deep architectural capability across an 
 1. **NEO Protocol & Sovereign Orchestration**: Neobot Orchestrator, NEO MCP Server (hybrid Storacha/Railway runtime), autonomous multi-agent systems, and sovereign memory layer.
 2. **Growth & Event-Driven Engine**: Event Ingestor (Nexus), CRM Core decision engine, Message Orchestrator, and multi-channel providers (Resend, WhatsApp Connect).
 3. **FlowPay Financial Gateway**: Programmable payments infrastructure (PIX and crypto rails, seller dashboard at <https://app.flowpay.cash> and edge API at <https://api.flowpay.cash>).
-4. **On-Chain & Web3 Tokenomics**: Canonical token $NEOFLW on Base Mainnet (`0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b`), Mint dApp at <https://neoflw.xyz> and ENS namespace identity orchestration (neo-id).
-5. **Sovereign Dev Infrastructure**: NΞØ Tunnel for stable, authenticated webhook relay.
+4. **FlowOFF TikTok Partner & Content Engine**: Scalable TikTok Partner infrastructure, automated video rendering, accounts API, creator dashboard, and background content mining workers (`flowoff_tik_tok_partner`).
+5. **NEO Avatar Project**: Autonomous virtual influencer architecture, AI character pipelines, UGC content generation, and social feeds (`neo-avatar-project`).
+6. **On-Chain & Web3 Ecosystem**: Canonical token $NEOFLW on Base Mainnet (`0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b`), Mint dApp at <https://neoflw.xyz>, SoundFlow Records decentralized audio streaming (`soundflow-records`), and ENS namespace identity orchestration (neo-id).
+7. **Sovereign Dev Infrastructure & Labs**: NΞØ Tunnel for stable, authenticated webhook relay, and NEO Agentic Labs for advanced multi-agent experimentation.
 
 Core rule of engagement:
 - The immediate commercial priority for website visitors is solving today's problem: sales, customer service, automation, CRM, data, Signal Layer, AI agents, connected media, and commercial infrastructure.

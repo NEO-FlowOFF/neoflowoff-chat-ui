@@ -246,6 +246,31 @@
       "name": "NΞØ Tunnel",
       "domain": "https://tunnel.neoprotocol.space",
       "role": "Infraestrutura soberana de tunelamento e relay de webhooks autenticados."
+    },
+    "tiktok_partner_operation": {
+      "name": "FlowOFF TikTok Partner",
+      "cluster": "flowoff_tik_tok_partner",
+      "role": "Operação escalável de TikTok Partner, automação de conteúdo, mineração de dados, dashboard de criadores, engine de vídeo e workers de publicação assíncrona."
+    },
+    "avatar_virtual_influencers": {
+      "name": "NEO Avatar Project",
+      "cluster": "neo-avatar-project",
+      "role": "Pipeline e infraestrutura de influenciadores virtuais e avatares com IA, geração de conteúdo UGC e feeds sociais autônomos."
+    },
+    "soundflow_records": {
+      "name": "SoundFlow Records",
+      "cluster": "soundflow-records",
+      "role": "Gravadora digital e plataforma descentralizada de streaming e distribuição musical Web3."
+    },
+    "agentic_labs": {
+      "name": "NEO Agentic Labs",
+      "cluster": "neo-agentic-labs",
+      "role": "Laboratório avançado de pesquisa, experimentação e validação de agentes autônomos e multi-agent systems."
+    },
+    "governance_dao": {
+      "name": "FluxxDAO",
+      "cluster": "FluxxDAO",
+      "role": "Protocolo de governança descentralizada, tesouraria e staking DAO."
     }
   }
 }
