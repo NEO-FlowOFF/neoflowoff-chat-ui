@@ -152,7 +152,7 @@ export async function sendHandoffNotification(lead: Lead): Promise<void> {
     <div style="background:#ffefe5;border-left:4px solid #ff5500;padding:12px 16px;border-radius:4px;margin-bottom:20px;">
       <span style="color:#cc4400;font-weight:700;font-size:14px;">🚨 SPEED-TO-LEAD &lt; 1 MINUTO — Venda Quente</span>
     </div>
-    <h2 style="color:#000;font-size:20px;font-weight:700;letter-spacing:-0.5px;margin:0 0 6px;">NΞØ:One — Lead Qualificado</h2>
+    <h2 style="color:#000;font-size:20px;font-weight:700;letter-spacing:-0.5px;margin:0 0 6px;">NEØ:One — Lead Qualificado</h2>
     <p style="font-size:13px;color:#888;margin:0 0 24px;">Um visitante qualificado acabou de informar seus dados no chat.</p>
     
     <div style="background:#f9f9f9;padding:20px;border-radius:6px;border:1px solid #f0f0f0;margin-bottom:24px;">
@@ -206,7 +206,7 @@ export async function sendVisitorConfirmation(lead: Lead): Promise<void> {
     <h2 style="color:#000;font-size:20px;font-weight:700;letter-spacing:-0.5px;margin:0 0 20px;">Contato registrado ✓</h2>
     <p style="font-size:15px;color:#444;line-height:1.7;margin-bottom:20px;">
       Olá${nome}.<br/><br/>
-      Sua mensagem foi recebida pela NΞØ:One e seu contato foi registrado com sucesso.<br/>
+      Sua mensagem foi recebida pela NEØ:One e seu contato foi registrado com sucesso.<br/>
       <strong>Neo Mello</strong> vai entrar em contato em breve pelo canal que você preferir.
     </p>
     <div style="background:#f9f9f9;padding:16px 20px;border-radius:6px;border:1px solid #f0f0f0;margin-bottom:24px;">

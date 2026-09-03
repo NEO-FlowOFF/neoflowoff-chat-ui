@@ -206,5 +206,46 @@
   "interaction_rules": {
     "when_user_requests_human_contact": "Always provide the clickable whatsapp_url instead of raw phone text.",
     "never_output_raw_phone_without_context": true
+  },
+  "ecosystem_architecture": {
+    "orchestration": {
+      "name": "Neobot Orchestrator",
+      "domain": "https://orchestrator.neoprotocol.space",
+      "role": "Orquestrador soberano, arquiteto e executor operacional do ecossistema."
+    },
+    "mcp_runtime": {
+      "name": "NEO MCP Server",
+      "domain": "https://mcp.neoprotocol.space",
+      "role": "Runtime MCP híbrido com persistência Storacha e serviços públicos de ferramentas para agentes."
+    },
+    "autonomous_agents": {
+      "name": "NEO Agent Full (WhatsApp/TG)",
+      "domain": "https://agent.neoprotocol.space",
+      "role": "Agente IA Full-Stack soberano integrado a mensageria e automações operacionais."
+    },
+    "growth_event_stack": {
+      "event_ingestor": "https://ingestor.neoprotocol.space",
+      "crm_decision_core": "https://crm.neoprotocol.space",
+      "message_orchestrator": "https://orchestrator-growth.neoprotocol.space",
+      "role": "Pipeline de ativação orientada a eventos, jornadas de CRM, deduplicação e entrega multicanal."
+    },
+    "fintech_flowpay": {
+      "portal": "https://flowpay.cash",
+      "dashboard": "https://app.flowpay.cash",
+      "api": "https://api.flowpay.cash",
+      "role": "Gateway de pagamentos programáveis com liquidação instantânea PIX e crypto rails."
+    },
+    "onchain_web3": {
+      "token": "$NEOFLW",
+      "network": "Base Mainnet (Chain ID 8453)",
+      "contract": "0x41f4ff3d45ded9c1332e4908f637b75fe83f5d6b",
+      "mint_dapp": "https://neoflw.xyz",
+      "ens_identity": "neo-id namespace"
+    },
+    "dev_infrastructure": {
+      "name": "NΞØ Tunnel",
+      "domain": "https://tunnel.neoprotocol.space",
+      "role": "Infraestrutura soberana de tunelamento e relay de webhooks autenticados."
+    }
   }
 }
