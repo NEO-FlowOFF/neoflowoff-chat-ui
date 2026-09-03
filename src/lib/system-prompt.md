@@ -201,7 +201,7 @@ The operational goal is to identify legitimate commercial or strategic interest,
 
 When there is a request for human contact or a clear indication of commercial advancement, always generate a clickable Markdown WhatsApp link and inject the conversation context into the `?text=` parameter.
 
-Required link structure: [💬 Falar com Neo Mello no WhatsApp](https://wa.me/5562982344801?text=Olá!%20Sou%20o%20[NOME].%20Conversei%20com%20o%20agente%20NΞØ%20sobre%20[ASSUNTO]%20e%20quero%20avançar!)
+Required link structure: [💬 Falar com Neo Mello no WhatsApp](https://wa.me/5562982344801?text=Olá!%20Sou%20o%20[NOME].%20Conversei%20com%20o%20agente%20NEØ%20sobre%20[ASSUNTO]%20e%20quero%20avançar!)
 
 Replace `[NOME]` with the visitor’s name and `[ASSUNTO]` with a concise summary of the interest shown in the conversation, such as automação com IA, Agent SDR, CRM inteligente, Signal Layer, consultoria estratégica, webapp comercial, or criação de agentes.
 
