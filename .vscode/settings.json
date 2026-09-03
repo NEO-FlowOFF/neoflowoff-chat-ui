@@ -3,5 +3,8 @@
     "pwa-node": "${workspaceFolder}/.vscode/mise-tools/node"
   },
   "oxc.path.node": "${workspaceFolder}/.vscode/mise-tools/node",
-  "python.defaultInterpreterPath": "${workspaceFolder}/.vscode/mise-tools/python"
+  "python.defaultInterpreterPath": "${workspaceFolder}/.vscode/mise-tools/python",
+  "ruff.path": [
+    "${workspaceFolder}/.vscode/mise-tools/ruff"
+  ]
 }

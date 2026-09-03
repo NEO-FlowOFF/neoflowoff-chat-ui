@@ -12,35 +12,25 @@
 Status:  ACTIVE
 Version: v1.2.1
 Type:    PWA (Progressive Web App)
+Deploy:  Railway (Node Standalone SSR)
 ========================================
 ```
 
 ## ⟠ Objetivo
 
-Interface de atendimento do agente NEØ:One — assistente de
-primeiro contato da NEO FlowOFF, agência especializada em
-automação de marketing e infraestrutura digital autônoma.
+Interface de atendimento do agente NEØ:One — assistente de primeiro contato da NEO FlowOFF, agência especializada em automação de marketing e infraestrutura digital autônoma.
 
-O sistema opera como um front-end direto (estilo ChatGPT), focado
-em proporcionar uma experiência humana, consultiva e de alta
-conversão para empresários e visionários.
+O sistema opera como um front-end direto (estilo ChatGPT), focado em proporcionar uma experiência humana, consultiva e de alta conversão para empresários e visionários.
 
-O agente integra o **Neo Growth System**, ecossistema comercial
-arquitetado por Neo Mello e distribuído pela neoflowoff.agency.
-A oferta ativa de implementação Agent SDR está publicada em
-`https://sdr.neoflowoff.agency` e vai além da conversa: conecta
-aquisição, sinais, leads, CRM, mensuração e handoff humano.
+O agente integra o **Neo Growth System**, ecossistema comercial arquitetado por Neo Mello e distribuído pela neoflowoff.agency. A oferta ativa de implementação Agent SDR está publicada em `https://sdr.neoflowoff.agency` e vai além da conversa: conecta aquisição, sinais, leads, CRM, mensuração e handoff humano.
 
-A neoflowoff.agency possui reconhecimento **Meta Tech Provider**.
-O ativo comprobatório interno está em
-`public/badge_meta_tech_provider.png`; ele não precisa ser renderizado
-na interface para compor o contexto factual do agente.
+A neoflowoff.agency possui reconhecimento **Meta Tech Provider**. O ativo comprobatório interno está em `public/badge_meta_tech_provider.png`; ele não precisa ser renderizado na interface para compor o contexto factual do agente.
 
-```text
 ────────────────────────────────────────
 
 ## ⧉ Diferenciais
 
+```text
 ▓▓▓ CAPACIDADES
 ────────────────────────────────────────
 └─ Respostas em tempo real e inteligentes.
@@ -49,11 +39,13 @@ na interface para compor o contexto factual do agente.
 └─ Interface mobile-first ultra-rápida (PWA).
 └─ Tema dark-only com linguagem visual monolítica.
 └─ Foco total em ROI e escala de negócios.
-
-────────────────────────────────────────
 ```
 
-```graph
+────────────────────────────────────────
+
+## ⨷ Fluxo de Execução
+
+```mermaid
 graph TD
     Client[Browser /chat] -->|POST /api/chat| API[src/pages/api/chat.ts]
     API -->|Lê no Servidor| SP[src/lib/system-prompt.md]
@@ -62,10 +54,11 @@ graph TD
     FinalPrompt -->|Injetado no topo das mensagens| LLM[API da LLM / Completions]
 ```
 
+────────────────────────────────────────
+
 ## ⬡ Segurança
 
 ```text
-────────────────────────────────────────
 ▓▓▓ HEADERS HTTP (middleware.ts)
 ────────────────────────────────────────
 └─ Strict-Transport-Security  max-age=31536000; includeSubDomains
@@ -88,14 +81,13 @@ graph TD
 └─ /api/                      bloqueado para todos
 └─ GPTBot, ClaudeBot, CCBot   bloqueados
 └─ Google-Extended, Bytespider bloqueados
-
-────────────────────────────────────────
 ```
 
-## ◈ SEO
+────────────────────────────────────────
+
+## ◈ SEO & Indexação
 
 ```text
-────────────────────────────────────────
 ▓▓▓ INDEXAÇÃO
 ────────────────────────────────────────
 └─ Canonical      https://chat.neoflowoff.agency/chat
@@ -109,34 +101,30 @@ graph TD
 ────────────────────────────────────────
 └─ EmptyState.astro contém texto indexável via CSS clip
    (invisível ao usuário, legível pelo Googlebot)
+```
 
 ────────────────────────────────────────
-```
 
 ## ⬢ Mensuração e Privacidade
 
-GA4, Meta Pixel e Meta CAPI integram a camada de mensuração. Analytics e
-eventos de marketing permanecem desativados até o visitante aceitar; a escolha
-pode ser recusada ou revogada na rota pública `/privacidade`.
-O chat continua operacional sem consentimento de marketing.
+GA4, Meta Pixel e Meta CAPI integram a camada de mensuração. Analytics e eventos de marketing permanecem desativados até o visitante aceitar; a escolha pode ser recusada ou revogada na rota pública `/privacidade`. O chat continua operacional sem consentimento de marketing.
+
+────────────────────────────────────────
 
 ## ◬ Documentação
 
-Para detalhes de infraestrutura, stack técnica, variáveis e comandos de
-desenvolvimento, consulte [**docs/SETUP.md**](./docs/SETUP.md).
+Para detalhes de infraestrutura, stack técnica, variáveis e comandos de desenvolvimento, consulte [**docs/SETUP.md**](./docs/SETUP.md).
 
-O contrato operacional para agentes está em
-[**CODEX.md**](./CODEX.md).
+O contrato operacional para agentes está em [**CODEX.md**](./CODEX.md) e [**CLAUDE.md**](./CLAUDE.md).
 
-Query strings canônicas para páginas e campanhas estão em
-[**CAMPAIGN_ATTRIBUTION.md**](./docs/CAMPAIGN_ATTRIBUTION.md).
+Query strings canônicas para páginas e campanhas estão em [**CAMPAIGN_ATTRIBUTION.md**](./docs/CAMPAIGN_ATTRIBUTION.md).
 
-```line
+```text
 Requisito de runtime:
-└─ Node.js `>=22.12.0`
+└─ Node.js >=22.12.0
+```
 
 ────────────────────────────────────────
-```
 
 ```text
 ▓▓▓ Neo Mello

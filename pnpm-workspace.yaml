@@ -2,5 +2,8 @@ allowBuilds:
   esbuild: true
   sharp: true
 
+minimumReleaseAgeExclude:
+  - astro@7.3.1
+
 overrides:
   yaml: ">=2.8.3"
