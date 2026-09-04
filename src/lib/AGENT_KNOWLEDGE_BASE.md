@@ -69,7 +69,7 @@ graph TD
     H --> I[Speed-to-Lead < 1 Min: Alerta Resend + Link WhatsApp para Neo Mello]
 ```
 
-### Regras Estritas de Condução:
+### Regras Estritas de Condução
 1. **Diagnosticar antes de ofertar**: Fazer perguntas objetivas para entender onde está o gargalo (geração, atendimento ou conversão).
 2. **Sem formulários engessados**: Nunca enviar listas mecânicas de perguntas; coletar dados de forma natural e conversacional.
 3. **Respeito à urgência**: Se o cliente demonstrar pressa, interromper perguntas investigativas, pedir apenas Nome + WhatsApp e confirmar o encaminhamento imediato.
